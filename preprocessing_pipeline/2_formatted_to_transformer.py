@@ -40,7 +40,7 @@ from tqdm import tqdm
 
 import sys
 sys.path.append(".")
-from icd9 import ICD9
+# from icd9 import ICD9
 
 
 try:
@@ -143,8 +143,6 @@ def xbert_create_label_map(icd_version, diag_or_proc_param):
             icd9_df = pd.read_csv(ICD9_PROC_KEY_FP, usecols=[
                                   'ICD9_CODE', 'LONG_TITLE']).astype(str)
 
-        icd9_df = add_icd9_category_to_desc(icd9_df, icd9_hierarch_tree, diag_or_proc_param)
-
         desc_labels = icd9_df['combined_title']
         assert desc_labels.shape == desc_labels.dropna().shape, 'N/A values found in label descriptions!'
         icd_labels = icd9_df['ICD9_CODE']
@@ -152,90 +150,6 @@ def xbert_create_label_map(icd_version, diag_or_proc_param):
 
     return icd_labels, desc_labels
 
-
-
-def shorten_mimic_codes(row):
-    row = row[:3]
-    return row
-
-
-def get_icd9_cat_desc(category, icd9_hierarch_tree):
-    node = icd9_hierarch_tree.find(category)
-    # some ICD codes missing from icd9 package
-    desc = node.description if node != None else ''
-    return desc
-
-
-def get_icd9_parent_cat_desc(category, icd9_hierarch_tree):
-    node = icd9_hierarch_tree.find(category)
-    # some ICD codes may be missing from icd9 package
-    if node != None:
-        desc = node.parent.description if node.parent != None else ''
-    else:
-        desc = ''
-
-    if desc == 'ROOT':
-        desc = ''
-    return desc
-
-def get_icd9_grandparent_cat_desc(category, icd9_hierarch_tree):
-    node = icd9_hierarch_tree.find(category)
-    # some ICD codes may be missing from icd9 package
-    if node != None and node.parent != None: 
-        desc = node.parent.parent.description if node.parent.parent != None else ''
-    else:
-        desc = ''
-    return desc
-
-def add_icd9_category_to_desc(icd9_df, icd9_hierarch_tree, diag_or_proc_param):
-
-    icd9_df['ICD9_CODE'] = icd9_df['ICD9_CODE'].astype(str)  # make code str
-    tqdm.pandas(desc="Getting categories...")
-    icd9_df['cat_num'] = icd9_df.ICD9_CODE.apply(shorten_mimic_codes)
-    if diag_or_proc_param == 'proc':
-        icd9_df['cat_num'] = icd9_df['cat_num'].str.slice_replace(
-            start=2, stop=2, repl='.')  # match JSON
-    icd9_df.dropna()
-    unique_icds = icd9_df['cat_num'].unique()
-
-    logger.info(
-        f'Loading {len(unique_icds)} unique icd catagories and descriptions...')
-    category2icd_code: Dict[str, str] = {}
-    parent_category2icd_code: Dict[str,str] = {}
-    grandparent_category2icd_code: Dict[str,str] = {}
-
-
-    null_count = 0
-    for icd_cat in tqdm(unique_icds):
-        desc = get_icd9_cat_desc(
-            icd_cat, icd9_hierarch_tree)
-        parent_desc = get_icd9_parent_cat_desc(
-            icd_cat, icd9_hierarch_tree)
-        grandparent_desc = get_icd9_grandparent_cat_desc(
-            icd_cat, icd9_hierarch_tree)
-
-        category2icd_code[icd_cat] = desc
-        parent_category2icd_code[icd_cat]=parent_desc
-        if grandparent_desc != 'ROOT':
-            grandparent_category2icd_code[icd_cat] = grandparent_desc 
-        else:
-            grandparent_category2icd_code[icd_cat] = ''
-
-        if desc == '' or parent_desc == '' or grandparent_desc == '':
-            null_count += 1
-    logger.info(
-        f'{null_count} of {len(category2icd_code)} MIMIC categories couldn\'t be assigned.')
-    logger.info('Assigning category descriptions...')
-    icd9_df['cat_desc'] = [category2icd_code[i] for i in icd9_df['cat_num']]
-    icd9_df['parent_cat_desc'] = [parent_category2icd_code[i] for i in icd9_df['cat_num']]
-    icd9_df['grandparent_cat_desc'] = [grandparent_category2icd_code[i]
-                                       for i in icd9_df['cat_num']]
-    icd9_df['combined_title'] = icd9_df['grandparent_cat_desc'] + ' ' \
-                                + icd9_df['parent_cat_desc'] + ' ' \
-                                + icd9_df['cat_desc'] + \
-        ' ' + icd9_df['LONG_TITLE']
-
-    return icd9_df
 
 def xbert_prepare_Y_maps(df, icd_labels, icd_version):
     """Creates a binary mapping of
