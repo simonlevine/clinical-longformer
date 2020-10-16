@@ -6,6 +6,8 @@ from transformers import BertModel, BertTokenizer, TextDataset, DataCollatorForL
 from transformers import TrainingArguments, HfArgumentParser
 from transformers.modeling_longformer import LongformerSelfAttention
 import yaml
+import tensorflow as tf
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -55,7 +57,6 @@ class BertLongModel(BertModel):
             layer.attention.self = BertLongSelfAttention(config, layer_id=i)
 
 
-import tensorflow as tf
 def create_long_model(save_model_to, attention_window, max_pos, model_path_args):
     model = BertForQuestionAnswering.from_pretrained(model_path_args)
     tokenizer = AutoTokenizer.from_pretrained(model_path_args)
