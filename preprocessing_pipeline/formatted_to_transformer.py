@@ -38,6 +38,8 @@ import numpy as np
 from loguru import logger
 from tqdm import tqdm
 
+import scipy.spare
+
 import sys
 sys.path.append(".")
 # from icd9 import ICD9

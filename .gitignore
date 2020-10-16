@@ -4,3 +4,4 @@ intermediary-data/notes2diagnosis-icd-test.json.gz
 intermediary-data/notes2diagnosis-icd-train.json.gz
 data/intermediary-data/filtered_notes/NOTEEVENTS.FILTERED.csv.gz
 *.csv
+*.txt
