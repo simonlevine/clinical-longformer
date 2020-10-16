@@ -1,0 +1,7 @@
+/L.pifa-tfidf.npz
+/C.trn.pifa-tfidf-s0.npz
+/C.tst.pifa-tfidf-s0.npz
+/X.trn.bert.pkl
+/X.tst.bert.pkl
+/X.trn.tomodel.pkl
+/X.tst.tomodel.pkl
