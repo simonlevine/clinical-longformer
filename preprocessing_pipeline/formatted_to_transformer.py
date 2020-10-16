@@ -100,7 +100,7 @@ def main():
         df_test, icd_labels.tolist(), icd_version_specified)
 
     xbert_write_preproc_data_to_file(
-        desc_labels, X_trn, X_tst, X_trn_embedded, X_tst_embedded, Y_trn_map, Y_tst_map, label_emb_param)
+        desc_labels, X_trn, X_tst, Y_trn_map, Y_tst_map, label_emb_param)
 
     logger.info(
         'Done preprocessing. Saving pickled dataframes to file for later postprocessing.'
@@ -143,7 +143,7 @@ def xbert_create_label_map(icd_version, diag_or_proc_param):
             icd9_df = pd.read_csv(ICD9_PROC_KEY_FP, usecols=[
                                   'ICD9_CODE', 'LONG_TITLE']).astype(str)
 
-        desc_labels = icd9_df['combined_title']
+        desc_labels = icd9_df['LONG_TITLE']
         assert desc_labels.shape == desc_labels.dropna().shape, 'N/A values found in label descriptions!'
         icd_labels = icd9_df['ICD9_CODE']
         assert icd_labels.shape == icd_labels.dropna().shape , 'N/A values found in ICD code labels!'
@@ -190,7 +190,7 @@ def xbert_prepare_txt_inputs(df, df_subset):
     raw_texts = df[['TEXT']].replace(r'\n', ' ', regex=True)  # train stage expects each example to fit on a single line
     return raw_texts
 
-def xbert_write_preproc_data_to_file(desc_labels, X_trn, X_tst, X_trn_embedded, X_tst_embedded, Y_trn, Y_tst, label_emb_param):
+def xbert_write_preproc_data_to_file(desc_labels, X_trn, X_tst, Y_trn, Y_tst, label_emb_param):
     """Creates X_trn/X_tst TF-IDF vectors, (csr/npz files),
     Y_trn/Y_tst (binary array; csr/npz files), as well as
     .txt files for free text labels (label_map.txt) and train/test inputs (train/test_raw_texts)
