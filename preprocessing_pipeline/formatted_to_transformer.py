@@ -38,7 +38,7 @@ import numpy as np
 from loguru import logger
 from tqdm import tqdm
 
-import scipy.spare
+import scipy.sparse
 
 import sys
 sys.path.append(".")

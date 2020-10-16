@@ -5,3 +5,5 @@ intermediary-data/notes2diagnosis-icd-train.json.gz
 data/intermediary-data/filtered_notes/NOTEEVENTS.FILTERED.csv.gz
 *.csv
 *.txt
+data/intermediary-data/xbert_inputs/Y.trn.npz
+*.npz
