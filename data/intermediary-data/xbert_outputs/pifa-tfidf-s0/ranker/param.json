@@ -1,8 +1,0 @@
-{
- "model": "HierarchicalMLModel",
- "depth": 1,
- "nr_features": 64491,
- "nr_codes": 64,
- "nr_labels": 3882,
- "bias": 1.0
-}
