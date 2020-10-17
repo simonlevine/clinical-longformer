@@ -18,7 +18,6 @@ from torchnlp.utils import collate_tensors, lengths_to_mask
 from utils import mask_fill
 
 
-
 class Classifier(pl.LightningModule):
     """
     Sample model to show how to use a Transformer model to classify sentences.
@@ -34,9 +33,8 @@ class Classifier(pl.LightningModule):
 
             # Label Encoder
 
-            Need to change to accommodate multilabel
             self.label_encoder = LabelEncoder(
-                pd.read_csv(self.hparams.train_csv).label.unique().tolist(), 
+                pd.read_csv(self.hparams.train_csv).ICD9_CODE.unique().tolist(), 
                 reserved_labels=[]
             )
 
@@ -49,8 +47,7 @@ class Classifier(pl.LightningModule):
             
             :return: List of records as dictionaries
             """
-            df = pd.read_pickle('path').drop('CATEGORY',axis=1)
-            test_data = pd.read_pickle('/Users/simon/GitHub/11785-project/data/intermediary-data/notes2diagnosis-icd-test_df').drop('CATEGORY',axis=1)
+            df = pd.read_csv(path)
             df = df[["TEXT", "ICD9_CODE"]]
             df = df.rename(columns={'TEXT':'text', 'ICD9_CODE':'label'})
             df["text"] = df["text"].astype(str)
@@ -124,11 +121,13 @@ class Classifier(pl.LightningModule):
 
         # Classification head
         self.classification_head = nn.Sequential(
+
             nn.Linear(self.encoder_features, self.encoder_features * 2),
             nn.Tanh(),
             nn.Linear(self.encoder_features * 2, self.encoder_features),
             nn.Tanh(),
             nn.Linear(self.encoder_features, self.data.label_encoder.vocab_size),
+            
         )
 
     def __build_loss(self):

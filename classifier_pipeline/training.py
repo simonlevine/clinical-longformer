@@ -66,6 +66,8 @@ def main(hparams) -> None:
     # 5 INIT TRAINER
     # ------------------------
     trainer = Trainer(
+        fast_dev_run=True,
+
         logger=tb_logger,
         checkpoint_callback=True,
         early_stop_callback=early_stop_callback,
@@ -74,7 +76,6 @@ def main(hparams) -> None:
         log_gpu_memory="all",
         deterministic=True,
         check_val_every_n_epoch=1,
-        fast_dev_run=False,
         accumulate_grad_batches=hparams.accumulate_grad_batches,
         max_epochs=hparams.max_epochs,
         min_epochs=hparams.min_epochs,

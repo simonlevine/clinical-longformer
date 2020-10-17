@@ -49,9 +49,9 @@ def load_and_serialize_dataset():
     basedir_outpath.mkdir(exist_ok=True)
 
     for df_, type_ in [(df_train, "train"), (df_val,"validate",), (df_test, "test")]:
-        fp_out = basedir_outpath/f"notes2diagnosis-icd-{type_}_df"
-        logger.info('Saving pickled dataframes...')
-        df_.to_pickle(fp_out)
+        fp_out = basedir_outpath/f"notes2diagnosis-icd-{type_}.csv"
+        logger.info('Saving dataframes to CSV...')
+        df_.to_csv(fp_out)
     
 
 def construct_datasets(diag_or_proc_param, note_category_param, subsampling_param):
