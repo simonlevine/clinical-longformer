@@ -65,25 +65,25 @@ class Classifier(pl.LightningModule):
                 num_workers=self.hparams.loader_workers,
             )
 
-        def val_dataloader(self) -> DataLoader:
-            """ Function that loads the validation set. """
-            self._dev_dataset = self.get_mimic_data(self.hparams.dev_csv)
-            return DataLoader(
-                dataset=self._dev_dataset,
-                batch_size=self.hparams.batch_size,
-                collate_fn=self.classifier.prepare_sample,
-                num_workers=self.hparams.loader_workers,
-            )
+        # def val_dataloader(self) -> DataLoader:
+        #     """ Function that loads the validation set. """
+        #     self._dev_dataset = self.get_mimic_data(self.hparams.dev_csv)
+        #     return DataLoader(
+        #         dataset=self._dev_dataset,
+        #         batch_size=self.hparams.batch_size,
+        #         collate_fn=self.classifier.prepare_sample,
+        #         num_workers=self.hparams.loader_workers,
+        #     )
 
-        def test_dataloader(self) -> DataLoader:
-            """ Function that loads the validation set. """
-            self._test_dataset = self.get_mimic_data(self.hparams.test_csv)
-            return DataLoader(
-                dataset=self._test_dataset,
-                batch_size=self.hparams.batch_size,
-                collate_fn=self.classifier.prepare_sample,
-                num_workers=self.hparams.loader_workers,
-            )
+        # def test_dataloader(self) -> DataLoader:
+        #     """ Function that loads the validation set. """
+        #     self._test_dataset = self.get_mimic_data(self.hparams.test_csv)
+        #     return DataLoader(
+        #         dataset=self._test_dataset,
+        #         batch_size=self.hparams.batch_size,
+        #         collate_fn=self.classifier.prepare_sample,
+        #         num_workers=self.hparams.loader_workers,
+        #     )
 
     def __init__(self, hparams: Namespace) -> None:
         super(Classifier, self).__init__()
