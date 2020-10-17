@@ -89,7 +89,7 @@ def main():
         format_data_for_training.construct_datasets(
             diag_or_proc_param, note_category_param, subsampling_param)
 
-    label_emb_param = params['label_emb']
+    # label_emb_param = params['label_emb']
 
     X_trn = xbert_prepare_txt_inputs(df_train, 'training')
     X_tst = xbert_prepare_txt_inputs(df_test, 'testing')
@@ -102,7 +102,7 @@ def main():
         df_test, icd_labels.tolist(), icd_version_specified)
 
     xbert_write_preproc_data_to_file(
-        desc_labels, X_trn, X_tst, Y_trn_map, Y_tst_map, label_emb_param)
+        desc_labels, X_trn, X_tst, Y_trn_map, Y_tst_map)
 
     logger.info(
         'Done preprocessing. Saving pickled dataframes to file for later postprocessing.'
@@ -192,7 +192,7 @@ def xbert_prepare_txt_inputs(df, df_subset):
     raw_texts = df[['TEXT']].replace(r'\n', ' ', regex=True)  # train stage expects each example to fit on a single line
     return raw_texts
 
-def xbert_write_preproc_data_to_file(desc_labels, X_trn, X_tst, Y_trn, Y_tst, label_emb_param):
+def xbert_write_preproc_data_to_file(desc_labels, X_trn, X_tst, Y_trn, Y_tst):
     """Creates X_trn/X_tst TF-IDF vectors, (csr/npz files),
     Y_trn/Y_tst (binary array; csr/npz files), as well as
     .txt files for free text labels (label_map.txt) and train/test inputs (train/test_raw_texts)

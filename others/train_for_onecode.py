@@ -17,41 +17,45 @@ from torch_lr_finder import LRFinder
 
 
 def main():
-    tokenizer = AutoTokenizer.from_pretrained("marrrcin/PolBERTa-base-polish-cased-v1")
-    model     = AutoModelWithLMHead.from_pretrained("marrrcin/PolBERTa-base-polish-cased-v1")
+    tokenizer = AutoTokenizer.from_pretrained("simonlevine/biomed_roberta_base-4096-speedfix")
+    model     = AutoModelWithLMHead.from_pretrained("simonlevine/biomed_roberta_base-4096-speedfix")
 
-    classifier = PolBERTaSentimentModel(AutoModelWithLMHead.from_pretrained("marrrcin/PolBERTa-base-polish-cased-v1").roberta, 3)
+    classifier = MyRobertaModel(model.roberta, n_classes=3)
+
     X = torch.tensor(enc["input_ids"]).unsqueeze(0)
     attn = torch.tensor(enc["attention_mask"]).unsqueeze(0)
-
 
     train_path, val_path, test_path = [f"dataset_conll/all.text.{d}.txt" for d in ("train", "dev", "test")]
 
     df = pd.read_csv(train_path, sep="__label__", header=None, names=["text", "label"], engine="python")
 
 
-    hparams_tmp = Namespace(
-    train_path=train_path,
-    val_path=val_path,
-    test_path=test_path,
-    batch_size=8,
-    warmup_steps=100,
-    epochs=3,
-    lr=lr,
-    accumulate_grad_batches=1,
-    )
 
-    # finding_LR:
+    # # finding_LR:
 
-    module = TrainingModule(hparams_tmp)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = AdamW(module.parameters(), lr=5e-7)
-    lr_finder = LRFinder(module, optimizer, criterion, device="cuda")
-    lr_finder.range_test(module.train_dataloader(), end_lr=100, num_iter=100, accumulation_steps=hparams_tmp.accumulate_grad_batches)
-    lr_finder.plot()
-    lr_finder.reset()
+    # hparams_tmp = Namespace(
+    # train_path=train_path,
+    # val_path=val_path,
+    # test_path=test_path,
+    # batch_size=8,
+    # warmup_steps=100,
+    # epochs=3,
+    # lr=lr,
+    # accumulate_grad_batches=1,
+    # )
 
-    #atual training
+
+    # module = TrainingModule(hparams_tmp)
+    # criterion = nn.CrossEntropyLoss()
+    # optimizer = AdamW(module.parameters(), lr=5e-7)
+    # lr_finder = LRFinder(module, optimizer, criterion, device="cuda")
+    # lr_finder.range_test(module.train_dataloader(), end_lr=100, num_iter=100, accumulation_steps=hparams_tmp.accumulate_grad_batches)
+    # lr_finder.plot()
+    # lr_finder.reset()
+
+
+    ################
+    # actual training
     hparams = Namespace(
     train_path=train_path,
     val_path=val_path,
@@ -71,7 +75,6 @@ def main():
 
 
     #evaluation...
-
     with torch.no_grad():
     progress = ["/", "-", "\\", "|", "/", "-", "\\", "|"]
     module.eval()
@@ -143,7 +146,7 @@ class TokenizersCollateFn:
         return (sequences_padded, attention_masks_padded), labels
 
 
-class PolEmo2Dataset(Dataset):
+class MIMICDataset(Dataset):
     def __init__(self, path):
         super().__init__()
         self.data_column = "text"
@@ -219,3 +222,7 @@ class TrainingModule(pl.LightningModule):
                     num_training_steps=self.total_steps(),
         )
         return [optimizer], [{"scheduler": lr_scheduler, "interval": "step"}]
+
+
+if __name__=='__main__':
+    main()

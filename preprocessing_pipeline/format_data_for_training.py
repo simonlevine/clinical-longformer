@@ -14,10 +14,10 @@ import pandas as pd
 import numpy as np
 from loguru import logger
 
-DIAGNOSIS_CSV_FP = "./data/mimiciii-14/DIAGNOSES_ICD.csv.gz"
-PROCEDURES_CSV_FP = "./data/mimiciii-14/PROCEDURES_ICD.csv"
-ICD9_DIAG_KEY_FP = "./data/mimiciii-14/D_ICD_DIAGNOSES.csv.gz"
-ICD9_PROC_KEY_FP = "./data/mimiciii-14/D_ICD_PROCEDURES.csv"
+DIAGNOSIS_CSV_FP   = "./data/mimiciii-14/DIAGNOSES_ICD.csv.gz"
+PROCEDURES_CSV_FP  = "./data/mimiciii-14/PROCEDURES_ICD.csv"
+ICD9_DIAG_KEY_FP   = "./data/mimiciii-14/D_ICD_DIAGNOSES.csv.gz"
+ICD9_PROC_KEY_FP   = "./data/mimiciii-14/D_ICD_PROCEDURES.csv"
 NOTE_EVENTS_CSV_FP = "./data/intermediary-data/filtered_notes/NOTEEVENTS.FILTERED.csv.gz"
 
 
@@ -43,27 +43,30 @@ ICD_VERSION = icd_version_specified
 
 
 def load_and_serialize_dataset():
-    df_train, df_test = construct_datasets(
+    df_train, df_val, df_test = construct_datasets(
         diag_or_proc_param, note_category_param, subsampling_param)
-    basedir_outpath = Path("./intermediary-data")
+    basedir_outpath = Path("./data/intermediary-data")
     basedir_outpath.mkdir(exist_ok=True)
-    for df_, type_ in [(df_train, "train"), (df_test, "test")]:
-        fp_out = basedir_outpath/f"notes2diagnosis-icd-{type_}.json.gz"
-        logger.info(f"Serializing {type_} dataframe to {fp_out}...")
-        df_.to_json(fp_out, orient="split")
+
+    for df_, type_ in [(df_train, "train"), (df_val,"validate",), (df_test, "test")]:
+        fp_out = basedir_outpath/f"notes2diagnosis-icd-{type_}_df"
+        logger.info('Saving pickled dataframes...')
+        df_.to_pickle(fp_out)
     
 
 def construct_datasets(diag_or_proc_param, note_category_param, subsampling_param):
     dataset = load_mimic_dataset(
         diag_or_proc_param, note_category_param, icd_seq_num_param)
 
-    df_train, df_test = test_train_validation_split(dataset)
+    df_train, df_val, df_test = test_train_validation_split(dataset)
+
     if subsampling_param == True:
         logger.info('Subsampling 80 training rows, 20 testing rows of data.')
         df_train = df_train.sample(n=80)
         df_test = df_test.sample(n=20)
+        df_val = df_val.sample(n=20)
 
-    return df_train, df_test
+    return df_train, df_val, df_test
 
 
 def load_mimic_dataset(diag_or_proc_param, note_category_param, icd_seq_num_param):
@@ -88,6 +91,9 @@ def load_mimic_dataset(diag_or_proc_param, note_category_param, icd_seq_num_para
 
 
 def load_icd_general_equivalence_mapping():
+    '''
+    For potential ICD9 to 10 conversion.
+    '''
     icd_equiv_map_df = pd.read_csv(
         ICD_GEM_FP,
         sep="|",
@@ -101,9 +107,11 @@ def load_icd_general_equivalence_mapping():
 
 
 def test_train_validation_split(dataset):
-    df_train = dataset.sample(frac=0.66, random_state=42)
+    df_train = dataset.sample(frac=0.80, random_state=42)
     df_test = dataset.drop(df_train.index)
-    return df_train, df_test
+    df_val = df_train.sample(frac=.25,random_state=42)
+    df_train = df_train.drop(df_val.index)
+    return df_train, df_test, df_val
 
 
 def load_diag_procs(icd_seq_num_param='all'):
