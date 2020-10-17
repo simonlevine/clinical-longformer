@@ -111,8 +111,6 @@ class Classifier(pl.LightningModule):
             self.hparams.encoder_model, output_hidden_states=True
         )
         
-        self.transformer.config.grad
-
         # set the number of features our encoder model will return...
         self.encoder_features = 768
 
@@ -127,7 +125,7 @@ class Classifier(pl.LightningModule):
             nn.Linear(self.encoder_features * 2, self.encoder_features),
             nn.Tanh(),
             nn.Linear(self.encoder_features, self.data.label_encoder.vocab_size),
-            
+
         )
 
     def __build_loss(self):
