@@ -85,24 +85,29 @@ def main():
     assert icd_version_specified == '9' or icd_version_specified == '10', 'Must specify one of ICD9 or ICD10.'
     logger.info('Reformatting raw data with subsampling {}', 'enabled' if subsampling_param else 'disabled')
 
-    df_train, df_test = \
+    df_train, df_val, df_test = \
         format_data_for_training.construct_datasets(
             diag_or_proc_param, note_category_param, subsampling_param)
 
     # label_emb_param = params['label_emb']
 
     X_trn = xbert_prepare_txt_inputs(df_train, 'training')
+    X_val = xbert_prepare_txt_inputs(df_val, 'validation')
     X_tst = xbert_prepare_txt_inputs(df_test, 'testing')
 
 
     icd_labels, desc_labels = xbert_create_label_map(icd_version_specified, diag_or_proc_param)
     Y_trn_map = xbert_prepare_Y_maps(
         df_train, icd_labels.tolist(), icd_version_specified)
+
+    Y_val_map = xbert_prepare_Y_maps(
+        df_val, icd_labels.tolist(), icd_version_specified)
+
     Y_tst_map = xbert_prepare_Y_maps(
         df_test, icd_labels.tolist(), icd_version_specified)
 
     xbert_write_preproc_data_to_file(
-        desc_labels, X_trn, X_tst, Y_trn_map, Y_tst_map)
+        desc_labels, X_trn, X_val, X_tst, Y_trn_map, Y_val_map, Y_tst_map)
 
     logger.info(
         'Done preprocessing. Saving pickled dataframes to file for later postprocessing.'
@@ -210,6 +215,8 @@ def xbert_write_preproc_data_to_file(desc_labels, X_trn, X_tst, Y_trn, Y_tst):
     logger.info('Writing data raw features to txt.')
     X_trn.to_csv(path_or_buf=XBERT_TRAIN_RAW_TEXTS_FP,
                  header=None, index=None, sep='\t', mode='w')
+
+    X_val.to
     X_tst.to_csv(path_or_buf=XBERT_TEST_RAW_TEXTS_FP,
                  header=None, index=None, sep='\t', mode='w')
 

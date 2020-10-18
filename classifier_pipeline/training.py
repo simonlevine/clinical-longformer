@@ -72,7 +72,7 @@ def main(hparams) -> None:
         checkpoint_callback=True,
         early_stop_callback=early_stop_callback,
         gradient_clip_val=1.0,
-        gpus=hparams.gpus,
+        gpus=0,#hparams.gpus,
         log_gpu_memory="all",
         deterministic=True,
         check_val_every_n_epoch=1,

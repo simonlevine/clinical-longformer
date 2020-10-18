@@ -65,25 +65,25 @@ class Classifier(pl.LightningModule):
                 num_workers=self.hparams.loader_workers,
             )
 
-        # def val_dataloader(self) -> DataLoader:
-        #     """ Function that loads the validation set. """
-        #     self._dev_dataset = self.get_mimic_data(self.hparams.dev_csv)
-        #     return DataLoader(
-        #         dataset=self._dev_dataset,
-        #         batch_size=self.hparams.batch_size,
-        #         collate_fn=self.classifier.prepare_sample,
-        #         num_workers=self.hparams.loader_workers,
-        #     )
+        def val_dataloader(self) -> DataLoader:
+            """ Function that loads the validation set. """
+            self._dev_dataset = self.get_mimic_data(self.hparams.dev_csv)
+            return DataLoader(
+                dataset=self._dev_dataset,
+                batch_size=self.hparams.batch_size,
+                collate_fn=self.classifier.prepare_sample,
+                num_workers=self.hparams.loader_workers,
+            )
 
-        # def test_dataloader(self) -> DataLoader:
-        #     """ Function that loads the validation set. """
-        #     self._test_dataset = self.get_mimic_data(self.hparams.test_csv)
-        #     return DataLoader(
-        #         dataset=self._test_dataset,
-        #         batch_size=self.hparams.batch_size,
-        #         collate_fn=self.classifier.prepare_sample,
-        #         num_workers=self.hparams.loader_workers,
-        #     )
+        def test_dataloader(self) -> DataLoader:
+            """ Function that loads the validation set. """
+            self._test_dataset = self.get_mimic_data(self.hparams.test_csv)
+            return DataLoader(
+                dataset=self._test_dataset,
+                batch_size=self.hparams.batch_size,
+                collate_fn=self.classifier.prepare_sample,
+                num_workers=self.hparams.loader_workers,
+            )
 
     def __init__(self, hparams: Namespace) -> None:
         super(Classifier, self).__init__()
@@ -115,7 +115,10 @@ class Classifier(pl.LightningModule):
         self.encoder_features = 768
 
         # Tokenizer
-        self.tokenizer = Tokenizer(pretrained_model='simonlevine/biomed_roberta_base-4096-speedfix')
+        self.tokenizer = Tokenizer(pretrained_model=self.hparams.encoder_model) #
+        
+        #others:
+        'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
 
         # Classification head
         self.classification_head = nn.Sequential(
@@ -376,19 +379,19 @@ class Classifier(pl.LightningModule):
         )
         parser.add_argument(
             "--train_csv",
-            default="data/imdb_reviews_train.csv",
+            default="data/intermediary-data/notes2diagnosis-icd-train.csv",
             type=str,
             help="Path to the file containing the train data.",
         )
         parser.add_argument(
             "--dev_csv",
-            default="data/imdb_reviews_test.csv",
+            default="data/intermediary-data/notes2diagnosis-icd-validate.csv",
             type=str,
             help="Path to the file containing the dev data.",
         )
         parser.add_argument(
             "--test_csv",
-            default="data/imdb_reviews_test.csv",
+            default="data/intermediary-data/notes2diagnosis-icd-test.csv",
             type=str,
             help="Path to the file containing the dev data.",
         )
