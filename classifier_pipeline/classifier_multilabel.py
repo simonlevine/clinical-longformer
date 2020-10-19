@@ -19,6 +19,36 @@ from utils import mask_fill
 
 from loguru import logger
 
+
+
+
+class HingeLoss(nn.Module):
+    """criterion for loss function
+    y: 0/1 ground truth matrix of size: batch_size x output_size
+    f: real number pred matrix of size: batch_size x output_size
+    """
+
+    def __init__(self, margin=1.0, squared=True):
+        super(HingeLoss, self).__init__()
+        self.margin = margin
+        self.squared = squared
+
+    def forward(self, f, y, C_pos=1.0, C_neg=1.0):
+        # convert y into {-1,1}
+        # logger.info(f'computing hinge-loss for y of dims {y.shape} and f of dims {f.shape}...')
+        y_new = 2.0 * y - 1.0
+        # logger.info(f'y_new is of dims {y_new.shape}')
+        tmp = y_new * f
+
+        # Hinge loss
+        loss = F.relu(self.margin - tmp)
+        if self.squared:
+            loss = loss ** 2
+        loss = loss * (C_pos * y + C_neg * (1.0 - y))
+        return loss.mean()
+
+        
+
 class ClassifierMultiLabel(pl.LightningModule):
     """
     Sample model to show how to use a Transformer model to classify sentences.
