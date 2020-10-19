@@ -1,6 +1,9 @@
 # 11785-project (***WIP***)
 
+Sandbox: https://colab.research.google.com/drive/1n0vaflnGpRpEnRAgwkCOLqVFRr1p1S3L?usp=sharing
+
 # To do:
+- Update logging for PT-lighting: see https://pytorch-lightning.readthedocs.io/en/latest/logging.html
 - elongate bioclinical_BERT
 - get multilabel training working on BERT
 - get ROBERTA working,single and multilabel case
