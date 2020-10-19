@@ -33,7 +33,9 @@ In preprocessing_pipeline, run:
  - elongate_bert.py
     - if you want to model global document token dependencies using BERT.
 
+### Run training
 
+Run the pytorch-lightning trainer from either training_multilabel.py or training_onelabel.py.
 
 # Background
 
