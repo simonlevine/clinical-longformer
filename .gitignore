@@ -3,7 +3,6 @@
 intermediary-data/notes2diagnosis-icd-test.json.gz
 intermediary-data/notes2diagnosis-icd-train.json.gz
 data/intermediary-data/filtered_notes/NOTEEVENTS.FILTERED.csv.gz
-*.csv
 *.txt
 data/intermediary-data/xbert_inputs/Y.trn.npz
 *.npz
@@ -12,3 +11,5 @@ data/intermediary-data/notes2diagnosis-icd-train_df
 *.gz
 *.0
 *.ckpt
+data/intermediary-data/filtered_notes/NOTEEVENTS.FILTERED.csv
+data/mimiciii-14/NOTEEVENTS.csv
