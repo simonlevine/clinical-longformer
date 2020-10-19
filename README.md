@@ -1,5 +1,7 @@
 # 11785-project (***WIP***)
 
+Sandbox: https://colab.research.google.com/drive/1n0vaflnGpRpEnRAgwkCOLqVFRr1p1S3L?usp=sharing
+
 # To do:
 - elongate bioclinical_BERT
 - get multilabel training working on BERT
