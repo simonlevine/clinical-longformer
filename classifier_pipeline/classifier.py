@@ -115,10 +115,10 @@ class ClassifierBERT(pl.LightningModule):
         self.encoder_features = 768
 
         # Tokenizer
-        self.tokenizer = Tokenizer(pretrained_model=self.hparams.encoder_model) #
+        self.tokenizer = Tokenizer(pretrained_model=self.hparams.encoder_model,max_tokens=512) #
         
         #others:
-        'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
+        # 'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
 
         # Classification head
         self.classification_head = nn.Sequential(
@@ -253,13 +253,36 @@ class ClassifierBERT(pl.LightningModule):
         if self.trainer.use_dp or self.trainer.use_ddp2:
             loss_val = loss_val.unsqueeze(0)
 
-        tqdm_dict = {"train_loss": loss_val}
-        output = OrderedDict(
-            {"loss": loss_val, "progress_bar": tqdm_dict, "log": tqdm_dict}
-        )
+        self.log('loss',loss_val)
 
         # can also return just a scalar instead of a dict (return loss_val)
-        return output
+        return loss_val
+
+
+    
+    def test_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
+        """ 
+        Runs one training step. This usually consists in the forward function followed
+            by the loss function.
+        
+        :param batch: The output of your dataloader. 
+        :param batch_nb: Integer displaying which batch this is
+
+        Returns:
+            - dictionary containing the loss and the metrics to be added to the lightning logger.
+        """
+        inputs, targets = batch
+        model_out = self.forward(**inputs)
+        loss_val = self.loss(model_out, targets)
+
+        # in DP mode (default) make sure if result is scalar, there's another dim in the beginning
+        if self.trainer.use_dp or self.trainer.use_ddp2:
+            loss_val = loss_val.unsqueeze(0)
+            
+        self.log('test_loss',loss_val)
+
+        # can also return just a scalar instead of a dict (return loss_val)
+        return loss_val
 
     def validation_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
         """ Similar to the training step but with the model in eval mode.
@@ -287,10 +310,14 @@ class ClassifierBERT(pl.LightningModule):
             loss_val = loss_val.unsqueeze(0)
             val_acc = val_acc.unsqueeze(0)
 
-        output = OrderedDict({"val_loss": loss_val, "val_acc": val_acc,})
+
+        self.log('val_loss',loss_val)
+        self.log('val_acc',val_acc)
+    
+        # output = OrderedDict({"val_loss": loss_val, "val_acc": val_acc,})
 
         # can also return just a scalar instead of a dict (return loss_val)
-        return output
+        return loss_val
 
     def validation_end(self, outputs: list) -> dict:
         """ Function that takes as input a list of dictionaries returned by the validation_step
@@ -318,13 +345,17 @@ class ClassifierBERT(pl.LightningModule):
 
         val_loss_mean /= len(outputs)
         val_acc_mean /= len(outputs)
-        tqdm_dict = {"val_loss": val_loss_mean, "val_acc": val_acc_mean}
-        result = {
-            "progress_bar": tqdm_dict,
-            "log": tqdm_dict,
-            "val_loss": val_loss_mean,
-        }
-        return result
+
+        # tqdm_dict = {"val_loss": val_loss_mean, "val_acc": val_acc_mean}
+        # result = {
+        #     "progress_bar": tqdm_dict,
+        #     "log": tqdm_dict,
+        #     "val_loss": val_loss_mean,
+        # }
+        self.log('val_loss_mean',val_loss_mean)
+        self.log('val_acc_mean',val_acc_mean)
+
+        return val_loss_mean
 
     def configure_optimizers(self):
         """ Sets different Learning rates for different parameter groups. """
