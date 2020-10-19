@@ -110,7 +110,7 @@ class ClassifierLongformer(pl.LightningModule):
         self.transformer = AutoModel.from_pretrained(
             self.hparams.encoder_model,
             output_hidden_states=True,
-            # gradient_checkpointing=True, #critical for training speed.
+            gradient_checkpointing=True, #critical for training speed.
         )
         
         # set the number of features our encoder model will return...
