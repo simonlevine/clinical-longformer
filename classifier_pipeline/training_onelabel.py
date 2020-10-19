@@ -5,12 +5,15 @@ import argparse
 import os
 from datetime import datetime
 
-from classifier import Classifier
+from classifier_longformer import ClassifierLongformer
+from classifier import ClassifierBERT
+
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import LightningLoggerBase, TensorBoardLogger
 from torchnlp.random import set_seed
 
+Classifier = ClassifierLongformer
 
 def main(hparams) -> None:
     """
@@ -74,7 +77,7 @@ def main(hparams) -> None:
         log_gpu_memory="all",
         deterministic=True,
         check_val_every_n_epoch=1,
-        fast_dev_run=hparams.single_dev_run,
+        fast_dev_run=hparams.fast_dev_run,
         accumulate_grad_batches=hparams.accumulate_grad_batches,
         max_epochs=hparams.max_epochs,
         min_epochs=hparams.min_epochs,
@@ -107,6 +110,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--monitor", default="val_acc", type=str, help="Quantity to monitor."
     )
+
     parser.add_argument(
         "--metric_mode",
         default="max",
@@ -137,7 +141,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        '--single_dev_run',
+        '--fast_dev_run',
         default=False,
         type=bool,
         help='Run for a trivial single batch and single epoch.'

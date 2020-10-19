@@ -12,11 +12,11 @@ class Tokenizer(TextEncoder):
     Wrapper arround BERT tokenizer.
     """
 
-    def __init__(self, pretrained_model) -> None:
+    def __init__(self, pretrained_model,max_tokens) -> None:
         self.enforce_reversible = False
         self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model)
         # self.itos = self.tokenizer.ids_to_tokens
-        self.max_length = 512
+        self.max_length = max_tokens
 
     @property
     def unk_index(self) -> int:

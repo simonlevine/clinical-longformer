@@ -18,7 +18,7 @@ from torchnlp.utils import collate_tensors, lengths_to_mask
 from utils import mask_fill
 
 
-class ClassifierBERT(pl.LightningModule):
+class ClassifierLongformer(pl.LightningModule):
     """
     Sample model to show how to use a Transformer model to classify sentences.
     
@@ -86,7 +86,7 @@ class ClassifierBERT(pl.LightningModule):
             )
 
     def __init__(self, hparams: Namespace) -> None:
-        super(Classifier, self).__init__()
+        super(ClassifierLongformer, self).__init__()
         self.hparams = hparams
         self.batch_size = hparams.batch_size
 
@@ -108,14 +108,16 @@ class ClassifierBERT(pl.LightningModule):
     def __build_model(self) -> None:
         """ Init BERT model + tokenizer + classification head."""
         self.transformer = AutoModel.from_pretrained(
-            self.hparams.encoder_model, output_hidden_states=True
+            self.hparams.encoder_model,
+            output_hidden_states=True,
+            # gradient_checkpointing=True, #critical for training speed.
         )
         
         # set the number of features our encoder model will return...
         self.encoder_features = 768
 
         # Tokenizer
-        self.tokenizer = Tokenizer(pretrained_model=self.hparams.encoder_model) #
+        self.tokenizer = Tokenizer(pretrained_model=self.hparams.encoder_model,max_tokens = self.hparams.max_tokens) #
         
         #others:
         'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
@@ -355,9 +357,15 @@ class ClassifierBERT(pl.LightningModule):
         """
         parser.add_argument(
             "--encoder_model",
-            default="bert-base-uncased",
+            default="simonlevine/biomed_roberta_base-4096-speedfix",
             type=str,
             help="Encoder model to be used.",
+        )
+        parser.add_argument(
+            "--max_tokens",
+            default=4096,
+            type=int,
+            help="Max tokens to be considered per instance..",
         )
         parser.add_argument(
             "--encoder_learning_rate",
