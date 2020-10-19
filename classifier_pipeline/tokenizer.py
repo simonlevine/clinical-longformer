@@ -16,7 +16,7 @@ class Tokenizer(TextEncoder):
         self.enforce_reversible = False
         self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model)
         # self.itos = self.tokenizer.ids_to_tokens
-        self.max_length = 4096
+        self.max_length = 512
 
     @property
     def unk_index(self) -> int:

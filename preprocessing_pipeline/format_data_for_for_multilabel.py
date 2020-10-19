@@ -28,6 +28,7 @@ Given the input files, the pipeline can then be run.
 
 Simon Levine-Gottreich, 2020
 """
+from pathlib import Path
 
 import typing as t
 import re
@@ -62,10 +63,11 @@ ICD9_PROC_KEY_FP = "./data/mimiciii-14/D_ICD_PROCEDURES.csv"
 # output filepaths
 XBERT_LABEL_MAP_FP = './data/intermediary-data/xbert_inputs/label_map.txt'
 XBERT_TRAIN_RAW_TEXTS_FP = './data/intermediary-data/xbert_inputs/train_raw_texts.txt'
+XBERT_VAL_RAW_TEXTS_FP = './data/intermediary-data/xbert_inputs/val_raw_texts.txt'
 XBERT_TEST_RAW_TEXTS_FP = './data/intermediary-data/xbert_inputs/test_raw_texts.txt'
-XBERT_X_TRN_FP = './data/intermediary-data/xbert_inputs/X.trn.npz'
-XBERT_X_TST_FP = './data/intermediary-data/xbert_inputs/X.tst.npz'
+
 XBERT_Y_TRN_FP = './data/intermediary-data/xbert_inputs/Y.trn.npz'
+XBERT_Y_VAL_FP = './data/intermediary-data/xbert_inputs/Y.val.npz'
 XBERT_Y_TST_FP = './data/intermediary-data/xbert_inputs/Y.tst.npz'
 DF_TRAIN_FP ='./data/intermediary-data/df_train.pkl'
 DF_TEST_FP = './data/intermediary-data/df_test.pkl'
@@ -89,35 +91,51 @@ def main():
         format_data_for_training.construct_datasets(
             diag_or_proc_param, note_category_param, subsampling_param)
 
-    # label_emb_param = params['label_emb']
 
-    X_trn = xbert_prepare_txt_inputs(df_train, 'training')
-    X_val = xbert_prepare_txt_inputs(df_val, 'validation')
-    X_tst = xbert_prepare_txt_inputs(df_test, 'testing')
+    # X_trn = xbert_prepare_txt_inputs(df_train, 'training')
+    # X_val = xbert_prepare_txt_inputs(df_val, 'validation')
+    # X_tst = xbert_prepare_txt_inputs(df_test, 'testing')
 
 
     icd_labels, desc_labels = xbert_create_label_map(icd_version_specified, diag_or_proc_param)
-    Y_trn_map = xbert_prepare_Y_maps(
+    #need codes, not descriptions right now.
+
+    icd_labels.to_csv('data/icd_labels.csv')
+
+    Y_train = xbert_prepare_Y_maps(
         df_train, icd_labels.tolist(), icd_version_specified)
 
-    Y_val_map = xbert_prepare_Y_maps(
+    Y_val = xbert_prepare_Y_maps(
         df_val, icd_labels.tolist(), icd_version_specified)
 
-    Y_tst_map = xbert_prepare_Y_maps(
+    Y_test = xbert_prepare_Y_maps(
         df_test, icd_labels.tolist(), icd_version_specified)
 
-    xbert_write_preproc_data_to_file(
-        desc_labels, X_trn, X_val, X_tst, Y_trn_map, Y_val_map, Y_tst_map)
+    logger.info('Created dataframes of hospital admission to assigned ICD codes.')
+
 
     logger.info(
-        'Done preprocessing. Saving pickled dataframes to file for later postprocessing.'
+        'Done preprocessing for multilabel classification. Saving CSV of [text,..., codes] and [binary array of labels].'
     )
 
-    assert df_train.shape[0] == Y_trn_map.shape[0], 'Training DF and Y_Map have different row dimensions!'
-    assert df_test.shape[0] == Y_tst_map.shape[0], 'Training DF and Y_Map have different row dimensions!'
+    basedir_outpath = Path("./data/intermediary-data")
+    basedir_outpath.mkdir(exist_ok=True)
+    for df_, type_ in [(df_train, "train"), (df_val,"validate",), (df_test, "test")]:
+        fp_out = basedir_outpath/f"notes2diagnosis-multilabel_icd-{type_}.csv"
+        logger.info('Saving dataframes to CSV...')
+        df_.to_csv(fp_out)
 
-    df_train.to_pickle(DF_TRAIN_FP)
-    df_test.to_pickle(DF_TEST_FP)
+    for df_, type_ in [(Y_train, "train"), (Y_val,"validate",), (Y_test, "test")]:
+        fp_out = basedir_outpath/f"notes2diagnosis-multilabel_icd_labels-{type_}.csv"
+        logger.info('Saving labels dataframe to CSV...')
+        df_.to_csv(fp_out)
+
+
+
+    
+
+    
+
 
 
 
@@ -197,7 +215,7 @@ def xbert_prepare_txt_inputs(df, df_subset):
     raw_texts = df[['TEXT']].replace(r'\n', ' ', regex=True)  # train stage expects each example to fit on a single line
     return raw_texts
 
-def xbert_write_preproc_data_to_file(desc_labels, X_trn, X_tst, Y_trn, Y_tst):
+def xbert_write_preproc_data_to_file(desc_labels, X_trn, X_val, X_tst, Y_trn, Y_tst):
     """Creates X_trn/X_tst TF-IDF vectors, (csr/npz files),
     Y_trn/Y_tst (binary array; csr/npz files), as well as
     .txt files for free text labels (label_map.txt) and train/test inputs (train/test_raw_texts)
@@ -216,7 +234,9 @@ def xbert_write_preproc_data_to_file(desc_labels, X_trn, X_tst, Y_trn, Y_tst):
     X_trn.to_csv(path_or_buf=XBERT_TRAIN_RAW_TEXTS_FP,
                  header=None, index=None, sep='\t', mode='w')
 
-    X_val.to
+    X_val.to_csv(path_or_buf=XBERT_VAL_RAW_TEXTS_FP,
+                 header=None, index=None, sep='\t', mode='w')
+
     X_tst.to_csv(path_or_buf=XBERT_TEST_RAW_TEXTS_FP,
                  header=None, index=None, sep='\t', mode='w')
 

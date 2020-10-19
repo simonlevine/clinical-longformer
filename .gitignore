@@ -10,3 +10,5 @@ data/intermediary-data/xbert_inputs/Y.trn.npz
 data/intermediary-data/notes2diagnosis-icd-test_df
 data/intermediary-data/notes2diagnosis-icd-train_df
 *.gz
+*.0
+*.ckpt

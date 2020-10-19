@@ -90,20 +90,6 @@ def load_mimic_dataset(diag_or_proc_param, note_category_param, icd_seq_num_para
     return merged_df
 
 
-def load_icd_general_equivalence_mapping():
-    '''
-    For potential ICD9 to 10 conversion.
-    '''
-    icd_equiv_map_df = pd.read_csv(
-        ICD_GEM_FP,
-        sep="|",
-        header=None,
-        names=["ICD9_CODE", "ICD10_CODE", "LONG_TITLE_ICD10"]
-    )
-    icd_equiv_map_df = icd_equiv_map_df.dropna() # there is a single blank line
-    icd_equiv_map_df["ICD9_CODE"] = \
-        icd_equiv_map_df["ICD9_CODE"].str.replace('.', '')
-    return icd_equiv_map_df.groupby("ICD9_CODE").agg(set)
 
 
 def test_train_validation_split(dataset):

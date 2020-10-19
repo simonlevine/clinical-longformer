@@ -5,7 +5,7 @@ import argparse
 import os
 from datetime import datetime
 
-from classifier import Classifier
+from classifier_multilabel import ClassifierMultiLabel
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import LightningLoggerBase, TensorBoardLogger
@@ -21,7 +21,7 @@ def main(hparams) -> None:
     # ------------------------
     # 1 INIT LIGHTNING MODEL AND DATA
     # ------------------------
-    model = Classifier(hparams)
+    model = ClassifierMultiLabel(hparams)
     
     # ------------------------
     # 2 INIT EARLY STOPPING
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     )
 
     # each LightningModule defines arguments relevant to it
-    parser = Classifier.add_model_specific_args(parser)
+    parser = ClassifierMultiLabel.add_model_specific_args(parser)
     hparams = parser.parse_args()
 
     # ---------------------
