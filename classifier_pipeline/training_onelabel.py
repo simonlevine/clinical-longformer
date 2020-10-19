@@ -82,7 +82,7 @@ def main(hparams) -> None:
         max_epochs=hparams.max_epochs,
         min_epochs=hparams.min_epochs,
         val_check_interval=hparams.val_check_interval,
-        distributed_backend="dp",
+        distributed_backend="None",
     )
     # ------------------------
     # 6 START TRAINING

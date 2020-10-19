@@ -86,7 +86,7 @@ class ClassifierBERT(pl.LightningModule):
             )
 
     def __init__(self, hparams: Namespace) -> None:
-        super(Classifier, self).__init__()
+        super(ClassifierBERT, self).__init__()
         self.hparams = hparams
         self.batch_size = hparams.batch_size
 
