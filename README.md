@@ -1,4 +1,12 @@
-# 11785-project
+# 11785-project (***WIP***)
+
+# To do:
+- elongate bioclinical_BERT
+- get multilabel training working on BERT
+- get ROBERTA working,single and multilabel case
+- build a hierarchical classifier head
+- get x-transformer trained on our best model.
+
 
 ## Running the code
 
