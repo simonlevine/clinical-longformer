@@ -10,6 +10,12 @@ Sandbox: https://colab.research.google.com/drive/1n0vaflnGpRpEnRAgwkCOLqVFRr1p1S
 - build a hierarchical classifier head
 - get x-transformer trained on our best model.
 
+- try different losses:
+For the multi-label classification, you can try tanh+hinge with {-1, 1} values in labels like (1, -1, -1, 1).
+Or sigmoid + hamming loss with {0, 1} values in labels like (1, 0, 0, 1).
+In my case, sigmoid + focal loss with {0, 1} values in labels like (1, 0, 0, 1) worked well.
+You can check this paper https://arxiv.org/abs/1708.02002.
+
 
 ## Running the code
 
