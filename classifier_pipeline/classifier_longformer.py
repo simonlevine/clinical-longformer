@@ -236,7 +236,7 @@ class ClassifierLongformer(pl.LightningModule):
         except RuntimeError:
             raise Exception("Label encoder found an unknown label.")
 
-      def training_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
+    def training_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
         """ 
         Runs one training step. This usually consists in the forward function followed
             by the loss function.
