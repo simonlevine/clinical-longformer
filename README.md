@@ -2,6 +2,8 @@
 
 Sandbox: https://colab.research.google.com/drive/1n0vaflnGpRpEnRAgwkCOLqVFRr1p1S3L?usp=sharing
 
+- clone this repo. Includes sampled CSV (80/20/20 rows of train,valid,test).
+
 # To do:
 - ~~Update logging for PT-lighting: see https://pytorch-lightning.readthedocs.io/en/latest/logging.html~~
 - elongate bioclinical_BERT
