@@ -127,7 +127,17 @@ class Classifier(pl.LightningModule):
 
         if self.hparams.transformer_type == 'longformer':
             logger.warning('Turnin ON gradient checkpointing...')
-            self.transformer.gradient_checkpointing = True
+
+            self.transformer = AutoModel.from_pretrained(
+            self.hparams.encoder_model,
+            output_hidden_states=True,
+            gradient_checkpointing=True, #critical for training speed.
+                )
+                
+        else: self.transformer = AutoModel.from_pretrained(
+            self.hparams.encoder_model,
+            output_hidden_states=True,
+                )
             
            #others to try:
             # bert-base-uncased
