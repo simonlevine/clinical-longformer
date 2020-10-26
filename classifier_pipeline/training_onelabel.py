@@ -153,7 +153,7 @@ if __name__ == "__main__":
 
     # Batching
     parser.add_argument(
-        "--batch_size", default=6, type=int, help="Batch size to be used."
+        "--batch_size", default=12, type=int, help="Batch size to be used."
     )
     parser.add_argument(
         "--accumulate_grad_batches",
