@@ -18,7 +18,6 @@ from torchnlp.utils import collate_tensors, lengths_to_mask
 from utils import mask_fill
 
 
-#run w/ transformer: 
 
 class Classifier(pl.LightningModule):
     """
