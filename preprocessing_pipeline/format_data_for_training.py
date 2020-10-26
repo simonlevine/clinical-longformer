@@ -15,9 +15,9 @@ import numpy as np
 from loguru import logger
 
 DIAGNOSIS_CSV_FP   = "./data/mimiciii-14/DIAGNOSES_ICD.csv.gz"
-PROCEDURES_CSV_FP  = "./data/mimiciii-14/PROCEDURES_ICD.csv"
+PROCEDURES_CSV_FP  = "./data/mimiciii-14/PROCEDURES_ICD.csv.gz"
 ICD9_DIAG_KEY_FP   = "./data/mimiciii-14/D_ICD_DIAGNOSES.csv.gz"
-ICD9_PROC_KEY_FP   = "./data/mimiciii-14/D_ICD_PROCEDURES.csv"
+ICD9_PROC_KEY_FP   = "./data/mimiciii-14/D_ICD_PROCEDURES.csv.gz"
 NOTE_EVENTS_CSV_FP = "./data/intermediary-data/filtered_notes/NOTEEVENTS.FILTERED.csv.gz"
 
 

@@ -133,7 +133,7 @@ class Classifier(pl.LightningModule):
             output_hidden_states=True,
             gradient_checkpointing=True, #critical for training speed.
                 )
-                
+
         else: self.transformer = AutoModel.from_pretrained(
             self.hparams.encoder_model,
             output_hidden_states=True,
@@ -171,6 +171,7 @@ class Classifier(pl.LightningModule):
             nn.Linear(self.encoder_features, self.data.label_encoder.vocab_size),
 
         )
+
 
     def __build_loss(self):
         """ Initializes the loss function/s. """
