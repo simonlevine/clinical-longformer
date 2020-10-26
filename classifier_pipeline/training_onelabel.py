@@ -85,7 +85,7 @@ def main(hparams) -> None:
         accumulate_grad_batches=hparams.accumulate_grad_batches,
         max_epochs=hparams.max_epochs,
         min_epochs=hparams.min_epochs,
-        val_check_interval=hparams.val_check_interval,
+        # val_check_interval=hparams.val_check_interval,
         # distributed_backend="None",
     )
 
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--gpus", type=int, default=1, help="How many gpus")
     parser.add_argument(
         "--val_check_interval",
-        default=0.0, #1.0
+        default=1.0, #1.0
         type=float,
         help=(
             "If you don't want to use the entire dev set (for debugging or "
