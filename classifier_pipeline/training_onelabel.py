@@ -5,15 +5,18 @@ import argparse
 import os
 from datetime import datetime
 
-from classifier_longformer import ClassifierLongformer
-from classifier import ClassifierBERT
+from classifier_longformer import Classifier
+# from classifier import ClassifierBERT
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import LightningLoggerBase, TensorBoardLogger
 from torchnlp.random import set_seed
 
-Classifier = ClassifierLongformer
+
+
+# Classifier = Classii
+
 
 def main(hparams) -> None:
     """
@@ -24,6 +27,7 @@ def main(hparams) -> None:
     # ------------------------
     # 1 INIT LIGHTNING MODEL AND DATA
     # ------------------------
+
     model = Classifier(hparams)
     
     # ------------------------
@@ -71,7 +75,7 @@ def main(hparams) -> None:
     trainer = Trainer(
         logger=tb_logger,
         checkpoint_callback=True,
-        early_stop_callback=early_stop_callback,
+        # callbacks=early_stop_callback,
         gradient_clip_val=1.0,
         gpus=hparams.gpus,
         log_gpu_memory="all",
@@ -82,8 +86,9 @@ def main(hparams) -> None:
         max_epochs=hparams.max_epochs,
         min_epochs=hparams.min_epochs,
         val_check_interval=hparams.val_check_interval,
-        distributed_backend="None",
+        # distributed_backend="None",
     )
+
     # ------------------------
     # 6 START TRAINING
     # ------------------------
@@ -142,7 +147,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         '--fast_dev_run',
-        default=False,
+        default=True,
         type=bool,
         help='Run for a trivial single batch and single epoch.'
     )
@@ -165,7 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--gpus", type=int, default=1, help="How many gpus")
     parser.add_argument(
         "--val_check_interval",
-        default=1.0,
+        default=0.0, #1.0
         type=float,
         help=(
             "If you don't want to use the entire dev set (for debugging or "

@@ -18,18 +18,23 @@ from torchnlp.utils import collate_tensors, lengths_to_mask
 from utils import mask_fill
 
 
-class ClassifierLongformer(pl.LightningModule):
+#run w/ transformer: 
+
+class Classifier(pl.LightningModule):
     """
     Sample model to show how to use a Transformer model to classify sentences.
     
     :param hparams: ArgumentParser containing the hyperparameters.
     """
-    
+
+    # *************************
     class DataModule(pl.LightningDataModule):
         def __init__(self, classifier_instance):
             super().__init__()
             self.hparams = classifier_instance.hparams
             self.classifier = classifier_instance
+
+            self.transformer_type = self.hparams.transformer_type
 
             # Label Encoder
 
@@ -85,8 +90,11 @@ class ClassifierLongformer(pl.LightningModule):
                 num_workers=self.hparams.loader_workers,
             )
 
+#    ****************
+
     def __init__(self, hparams: Namespace) -> None:
-        super(ClassifierLongformer, self).__init__()
+        super(Classifier,self).__init__()
+
         self.hparams = hparams
         self.batch_size = hparams.batch_size
 
@@ -106,21 +114,36 @@ class ClassifierLongformer(pl.LightningModule):
         self.nr_frozen_epochs = hparams.nr_frozen_epochs
 
     def __build_model(self) -> None:
-        """ Init BERT model + tokenizer + classification head."""
+        """ Init transformer model + tokenizer + classification head."""
+
+        #simonlevine/biomed_roberta_base-4096-speedfix'
+        
         self.transformer = AutoModel.from_pretrained(
             self.hparams.encoder_model,
             output_hidden_states=True,
-            gradient_checkpointing=True, #critical for training speed.
+            # gradient_checkpointing=True, #critical for training speed.
         )
+
+        if self.hparams.transformer_type == 'longformer':
+            self.transformer.gradient_checkpointing = True
+           #others:
+        #'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
         
         # set the number of features our encoder model will return...
         self.encoder_features = 768
 
         # Tokenizer
-        self.tokenizer = Tokenizer(pretrained_model=self.hparams.encoder_model,max_tokens = self.hparams.max_tokens) #
-        
-        #others:
-        'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
+        if self.hparams.transformer_type  == 'longformer':
+            self.tokenizer = Tokenizer(
+                pretrained_model=self.hparams.encoder_model,
+                max_tokens = self.hparams.max_tokens_longformer)
+
+        else: self.hparams.tokenizer = Tokenizer(
+            pretrained_model=self.hparams.encoder_model,
+            max_tokens = self.hparams.max_tokens_longformer)
+
+           #others:
+        #'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
 
         # Classification head
         self.classification_head = nn.Sequential(
@@ -354,6 +377,7 @@ class ClassifierLongformer(pl.LightningModule):
         #     "log": tqdm_dict,
         #     "val_loss": val_loss_mean,
         # }
+
         self.log('val_loss_mean',val_loss_mean)
         self.log('val_acc_mean',val_acc_mean)
 
@@ -388,13 +412,27 @@ class ClassifierLongformer(pl.LightningModule):
         """
         parser.add_argument(
             "--encoder_model",
-            default="simonlevine/biomed_roberta_base-4096-speedfix",
+            default='simonlevine/biomed_roberta_base-4096-speedfix', # 'bert-base-uncased',
             type=str,
             help="Encoder model to be used.",
         )
+
+        parser.add_argument(
+            "--transformer_type",
+            default='longformer',
+            type=str,
+            help="Encoder model /tokenizer to be used (has consequences for tokenization and encoding; default = longformer).",
+        )
+
+        parser.add_argument(
+            "--max_tokens_longformer",
+            default=4096,
+            type=int,
+            help="Max tokens to be considered per instance..",
+        )
         parser.add_argument(
             "--max_tokens",
-            default=4096,
+            default=512,
             type=int,
             help="Max tokens to be considered per instance..",
         )

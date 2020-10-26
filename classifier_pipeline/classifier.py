@@ -329,6 +329,7 @@ class ClassifierBERT(pl.LightningModule):
         val_loss_mean = 0
         val_acc_mean = 0
         for output in outputs:
+
             val_loss = output["val_loss"]
 
             # reduce manually when using dp
