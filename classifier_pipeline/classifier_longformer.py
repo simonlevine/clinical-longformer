@@ -32,6 +32,8 @@ class Classifier(pl.LightningModule):
         def __init__(self, classifier_instance):
             super().__init__()
             self.hparams = classifier_instance.hparams
+            if self.hparams.transformer_type == 'longformer':
+                self.hparams.batch_size = 2
             self.classifier = classifier_instance
 
             self.transformer_type = self.hparams.transformer_type
