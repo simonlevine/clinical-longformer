@@ -88,7 +88,7 @@ class Classifier(pl.LightningModule):
         def test_dataloader(self) -> DataLoader:
             """ Function that loads the validation set. """
             self._test_dataset = self.get_mimic_data(self.hparams.test_csv)
-
+            
             return DataLoader(
                 dataset=self._test_dataset,
                 batch_size=self.hparams.batch_size,
@@ -118,7 +118,6 @@ class Classifier(pl.LightningModule):
         else:
             self._frozen = False
         self.nr_frozen_epochs = hparams.nr_frozen_epochs
-
 
     def __build_model(self) -> None:
         """ Init transformer model + tokenizer + classification head."""
@@ -188,9 +187,7 @@ class Classifier(pl.LightningModule):
 
     def __build_loss(self):
         """ Initializes the loss function/s. """
-        #FOR SINGLE LABELS --> MSE LOSS
-        # self._loss = nn.CrossEntropyLoss()
-        self._loss = nn.MSELoss()
+        self._loss = nn.CrossEntropyLoss()
 
     def unfreeze_encoder(self) -> None:
         """ un-freezes the encoder layer. """
