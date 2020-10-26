@@ -17,7 +17,7 @@ from torchnlp.encoders import LabelEncoder
 from torchnlp.utils import collate_tensors, lengths_to_mask
 from utils import mask_fill
 
-
+from loguru import logger
 
 class Classifier(pl.LightningModule):
     """
