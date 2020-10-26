@@ -188,9 +188,12 @@ class Classifier(pl.LightningModule):
 
     def __build_loss(self):
         """ Initializes the loss function/s. """
-        #FOR SINGLE LABELS --> MSE LOSS
-        # self._loss = nn.CrossEntropyLoss()
-        self._loss = nn.MSELoss()
+        #FOR SINGLE LABELS --> MSE (linear regression) LOSS (like a regression problem)
+        # For multiple POSSIBLE discrete single labels, CELoss
+        # for many possible categoricla labels, binary cross-entropy (logistic regression for all labels.)
+        self._loss = nn.CrossEntropyLoss()
+
+        # self._loss = nn.MSELoss()
 
     def unfreeze_encoder(self) -> None:
         """ un-freezes the encoder layer. """
