@@ -11,7 +11,7 @@ label_text_emb_model_name: 'allenai/biomed_roberta_base' #'sentence-transformers
 # label_emb: 'pifa-tfidf' #'text-emb'
 
 prepare_for_xbert:
-  subsampling: true #take a trivially small subsample.
+  subsampling: false #take a trivially small subsample.
   icd_version: '9' #if 10, only diag codes currently implemented, so will error out.
   diag_or_proc: 'diag' # 'diag' or 'proc'
   one_or_all_icds: 1 #'all' #'all' #load in 'all' ICDs, otherwise an int (i.e., 1 for just primary).
