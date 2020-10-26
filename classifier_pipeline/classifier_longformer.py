@@ -32,7 +32,7 @@ class Classifier(pl.LightningModule):
             super().__init__()
             self.hparams = classifier_instance.hparams
             if self.hparams.transformer_type == 'longformer':
-                self.hparams.batch_size = 2
+                self.hparams.batch_size = 1
             self.classifier = classifier_instance
 
             self.transformer_type = self.hparams.transformer_type
@@ -126,6 +126,7 @@ class Classifier(pl.LightningModule):
         )
 
         if self.hparams.transformer_type == 'longformer':
+            logger.warning('Turnin ON gradient checkpointing...')
             self.transformer.gradient_checkpointing = True
            #others:
         #'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
@@ -141,7 +142,7 @@ class Classifier(pl.LightningModule):
 
         else: self.hparams.tokenizer = Tokenizer(
             pretrained_model=self.hparams.encoder_model,
-            max_tokens = self.hparams.max_tokens_longformer)
+            max_tokens = self.hparams.max_tokens)
 
            #others:
         #'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
