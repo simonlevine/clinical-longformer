@@ -5,7 +5,7 @@ import argparse
 import os
 from datetime import datetime
 
-from classifier_longformer import Classifier
+from classifier_one_label import Classifier
 # from classifier import ClassifierBERT
 
 from pytorch_lightning import Trainer

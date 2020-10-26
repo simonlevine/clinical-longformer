@@ -13,3 +13,4 @@ data/intermediary-data/notes2diagnosis-icd-train_df
 *.ckpt
 data/intermediary-data/filtered_notes/NOTEEVENTS.FILTERED.csv
 data/mimiciii-14/NOTEEVENTS.csv
+*.csv

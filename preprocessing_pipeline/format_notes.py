@@ -7,7 +7,7 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 
-MIMIC_DIR = Path("data/mimiciii-14/")
+MIMIC_DIR = Path("./data/mimiciii-14/")
 NOTE_EVENTS_CSV_FP = MIMIC_DIR / "NOTEEVENTS.csv.gz"
 OUTDIR = Path("./data/intermediary-data/filtered_notes/")
 (OUTDIR).mkdir(exist_ok=True)

@@ -1,7 +1,7 @@
 '''
 INITIAL FORMATTING OF MIMIC-III DATA
 
-Run format_notes.py prior to this...
+Run format_notes.py prior to this to generate filtered notes...
 
 Simon Levine-Gottreich, 2020
 '''
