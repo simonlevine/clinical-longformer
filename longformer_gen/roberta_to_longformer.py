@@ -43,8 +43,8 @@ from torch.nn import functional as F
 
 
 # Format: each document should be separated by an empty line
-TRAIN_FPATH = 'data/'
-VAL_FPATH = ??? 
+TRAIN_FPATH = 'data/filtered_all_notes_train.raw'
+VAL_FPATH = 'data/filtered_all_notes_val.raw'
 
 MODEL_OUT_DIR = './longformer_gen'
 LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']

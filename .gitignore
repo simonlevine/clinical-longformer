@@ -14,3 +14,5 @@ data/intermediary-data/notes2diagnosis-icd-train_df
 data/intermediary-data/filtered_notes/NOTEEVENTS.FILTERED.csv
 data/mimiciii-14/NOTEEVENTS.csv
 *.csv
+filtered_all_notes_val.raw
+*.raw

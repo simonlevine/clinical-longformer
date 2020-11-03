@@ -4,13 +4,15 @@ from loguru import logger
 
 from sklearn.model_selection import train_test_split
 
+TRAIN_FPATH = 'data/filtered_all_notes_train.raw'
+VAL_FPATH = 'data/filtered_all_notes_val.raw'
 
 def main():
 
-    logger.info('loading MIMIC_III Note Events...')
+    logger.info('loading MIMIC_III (Emergency Department) Note Events...')
     notes_mimic_iii = pd.read_csv('data/mimiciii-14/NOTEEVENTS.csv',usecols=['TEXT']).rename(columns={'TEXT':'text'})
 
-    logger.info('loading MIMIC_CXR Radiology Study Filepaths...')
+    logger.info('loading MIMIC_CXR (Radiology Studies) data...')
     notes_mimic_cxr = pd.read_csv('data/mimic-cxr/cxr-study-list.csv.gz',usecols=['path'])
 
     tqdm.pandas(desc='Assigning text for radiology studies from directory...')
@@ -23,14 +25,18 @@ def main():
 
     all_notes_df = preprocess_and_clean_notes(admin_language.explicit_removal,all_notes_df)
 
-    logger.info('adding newline chars for ingestion')
+    logger.info('adding newline chars for ingestion...')
 
     all_notes = all_notes_df['text'] + '\n\n'
 
+    logger.info('Splitting into Train/Validation (90%/10%)')
     train, val = train_test_split(all_notes, test_size=0.10) #10% test size
 
     train.to_csv('filtered_all_notes_train.raw',sep='\n',header=None,index=None)
     val.to_csv('filtered_all_notes_val.raw',sep='\n',header=None,index=None)
+
+    logger.critical(f'Successfully processed {len(notes_mimic_iii)} and {len(notes_mimic_cxr)} of MIMIC-iii and CXR notes!')
+
 
 
 def get_text_from_cxr_path(row):
@@ -40,20 +46,19 @@ def get_text_from_cxr_path(row):
     return text
 
 def preprocess_and_clean_notes(admin_language, notes_df: pd.DataFrame) -> pd.DataFrame:
-    """remove redundant information from the free text, which are discharge summaries,
+    """remove redundant information from the free text, such as discharge summaries,
     using both common NLP techniques and heuristic rules
 
     Args:
         notes_df (pd.DataFrame): MimicIII's NOTEEVENTS.csv.gz, including the columns:
-            ['ROW_ID', 'SUBJECT_ID', 'HADM_ID', 'CHARTDATE', 'CHARTTIME',
-            'STORETIME', 'CATEGORY', 'DESCRIPTION', 'CGID', 'ISERROR', 'TEXT']
+             .. ['TEXT'] ...
 
     Returns:
         pd.DataFrame: notes_df, filtered of redundant text
     """
     logger.info(
-        "Removing de-id token, admin language and other cruft...")
-    with tqdm(total=3+len(admin_language)+6) as pbar:
+        "Removing de-id token, admin language and other cruft. This will take a some time...")
+    with tqdm(total=3+len(admin_language)+9) as pbar:
         # notes_df["TEXT"] = notes_df["TEXT"].str.lower()
         # pbar.update(1)
         notes_df["text"] = notes_df["text"].replace(r"\[.*?\]", "", regex=True)
