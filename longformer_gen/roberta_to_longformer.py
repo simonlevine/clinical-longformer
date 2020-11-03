@@ -4,6 +4,8 @@
 This script intended for a base Roberta (ie, AllenAI's Biomed Roberta) to 
 be converted to a "longformer", with a max-token length of some value > 512.
 
+Includes a speed-fix in the global attention window (see Issues of AllenAI Longformer)
+
 
 Simon Levine-Gottreich, 2020
 '''
@@ -33,24 +35,33 @@ with open('params.yaml', 'r') as f:
 
 
 MODEL_OUT_DIR = './longformer_gen'
-LOCAL_ATTN_WINDOW = params['local_attention_window']
-GLOBAL_MAX_POS = params['global_attention_window']
+LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
+GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 
 def main():
-    base_model_name_HF = params['base_model_name']
+    base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
     base_model_name = base_model_name_HF.split('/')[-1]
-    model_path = f'{MODEL_OUT_DIR}/{base_model_name}-{GLOBAL_MAX_POS}-speedfix'
+    model_path = f'{MODEL_OUT_DIR}/bioclinical-longformer' #includes speedfix
+    unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-4096' #includes speedfix
+
 
     if not os.path.exists(model_path):
         os.makedirs(model_path)
 
     logger.info(
-        f'Converting roberta-biomed-base into {base_model_name}-{GLOBAL_MAX_POS}')
+        f'Converting roberta-biomed-base into {base_model_name}, with global attn. window of {GLOBAL_MAX_POS} tokens.')
 
     model, tokenizer, config = create_long_model(
         model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
 
-    model.save_pretrained(model_path)
+    model.save_pretrained(unpretrained_model_path) #save elongated, not pre-trained model, to the disk.
+    tokenizer.save_pretrained(unpretrained_model_path)
+    config.save_pretrained(unpretrained_model_path)
+
+
+
+
+    model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
     tokenizer.save_pretrained(model_path)
     config.save_pretrained(model_path)
 
@@ -626,8 +637,10 @@ class LongformerSelfAttention(nn.Module):
         return global_attn_output
 
 
-
 class RobertaLongSelfAttention(LongformerSelfAttention):
+    '''
+    Inherits above...
+    '''
     def forward(
         self,
         hidden_states,
@@ -671,33 +684,35 @@ def create_long_model(model_specified, attention_window, max_pos):
     # extend position embeddings
     tokenizer.model_max_length = max_pos
     tokenizer.init_kwargs['model_max_length'] = max_pos
-    current_max_pos, embed_size = model.embeddings.position_embeddings.weight.shape
+    current_max_pos, embed_size = model.roberta.embeddings.position_embeddings.weight.shape
     max_pos += 2  # NOTE: RoBERTa has positions 0,1 reserved, so embedding size is max position + 2
     config.max_position_embeddings = max_pos
     assert max_pos > current_max_pos
     # allocate a larger position embedding matrix
-    new_pos_embed = model.embeddings.position_embeddings.weight.new_empty(
+    new_pos_embed = model.roberta.embeddings.position_embeddings.weight.new_empty(
         max_pos, embed_size)
     # copy position embeddings over and over to initialize the new position embeddings
     k = 2
     step = current_max_pos - 2
     while k < max_pos - 1:
         new_pos_embed[k:(
-            k + step)] = model.embeddings.position_embeddings.weight[2:]
+            k + step)] = model.roberta.embeddings.position_embeddings.weight[2:]
         k += step
-    model.embeddings.position_embeddings.weight.data = new_pos_embed
+    model.roberta.embeddings.position_embeddings.weight.data = new_pos_embed
+    model.roberta.embeddings.position_ids.data = torch.tensor([i for i in range(max_pos)]).reshape(1, max_pos)
+    
 
     # replace the `modeling_bert.BertSelfAttention` object with `LongformerSelfAttention`
     config.attention_window = [attention_window] * config.num_hidden_layers
-    for i, layer in enumerate(model.encoder.layer):
+    for i, layer in enumerate(model.roberta.encoder.layer):
         longformer_self_attn = LongformerSelfAttention(config, layer_id=i)
-        longformer_self_attn.query = layer.attention.self.query
-        longformer_self_attn.key = layer.attention.self.key
-        longformer_self_attn.value = layer.attention.self.value
+        longformer_self_attn.query = copy.deepcopy(layer.attention.self.query)
+        longformer_self_attn.key = copy.deepcopy(layer.attention.self.key)
+        longformer_self_attn.value = copy.deepcopy(layer.attention.self.value)
 
-        longformer_self_attn.query_global = layer.attention.self.query
-        longformer_self_attn.key_global = layer.attention.self.key
-        longformer_self_attn.value_global = layer.attention.self.value
+        longformer_self_attn.query_global = copy.deepcopy(layer.attention.self.query)
+        longformer_self_attn.key_global = copy.deepcopy(layer.attention.self.key)
+        longformer_self_attn.value_global = copy.deepcopy(layer.attention.self.value)
 
         layer.attention.self = longformer_self_attn
 
