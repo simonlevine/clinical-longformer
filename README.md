@@ -6,9 +6,17 @@ Sandbox: https://colab.research.google.com/drive/1n0vaflnGpRpEnRAgwkCOLqVFRr1p1S
 
 # To do:
 - ~~Update logging for PT-lighting: see https://pytorch-lightning.readthedocs.io/en/latest/logging.html~~
-- elongate bioclinical_BERT
-- get multilabel training working on BERT
-- get ROBERTA working,single and multilabel case
+- ~~elongate bioclinical_BERT~~
+- ~~get multilabel training working on BERT~~
+
+- rewrite BERT medNLI classifier script (benchmark) for Roberta (pt-lighting ?)
+ - copy data processing. Otherwise, will just be a RobertaForSequence classification task (like for ICDs)
+ - get working on longformer-4096 or biomed-roberta, or similar.
+ - need to work on clinicalBERT (already does from old script).
+ 
+- get ROBERTA working,~~single~~ and multilabel (?) case
+
+# Time Permitting:
 - build a hierarchical classifier head
 - get x-transformer trained on our best model.
 
