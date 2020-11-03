@@ -747,7 +747,6 @@ def create_long_model(model_specified, attention_window, max_pos):
 
     return model, tokenizer, config
 
-
 def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
     val_dataset = TextDataset(tokenizer=tokenizer,
                               file_path=args.val_datapath,
