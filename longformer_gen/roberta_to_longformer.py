@@ -13,6 +13,7 @@ Simon Levine-Gottreich, 2020
 
 from loguru import logger
 import os
+import copy
 import math
 from dataclasses import dataclass, field
 from transformers import RobertaModel, RobertaTokenizer, TextDataset, DataCollatorForLanguageModeling, Trainer
@@ -58,14 +59,11 @@ def main():
     tokenizer.save_pretrained(unpretrained_model_path)
     config.save_pretrained(unpretrained_model_path)
 
-
-
-
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
     tokenizer.save_pretrained(model_path)
     config.save_pretrained(model_path)
 
-
+#region
 class LongformerSelfAttention(nn.Module):
     def __init__(self, config, layer_id):
         super().__init__()
@@ -635,7 +633,8 @@ class LongformerSelfAttention(nn.Module):
             batch_size, self.num_heads, max_num_global_attn_indices, self.head_dim
         )
         return global_attn_output
-
+        
+#endregion
 
 class RobertaLongSelfAttention(LongformerSelfAttention):
     '''
