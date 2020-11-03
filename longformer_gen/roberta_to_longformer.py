@@ -6,6 +6,10 @@ be converted to a "longformer", with a max-token length of some value > 512.
 
 Includes a speed-fix in the global attention window (see Issues of AllenAI Longformer)
 
+After this script completes, can access the pre-trained model from:
+
+    # tokenizer = RobertaTokenizerFast.from_pretrained(model_path)
+    # model = RobertaLongForMaskedLM.from_pretrained(model_path)
 
 Simon Levine-Gottreich, 2020
 '''
@@ -18,7 +22,8 @@ import math
 from dataclasses import dataclass, field
 from transformers import RobertaModel, RobertaTokenizer, TextDataset, DataCollatorForLanguageModeling, Trainer
 from transformers import TrainingArguments, HfArgumentParser
-# from transformers.modeling_longformer import LongformerSelfAttention UNCOMMMENT AND REMOVE AFTER HF>3.02 RELEASES, RERUN
+
+# from transformers.modeling_longformer import LongformerSelfAttention UNCOMMENT AND REMOVE AFTER HF>>3.02 RELEASES, RERUN
 
 import yaml
 
@@ -34,17 +39,19 @@ from torch.nn import functional as F
 with open('params.yaml', 'r') as f:
     params = yaml.safe_load(f.read())
 
+# TRAIN_FPATH =???
+# VAL_FPATH = ??? 
 
 MODEL_OUT_DIR = './longformer_gen'
 LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
 GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 
-def main():
+def main(training_args,model_args):
+
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
     base_model_name = base_model_name_HF.split('/')[-1]
     model_path = f'{MODEL_OUT_DIR}/bioclinical-longformer' #includes speedfix
     unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-4096' #includes speedfix
-
 
     if not os.path.exists(model_path):
         os.makedirs(model_path)
@@ -55,15 +62,36 @@ def main():
     model, tokenizer, config = create_long_model(
         model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
 
+    logger.info('Long model, tokenizer, and config created.')
+
     model.save_pretrained(unpretrained_model_path) #save elongated, not pre-trained model, to the disk.
     tokenizer.save_pretrained(unpretrained_model_path)
     config.save_pretrained(unpretrained_model_path)
+
+    training_args.val_datapath = TRAIN_FPATH
+    training_args.train_datapath = VAL_FPATH
+
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0" #GPU
+
+    logger.info(f'Pretraining roberta-base-{model_args.max_pos} ... ')
+
+    training_args.max_steps = 3   ## <<<<<<<<<<<<<<<<<<<<<<<< REMOVE THIS <<<<<<<<<<<<<<<<<<<<<<<<
+
+    if training_args.max_steps != 3:
+        logger.critical('This will take ~ 2 days!')
+
+    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraint is OK.
+
+    pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
 
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
     tokenizer.save_pretrained(model_path)
     config.save_pretrained(model_path)
 
-#region
+    logger.critical('Final pre-trained model saved.')
+
+
 class LongformerSelfAttention(nn.Module):
     def __init__(self, config, layer_id):
         super().__init__()
@@ -633,8 +661,6 @@ class LongformerSelfAttention(nn.Module):
             batch_size, self.num_heads, max_num_global_attn_indices, self.head_dim
         )
         return global_attn_output
-        
-#endregion
 
 class RobertaLongSelfAttention(LongformerSelfAttention):
     '''
@@ -661,8 +687,8 @@ class RobertaLongModel(RobertaModel):
             # replace the `modeling_bert.BertSelfAttention` object with `LongformerSelfAttention`
             layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
 
-
 def create_long_model(model_specified, attention_window, max_pos):
+
     """Starting from the `roberta-base` (or similar) checkpoint, the following function converts it into an instance of `RobertaLong`.
      It makes the following changes:
         1)extend the position embeddings from `512` positions to `max_pos`. In Longformer, we set `max_pos=4096`
@@ -675,7 +701,7 @@ def create_long_model(model_specified, attention_window, max_pos):
         Check tables 6 and 11 in [the paper](https://arxiv.org/pdf/2004.05150.pdf) to get a sense of 
         the expected performance of this model before pretraining."""
 
-    model = RobertaModel.from_pretrained(model_specified)
+    model = RobertaModel.from_pretrained(model_specified,gradient_checkpointing=True)
     tokenizer = RobertaTokenizer.from_pretrained(
         model_specified, model_max_length=max_pos)
     config = model.config
@@ -718,6 +744,61 @@ def create_long_model(model_specified, attention_window, max_pos):
     return model, tokenizer, config
 
 
+def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
+    val_dataset = TextDataset(tokenizer=tokenizer,
+                              file_path=args.val_datapath,
+                              block_size=tokenizer.max_len)
+    if eval_only:
+        train_dataset = val_dataset
+    else:
+        logger.info(f'Loading and tokenizing training data is usually slow: {args.train_datapath}')
+        train_dataset = TextDataset(tokenizer=tokenizer,
+                                    file_path=args.train_datapath,
+                                    block_size=tokenizer.max_len)
+
+    data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
+    trainer = Trainer(model=model, args=args, data_collator=data_collator,
+                      train_dataset=train_dataset, eval_dataset=val_dataset, prediction_loss_only=True,)
+
+    eval_loss = trainer.evaluate()
+    eval_loss = eval_loss['eval_loss']
+    logger.info(f'Initial eval bpc: {eval_loss/math.log(2)}')
+    
+    if not eval_only:
+        trainer.train(model_path=model_path)
+        trainer.save_model()
+
+        eval_loss = trainer.evaluate()
+        eval_loss = eval_loss['eval_loss']
+        logger.info(f'Eval bpc after pretraining: {eval_loss/math.log(2)}')
+
+
+
+# @dataclass
+class ModelArgs:
+    attention_window: int = field(default=512, metadata={"help": "Size of attention window"})
+    max_pos: int = field(default=4096, metadata={"help": "Maximum position"})
+
+parser = HfArgumentParser((TrainingArguments, ModelArgs,))
+
+training_args, model_args = parser.parse_args_into_dataclasses(look_for_args_file=False, args=[
+    '--output_dir', 'tmp',
+    '--warmup_steps', '500',
+    '--learning_rate', '0.00003',
+    '--weight_decay', '0.01',
+    '--adam_epsilon', '1e-6',
+    '--max_steps', '3000',
+    '--logging_steps', '500',
+    '--save_steps', '500',
+    '--max_grad_norm', '5.0',
+    '--per_gpu_eval_batch_size', '8',
+    '--per_gpu_train_batch_size', '2',  # 32GB gpu with fp32
+    '--gradient_accumulation_steps', '32',
+    '--evaluate_during_training',
+    '--do_train',
+    '--do_eval',
+])
+
 
 if __name__ == "__main__":
-    main()
+    main(training_args, model_args)
