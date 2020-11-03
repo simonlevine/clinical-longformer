@@ -20,9 +20,9 @@ for EPOCHS in 3 4 5 ; do
 
 			mkdir -p $OUTPUT_DIR
 
-		  	python run_classifier.py \
+		  	python run_medNLI_classify.py \
 			  --data_dir=$DATA_DIR \
-			  --bert_model=$BERT_MODEL \
+			  --transformer_model=$BERT_MODEL \
 			  --model_loc $CLINICAL_BERT_LOC \
 			  --task_name mednli \
 			  --do_train \

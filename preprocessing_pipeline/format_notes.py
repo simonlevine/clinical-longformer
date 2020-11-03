@@ -14,6 +14,7 @@ OUTDIR = Path("./data/intermediary-data/filtered_notes/")
 FILTERED_NOTE_EVENTS_CSV_FP = OUTDIR / "NOTEEVENTS.FILTERED.csv.gz"
 
 ADMIN_LANGUAGE = [
+    "FINAL REPORT",
     "Admission Date",
     "Discharge Date",
     "Date of Birth",
@@ -58,7 +59,6 @@ ADMIN_LANGUAGE = [
     " pm",
 ]
 
-
 def main():
     logger.info(f"loading {NOTE_EVENTS_CSV_FP.name} into memory")
     notes_df = pd.read_csv(NOTE_EVENTS_CSV_FP, low_memory=False)
@@ -90,6 +90,8 @@ def preprocess_and_clean_notes(notes_df: pd.DataFrame) -> pd.DataFrame:
             pbar.update(1)
         for original, replacement in [
             ("\n", " "),
+            ("\n\n", " "),
+            ("\n\n\n", " "),
             ("w/", "with"),
             ("_", ""),
             ("#", ""),

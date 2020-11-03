@@ -8,6 +8,8 @@ Includes a speed-fix in the global attention window (see Issues of AllenAI Longf
 
 After this script completes, can access the pre-trained model from:
 
+2311015 rows of mimic-iii + cxr are combined 
+
     # tokenizer = RobertaTokenizerFast.from_pretrained(model_path)
     # model = RobertaLongForMaskedLM.from_pretrained(model_path)
 
@@ -36,11 +38,13 @@ from torch.nn import CrossEntropyLoss, MSELoss
 from torch.nn import functional as F
 
 
-with open('params.yaml', 'r') as f:
-    params = yaml.safe_load(f.read())
+# with open('params.yaml', 'r') as f:
+#     params = yaml.safe_load(f.read())
 
-# TRAIN_FPATH =???
-# VAL_FPATH = ??? 
+
+# Format: each document should be separated by an empty line
+TRAIN_FPATH = 'data/'
+VAL_FPATH = ??? 
 
 MODEL_OUT_DIR = './longformer_gen'
 LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
@@ -81,7 +85,7 @@ def main(training_args,model_args):
     if training_args.max_steps != 3:
         logger.critical('This will take ~ 2 days!')
 
-    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraint is OK.
+    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
 
