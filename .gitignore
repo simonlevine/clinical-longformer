@@ -16,3 +16,4 @@ data/mimiciii-14/NOTEEVENTS.csv
 *.csv
 filtered_all_notes_val.raw
 *.raw
+*.csv
