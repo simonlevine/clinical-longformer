@@ -777,10 +777,10 @@ def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
 
 
 
-# @dataclass
+@dataclass
 class ModelArgs:
-    attention_window: int = field(default=512, metadata={"help": "Size of attention window"})
-    max_pos: int = field(default=4096, metadata={"help": "Maximum position"})
+    attention_window: int = field(default=LOCAL_ATTN_WINDOW, metadata={"help": "Size of attention window"})
+    max_pos: int = field(default=GLOBAL_MAX_POS, metadata={"help": "Maximum position"})
 
 parser = HfArgumentParser((TrainingArguments, ModelArgs,))
 
