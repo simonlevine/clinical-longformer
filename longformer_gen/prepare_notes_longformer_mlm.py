@@ -1,3 +1,9 @@
+'''
+This script pulls data from MIMIC-III, MIMIC-CXR.
+It then 
+'''
+
+
 import pandas as pd
 from tqdm import tqdm
 from loguru import logger
@@ -9,8 +15,28 @@ VAL_FPATH = 'data/filtered_all_notes_val.raw'
 
 def main():
 
+    admin_language = AdminLanguage()
+
     logger.info('loading MIMIC_III (Emergency Department) Note Events...')
-    notes_mimic_iii = pd.read_csv('data/mimiciii-14/NOTEEVENTS.csv',usecols=['TEXT']).rename(columns={'TEXT':'text'})
+    notes_mimic_iii = pd.read_csv('data/mimiciii-14/NOTEEVENTS.csv',usecols=['TEXT','ROW_ID']).rename(columns={'TEXT':'text'})
+
+    logger.warning('subsetting for phenotype annotation task...')
+
+    logger.info('Dropping rows where labels are not "sure"...')
+    mimic_iii_annot = pd.read_csv('data/mimic-annotated/phenotype-annotations-for-patient-notes-in-the-mimic-iii-database-1.20.03/ACTdb102003.csv').drop(['SUBJECT_ID','HADM_ID','BATCH.ID','OPERATOR'],axis=1)
+    mimic_iii_annot = mimic_iii_annot[mimic_iii_annot['UNSURE']==0].drop(['UNSURE'],axis=1) 
+    
+    notes_mimic_iii_for_annot = notes_mimic_iii[notes_mimic_iii['ROW_ID'].isin(mimic_iii_annot['ROW_ID'])]
+    notes_mimic_iii_for_annot = notes_mimic_iii_for_annot.merge(mimic_iii_annot, left_on='ROW_ID', right_on='ROW_ID',how='left')
+
+    logger.info('Cleaning annotation task notes...')
+    notes_mimic_iii_for_annot = preprocess_and_clean_notes(admin_language.explicit_removal,notes_mimic_iii_for_annot)
+    
+    notes_mimic_iii_for_annot.to_csv('filtered_notes_for_annotation_task.csv')
+
+    logger.info('Saved Annotation task Notes to One-Hot (X to y) CSV. Moving on to MLM.')
+
+    logger.warning('Assembling data (- annotation data) for MLM pre-training...')
 
     logger.info('loading MIMIC_CXR (Radiology Studies) data...')
     notes_mimic_cxr = pd.read_csv('data/mimic-cxr/cxr-study-list.csv.gz',usecols=['path'])
@@ -19,9 +45,9 @@ def main():
     notes_mimic_cxr['text'] = notes_mimic_cxr['path'].progress_apply(get_text_from_cxr_path)
     notes_mimic_cxr = notes_mimic_cxr.drop('path',axis=1)
 
-    all_notes_df = pd.concat([notes_mimic_iii,notes_mimic_cxr])
+    all_notes_df = pd.concat([notes_mimic_iii,notes_mimic_cxr]) #FOR MLM
 
-    admin_language = AdminLanguage()
+    # admin_language = AdminLanguage()
 
     all_notes_df = preprocess_and_clean_notes(admin_language.explicit_removal,all_notes_df)
 
