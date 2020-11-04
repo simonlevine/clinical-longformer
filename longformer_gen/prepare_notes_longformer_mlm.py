@@ -34,7 +34,7 @@ def main():
 
     logger.info('Cleaning annotation task notes...')
     notes_mimic_iii_for_annot = preprocess_and_clean_notes(admin_language.explicit_removal,notes_mimic_iii_for_annot)
-    notes_mimic_iii_for_annot.to_csv('filtered_notes_for_annotation_task.csv')
+    notes_mimic_iii_for_annot.to_csv('data/filtered_notes_for_annotation_task.csv',index=False)
 
     logger.info('Saved Annotation task Notes to One-Hot (X to y) CSV. Moving on to MLM.')
     logger.warning('Assembling data (- annotation data) for MLM pre-training...')
