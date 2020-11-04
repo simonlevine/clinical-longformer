@@ -29,35 +29,34 @@ def main():
     notes_mimic_iii_for_annot = notes_mimic_iii[notes_mimic_iii['ROW_ID'].isin(mimic_iii_annot['ROW_ID'])]
     notes_mimic_iii_for_annot = notes_mimic_iii_for_annot.merge(mimic_iii_annot, left_on='ROW_ID', right_on='ROW_ID',how='left')
 
+    logger.info('dropping rows from MIMIC-III data where annotation task was performed.')
+    notes_mimic_iii_for_pretraining = notes_mimic_iii[~notes_mimic_iii['ROW_ID'].isin(mimic_iii_annot['ROW_ID'])]
+
     logger.info('Cleaning annotation task notes...')
     notes_mimic_iii_for_annot = preprocess_and_clean_notes(admin_language.explicit_removal,notes_mimic_iii_for_annot)
-    
     notes_mimic_iii_for_annot.to_csv('filtered_notes_for_annotation_task.csv')
 
     logger.info('Saved Annotation task Notes to One-Hot (X to y) CSV. Moving on to MLM.')
-
     logger.warning('Assembling data (- annotation data) for MLM pre-training...')
-
     logger.info('loading MIMIC_CXR (Radiology Studies) data...')
+
     notes_mimic_cxr = pd.read_csv('data/mimic-cxr/cxr-study-list.csv.gz',usecols=['path'])
 
     tqdm.pandas(desc='Assigning text for radiology studies from directory...')
     notes_mimic_cxr['text'] = notes_mimic_cxr['path'].progress_apply(get_text_from_cxr_path)
     notes_mimic_cxr = notes_mimic_cxr.drop('path',axis=1)
 
-    all_notes_df = pd.concat([notes_mimic_iii,notes_mimic_cxr]) #FOR MLM
-
-    # admin_language = AdminLanguage()
+    all_notes_df = pd.concat([notes_mimic_iii_for_pretraining,notes_mimic_cxr]) #FOR MLM
 
     all_notes_df = preprocess_and_clean_notes(admin_language.explicit_removal,all_notes_df)
-
     logger.info('adding newline chars for ingestion...')
-
     all_notes = all_notes_df['text'] + '\n\n'
 
     logger.info('Splitting into Train/Validation (90%/10%)')
     train, val = train_test_split(all_notes, test_size=0.10) #10% test size
 
+
+    logger.info('Saving raw text files (this may take some time)...')
     train.to_csv('filtered_all_notes_train.raw',sep='\n',header=None,index=None)
     val.to_csv('filtered_all_notes_val.raw',sep='\n',header=None,index=None)
 
