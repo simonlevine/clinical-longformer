@@ -22,9 +22,10 @@ import os
 import copy
 import math
 from dataclasses import dataclass, field
-from transformers import RobertaForMaskedLM, RobertaTokenizer, TextDataset, DataCollatorForLanguageModeling, Trainer
+from transformers import RobertaForMaskedLM, RobertaTokenizer, DataCollatorForLanguageModeling, Trainer, LineByLineTextDataset
 from transformers import TrainingArguments, HfArgumentParser
 
+from datasets import load_dataset
 # from transformers.modeling_longformer import LongformerSelfAttention UNCOMMENT AND REMOVE AFTER HF>>3.02 RELEASES, RERUN
 
 import yaml
@@ -36,10 +37,6 @@ import torch
 import torch.nn as nn
 from torch.nn import CrossEntropyLoss, MSELoss
 from torch.nn import functional as F
-
-
-# with open('params.yaml', 'r') as f:
-#     params = yaml.safe_load(f.read())
 
 
 # Format: each document should be separated by an empty line
@@ -82,14 +79,15 @@ def main(training_args,model_args):
 
     logger.info(f'Pretraining roberta-base-{model_args.max_pos} ... ')
 
-    training_args.max_steps = 3   ## <<<<<<<<<<<<<<<<<<<<<<<< REMOVE THIS <<<<<<<<<<<<<<<<<<<<<<<<
+    # training_args.max_steps = 3   ## <<<<<<<<<<<<<<<<<<<<<<<< REMOVE THIS <<<<<<<<<<<<<<<<<<<<<<<<
 
     if training_args.max_steps != 3:
         logger.critical('This will take ~ 2-3 days!!!!')
 
     model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
-    pretrain_and_evaluate(training_args, model, tokenizer, eval_only=True, model_path=training_args.output_dir)
+
+    pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
 
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
     tokenizer.save_pretrained(model_path)
@@ -749,15 +747,20 @@ def create_long_model(model_specified, attention_window, max_pos):
 
     return model, tokenizer, config
 
+
+
+
 def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
-    val_dataset = TextDataset(tokenizer=tokenizer,
+    logger.info(f'Loading and tokenizing data is usually slow: {args.val_datapath}')
+    val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                               file_path=args.val_datapath,
                               block_size=tokenizer.max_len)
+
     if eval_only:
         train_dataset = val_dataset
     else:
         logger.info(f'Loading and tokenizing training data is usually slow: {args.train_datapath}')
-        train_dataset = TextDataset(tokenizer=tokenizer,
+        train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                                     file_path=args.train_datapath,
                                     block_size=tokenizer.max_len)
 

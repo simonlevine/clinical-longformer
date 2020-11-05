@@ -51,15 +51,20 @@ def main():
 
     all_notes_df = preprocess_and_clean_notes(admin_language.explicit_removal,all_notes_df)
     logger.info('adding newline chars for ingestion...')
-    all_notes = all_notes_df['text'] + '\n\n'
+    all_notes = all_notes_df['text'] + '\n'
 
     logger.info('Splitting into Train/Validation (90%/10%)')
     train, val = train_test_split(all_notes, test_size=0.10) #10% test size
 
 
-    logger.info('Saving raw text files (this may take some time)...')
-    train.to_csv('data/filtered_all_notes_train.raw',sep='\n',header=None,index=None)
-    val.to_csv('data/filtered_all_notes_val.raw',sep='\n',header=None,index=None)
+    ######REMOVE LATER
+    train=train.iloc[:100]
+    val=val.iloc[:10]
+
+
+    logger.info('Saving filtered text files to CSV (this may take some time)...')
+    train.to_csv('data/filtered_all_notes_train.txt',sep='\t',header=None,index=None)
+    val.to_csv('data/filtered_all_notes_val.txt',sep='\t',header=None,index=None)
 
     logger.critical(f'Successfully processed {len(notes_mimic_iii)} and {len(notes_mimic_cxr)} of MIMIC-iii and CXR notes!')
 
