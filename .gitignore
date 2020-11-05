@@ -20,3 +20,4 @@ filtered_all_notes_val.raw
 *.csv
 *.csv
 *.zip
+download_and_unzip_mimicdata.sh
