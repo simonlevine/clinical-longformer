@@ -72,6 +72,8 @@ def main(training_args,model_args):
     tokenizer.save_pretrained(unpretrained_model_path)
     config.save_pretrained(unpretrained_model_path)
 
+    logger.warning('SAVED elongated (but not pretrained) model, tokenizer, and config!')
+
     training_args.val_datapath = TRAIN_FPATH
     training_args.train_datapath = VAL_FPATH
 
@@ -83,7 +85,7 @@ def main(training_args,model_args):
     training_args.max_steps = 3   ## <<<<<<<<<<<<<<<<<<<<<<<< REMOVE THIS <<<<<<<<<<<<<<<<<<<<<<<<
 
     if training_args.max_steps != 3:
-        logger.critical('This will take ~ 2 days!')
+        logger.critical('This will take ~ 2-3 days!!!!')
 
     model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
@@ -93,7 +95,7 @@ def main(training_args,model_args):
     tokenizer.save_pretrained(model_path)
     config.save_pretrained(model_path)
 
-    logger.critical('Final pre-trained model saved.')
+    logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
 
 class LongformerSelfAttention(nn.Module):
