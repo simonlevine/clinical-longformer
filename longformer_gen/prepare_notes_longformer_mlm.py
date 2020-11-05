@@ -58,8 +58,8 @@ def main():
 
 
     logger.info('Saving raw text files (this may take some time)...')
-    train.to_csv('filtered_all_notes_train.raw',sep='\n',header=None,index=None)
-    val.to_csv('filtered_all_notes_val.raw',sep='\n',header=None,index=None)
+    train.to_csv('data/filtered_all_notes_train.raw',sep='\n',header=None,index=None)
+    val.to_csv('data/filtered_all_notes_val.raw',sep='\n',header=None,index=None)
 
     logger.critical(f'Successfully processed {len(notes_mimic_iii)} and {len(notes_mimic_cxr)} of MIMIC-iii and CXR notes!')
 
