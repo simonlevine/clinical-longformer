@@ -96,8 +96,8 @@ def main(training_args,model_args):
 
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
-
-class LongformerSelfAttention(nn.Module):
+#**kwargs to every forward function in modeling_longformer.py
+class LongformerSelfAttention(nn.Module,**kwargs):
     def __init__(self, config, layer_id):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0:
@@ -667,7 +667,7 @@ class LongformerSelfAttention(nn.Module):
         )
         return global_attn_output
 
-class RobertaLongSelfAttention(LongformerSelfAttention):
+class RobertaLongSelfAttention(LongformerSelfAttention,**kwargs):
     '''
     Inherits above...
     '''
@@ -682,7 +682,7 @@ class RobertaLongSelfAttention(LongformerSelfAttention):
         ):
         return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
 
-class RobertaLongModel(RobertaForMaskedLM):
+class RobertaLongModel(RobertaForMaskedLM,**kwargs):
     """RobertaLongForMaskedLM represents the "long" version of the RoBERTa model.
      It replaces BertSelfAttention with RobertaLongSelfAttention, which is 
      a thin wrapper around LongformerSelfAttention."""
@@ -800,8 +800,8 @@ training_args, model_args = parser.parse_args_into_dataclasses(look_for_args_fil
     '--logging_steps', '500',
     '--save_steps', '500',
     '--max_grad_norm', '5.0',
-    '--per_gpu_eval_batch_size', '8',
-    '--per_gpu_train_batch_size', '2',  # 32GB gpu with fp32
+    '--per_device_eval_batch_size', '8',
+    '--per_device_train_batch_size', '2',  # 32GB gpu with fp32
     '--gradient_accumulation_steps', '32',
     '--evaluate_during_training',
     '--do_train',
