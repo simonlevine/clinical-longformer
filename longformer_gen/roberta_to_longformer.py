@@ -97,7 +97,7 @@ def main(training_args,model_args):
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
 
-class LongformerSelfAttention(nn.Module,**kwargs):
+class LongformerSelfAttention(nn.Module):
     def __init__(self, config, layer_id):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0:
@@ -667,7 +667,7 @@ class LongformerSelfAttention(nn.Module,**kwargs):
         )
         return global_attn_output
 
-class RobertaLongSelfAttention(**kwargs):
+class RobertaLongSelfAttention(LongformerSelfAttention):
     '''
     Inherits above...
     '''
