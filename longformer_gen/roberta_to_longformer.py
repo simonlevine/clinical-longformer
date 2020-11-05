@@ -96,7 +96,7 @@ def main(training_args,model_args):
 
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
-#**kwargs to every forward function in modeling_longformer.py
+
 class LongformerSelfAttention(nn.Module,**kwargs):
     def __init__(self, config, layer_id):
         super().__init__()
@@ -667,7 +667,7 @@ class LongformerSelfAttention(nn.Module,**kwargs):
         )
         return global_attn_output
 
-class RobertaLongSelfAttention(LongformerSelfAttention,**kwargs):
+class RobertaLongSelfAttention(**kwargs):
     '''
     Inherits above...
     '''
@@ -682,7 +682,7 @@ class RobertaLongSelfAttention(LongformerSelfAttention,**kwargs):
         ):
         return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
 
-class RobertaLongModel(RobertaForMaskedLM,**kwargs):
+class RobertaLongModel(RobertaForMaskedLM):
     """RobertaLongForMaskedLM represents the "long" version of the RoBERTa model.
      It replaces BertSelfAttention with RobertaLongSelfAttention, which is 
      a thin wrapper around LongformerSelfAttention."""
