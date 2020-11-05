@@ -25,8 +25,9 @@ from dataclasses import dataclass, field
 from transformers import RobertaForMaskedLM, RobertaTokenizer, DataCollatorForLanguageModeling, Trainer, LineByLineTextDataset
 from transformers import TrainingArguments, HfArgumentParser
 
-from datasets import load_dataset
-# from transformers.modeling_longformer import LongformerSelfAttention UNCOMMENT AND REMOVE AFTER HF>>3.02 RELEASES, RERUN
+# from datasets import load_dataset
+
+# from transformers.modeling_longformer import LongformerSelfAttention CAN UNCOMMENT AND REMOVE AFTER HF>>3.02 RELEASES, RERUN
 
 import yaml
 
@@ -79,7 +80,7 @@ def main(training_args,model_args):
 
     logger.info(f'Pretraining roberta-base-{model_args.max_pos} ... ')
 
-    # training_args.max_steps = 3   ## <<<<<<<<<<<<<<<<<<<<<<<< REMOVE THIS <<<<<<<<<<<<<<<<<<<<<<<<
+    training_args.max_steps = 3   ## <<<<<<<<<<<<<<<<<<<<<<<< REMOVE THIS <<<<<<<<<<<<<<<<<<<<<<<<
 
     if training_args.max_steps != 3:
         logger.critical('This will take ~ 2-3 days!!!!')
