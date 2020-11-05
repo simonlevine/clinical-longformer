@@ -66,7 +66,7 @@ def main():
 
 
 def get_text_from_cxr_path(row):
-    fpath= 'data/mimic-cxr/'+row
+    fpath= 'data/physionet.org/files/mimic-cxr/2.0.0/'+row
     with open(fpath, 'r') as file:
         text = file.read()
     return text
