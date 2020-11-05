@@ -89,7 +89,7 @@ def main(training_args,model_args):
 
     model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
-    pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
+    pretrain_and_evaluate(training_args, model, tokenizer, eval_only=True, model_path=training_args.output_dir)
 
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
     tokenizer.save_pretrained(model_path)
