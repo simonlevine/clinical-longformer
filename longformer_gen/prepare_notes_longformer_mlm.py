@@ -47,7 +47,7 @@ def main():
     notes_mimic_cxr['text'] = notes_mimic_cxr['path'].progress_apply(get_text_from_cxr_path)
     notes_mimic_cxr = notes_mimic_cxr.drop('path',axis=1)
 
-    all_notes_df = pd.concat([notes_mimic_iii_for_pretraining,notes_mimic_cxr]) #FOR MLM
+    all_notes_df = pd.concat([notes_mimic_iii_for_pretraining,notes_mimic_cxr]).iloc[:500] #FOR MLM
 
     all_notes_df = preprocess_and_clean_notes(admin_language.explicit_removal,all_notes_df)
     logger.info('adding newline chars for ingestion...')
@@ -56,10 +56,6 @@ def main():
     logger.info('Splitting into Train/Validation (90%/10%)')
     train, val = train_test_split(all_notes, test_size=0.10) #10% test size
 
-
-    ######REMOVE LATER
-    train=train.iloc[:100]
-    val=val.iloc[:10]
 
 
     logger.info('Saving filtered text files to CSV (this may take some time)...')
