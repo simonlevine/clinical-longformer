@@ -22,7 +22,7 @@ import os
 import copy
 import math
 from dataclasses import dataclass, field
-from transformers import RobertaModel, RobertaTokenizer, TextDataset, DataCollatorForLanguageModeling, Trainer
+from transformers import RobertaForMaskedLM, RobertaTokenizer, TextDataset, DataCollatorForLanguageModeling, Trainer
 from transformers import TrainingArguments, HfArgumentParser
 
 # from transformers.modeling_longformer import LongformerSelfAttention UNCOMMENT AND REMOVE AFTER HF>>3.02 RELEASES, RERUN
@@ -61,7 +61,7 @@ def main(training_args,model_args):
         os.makedirs(model_path)
 
     logger.info(
-        f'Converting roberta-biomed-base into {base_model_name}, with global attn. window of {GLOBAL_MAX_POS} tokens.')
+        f'Converting roberta-biomed-base --> {base_model_name} with global attn. window of {GLOBAL_MAX_POS} tokens.')
 
     model, tokenizer, config = create_long_model(
         model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
@@ -683,7 +683,7 @@ class RobertaLongSelfAttention(LongformerSelfAttention):
         ):
         return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
 
-class RobertaLongModel(RobertaModel):
+class RobertaLongModel(RobertaForMaskedLM):
     """RobertaLongForMaskedLM represents the "long" version of the RoBERTa model.
      It replaces BertSelfAttention with RobertaLongSelfAttention, which is 
      a thin wrapper around LongformerSelfAttention."""
@@ -707,7 +707,7 @@ def create_long_model(model_specified, attention_window, max_pos):
         Check tables 6 and 11 in [the paper](https://arxiv.org/pdf/2004.05150.pdf) to get a sense of 
         the expected performance of this model before pretraining."""
 
-    model = RobertaModel.from_pretrained(model_specified,gradient_checkpointing=True)
+    model = RobertaForMaskedLM.from_pretrained(model_specified,gradient_checkpointing=True)
     tokenizer = RobertaTokenizer.from_pretrained(
         model_specified, model_max_length=max_pos)
     config = model.config
