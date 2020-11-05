@@ -18,12 +18,12 @@ def main():
     admin_language = AdminLanguage()
 
     logger.info('loading MIMIC_III (Emergency Department) Note Events...')
-    notes_mimic_iii = pd.read_csv('data/mimiciii-14/NOTEEVENTS.csv',usecols=['TEXT','ROW_ID']).rename(columns={'TEXT':'text'})
+    notes_mimic_iii = pd.read_csv('data/physionet.org/files/mimiciii/1.4/NOTEEVENTS.csv.gz',usecols=['TEXT','ROW_ID']).rename(columns={'TEXT':'text'})
 
     logger.warning('subsetting for phenotype annotation task...')
 
     logger.info('Dropping rows where labels are not "sure"...')
-    mimic_iii_annot = pd.read_csv('data/mimic-annotated/phenotype-annotations-for-patient-notes-in-the-mimic-iii-database-1.20.03/ACTdb102003.csv').drop(['SUBJECT_ID','HADM_ID','BATCH.ID','OPERATOR'],axis=1)
+    mimic_iii_annot = pd.read_csv('data/physionet.org/files/phenotype-annotations-mimic/1.20.03/ACTdb102003.csv').drop(['SUBJECT_ID','HADM_ID','BATCH.ID','OPERATOR'],axis=1)
     mimic_iii_annot = mimic_iii_annot[mimic_iii_annot['UNSURE']==0].drop(['UNSURE'],axis=1) 
     
     notes_mimic_iii_for_annot = notes_mimic_iii[notes_mimic_iii['ROW_ID'].isin(mimic_iii_annot['ROW_ID'])]
@@ -41,7 +41,7 @@ def main():
     logger.warning('Assembling data (- annotation data) for MLM pre-training...')
     logger.info('loading MIMIC_CXR (Radiology Studies) data...')
 
-    notes_mimic_cxr = pd.read_csv('data/mimic-cxr/cxr-study-list.csv.gz',usecols=['path'])
+    notes_mimic_cxr = pd.read_csv('data/physionet.org/files/mimic-cxr/2.0.0/cxr-study-list.csv.gz',usecols=['path'])
 
     tqdm.pandas(desc='Assigning text for radiology studies from directory...')
     notes_mimic_cxr['text'] = notes_mimic_cxr['path'].progress_apply(get_text_from_cxr_path)
