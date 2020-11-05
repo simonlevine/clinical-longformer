@@ -752,14 +752,14 @@ def create_long_model(model_specified, attention_window, max_pos):
 def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
     val_dataset = TextDataset(tokenizer=tokenizer,
                               file_path=args.val_datapath,
-                              block_size=tokenizer.max_len)
+                              block_size=tokenizer.model_max_len)
     if eval_only:
         train_dataset = val_dataset
     else:
         logger.info(f'Loading and tokenizing training data is usually slow: {args.train_datapath}')
         train_dataset = TextDataset(tokenizer=tokenizer,
                                     file_path=args.train_datapath,
-                                    block_size=tokenizer.max_len)
+                                    block_size=tokenizer.model_max_len)
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
     trainer = Trainer(model=model, args=args, data_collator=data_collator,
