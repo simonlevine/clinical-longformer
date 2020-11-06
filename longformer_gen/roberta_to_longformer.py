@@ -27,7 +27,9 @@ from transformers import TrainingArguments, HfArgumentParser
 
 # from datasets import load_dataset
 
-from transformers.modeling_longformer import LongformerSelfAttention #CAN UNCOMMENT AND REMOVE AFTER HF>>3.02 RELEASES, RERUN
+# from transformers.modeling_longformer import LongformerSelfAttention #CAN UNCOMMENT AND REMOVE AFTER HF>>3.02 RELEASES, RERUN
+from self_attn import LongformerSelfAttention
+
 
 import yaml
 
@@ -134,9 +136,11 @@ def main():
 
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
+class FixedLongformerSelfAttention(LongformerSelfAttention):
+    super()
 
 
-class RobertaLongSelfAttention(LongformerSelfAttention,**kwargs):
+class RobertaLongSelfAttention(FixedLongformerSelfAttention):
     '''
     Inherits above...
     '''
