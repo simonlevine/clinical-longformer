@@ -124,7 +124,7 @@ def main():
         adam_epsilon= 1e-6,
         weight_decay= 0.01,
         do_eval= True,
-        do_train=True,
+        do_train=True
         )
 
 
@@ -224,7 +224,7 @@ def create_long_model(model_specified, attention_window, max_pos):
 
 
 def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
-    logger.info(f'Loading and tokenizing data is usually slow: {args.val_datapath}')
+    logger.info(f'Loading and tokenizing data is usually slow: {VAL_FPATH}')
     val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                               file_path=args.val_datapath,
                               block_size=tokenizer.max_len)
@@ -232,7 +232,7 @@ def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
     if eval_only:
         train_dataset = val_dataset
     else:
-        logger.info(f'Loading and tokenizing training data is usually slow: {args.train_datapath}')
+        logger.info(f'Loading and tokenizing training data is usually slow: {TRAIN_FPATH}')
         train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                                     file_path=args.train_datapath,
                                     block_size=tokenizer.max_len)
