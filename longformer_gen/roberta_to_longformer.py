@@ -136,7 +136,7 @@ def main():
 
 
 
-class RobertaLongSelfAttention(LongformerSelfAttention):
+class RobertaLongSelfAttention(LongformerSelfAttention,**kwargs):
     '''
     Inherits above...
     '''
