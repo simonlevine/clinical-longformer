@@ -310,9 +310,6 @@ def create_long_model(model_specified, attention_window, max_pos):
 
 
 class RobertaLongSelfAttention(LongformerSelfAttention):
-    '''
-    Inherits above...
-    '''
     def forward(
         self,
         hidden_states,
@@ -321,20 +318,16 @@ class RobertaLongSelfAttention(LongformerSelfAttention):
         encoder_hidden_states=None,
         encoder_attention_mask=None,
         output_attentions=False,
-        ):
+    ):
         return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
 
+
 class RobertaLongForMaskedLM(RobertaForMaskedLM):
-    """RobertaLongForMaskedLM represents the "long" version of the RoBERTa model.
-     It replaces BertSelfAttention with RobertaLongSelfAttention, which is 
-     a thin wrapper around LongformerSelfAttention."""
     def __init__(self, config):
         super().__init__(config)
-        for i, layer in enumerate(self.encoder.layer):
-            # replace the `modeling_bert.BertSelfAttention` object with `RobertaLongSelfAttention`
+        for i, layer in enumerate(self.roberta.encoder.layer):
+            # replace the `modeling_bert.BertSelfAttention` object with `LongformerSelfAttention`
             layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
-
-
 
 if __name__ == "__main__":
     main()
