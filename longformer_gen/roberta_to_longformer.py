@@ -60,7 +60,7 @@ def main():
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
     base_model_name = base_model_name_HF.split('/')[-1]
     model_path = f'{MODEL_OUT_DIR}/bioclinical-longformer' #includes speedfix
-    unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-4096' #includes speedfix
+    unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-{GLOBAL_MAX_POS}' #includes speedfix
 
     if not os.path.exists(model_path):
         os.makedirs(model_path)
@@ -68,14 +68,14 @@ def main():
     logger.info(
         f'Converting roberta-biomed-base --> {base_model_name} with global attn. window of {GLOBAL_MAX_POS} tokens.')
 
-    # model, tokenizer, config = create_long_model(
-    #     model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
+    model, tokenizer, config = create_long_model(
+        model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
 
-    # logger.info('Long model, tokenizer, and config created.')
+    logger.info('Long model, tokenizer, and config created.')
 
-    # model.save_pretrained(unpretrained_model_path) #save elongated, not pre-trained model, to the disk.
-    # tokenizer.save_pretrained(unpretrained_model_path)
-    # config.save_pretrained(unpretrained_model_path)
+    model.save_pretrained(unpretrained_model_path) #save elongated, not pre-trained model, to the disk.
+    tokenizer.save_pretrained(unpretrained_model_path)
+    config.save_pretrained(unpretrained_model_path)
 
     logger.warning('SAVED elongated (but not pretrained) model, tokenizer, and config!')
 
@@ -83,7 +83,7 @@ def main():
 
     logger.info(f'Pretraining roberta-biomed-{GLOBAL_MAX_POS} ... ')
 
-    # model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
+    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
 
     if FAST_DEV_RUN == True:
@@ -125,10 +125,6 @@ def main():
         do_eval= True,
         do_train=True
         )
-
-
-    model = RobertaForMaskedLM.from_pretrained('roberta-base')
-    tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
 
