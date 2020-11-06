@@ -171,7 +171,7 @@ def main():
 
 class CustomSelfAttention(LongformerSelfAttention):
     def forward(
-        self, hidden_states, attention_mask=None, is_index_masked=None, is_index_global_attn=None, is_global_attn=None,**kwargs
+        self, hidden_states, attention_mask=None, is_index_masked=None, is_index_global_attn=None, is_global_attn=None,*args
     ):
         """
         LongformerSelfAttention expects `len(hidden_states)` to be multiple of `attention_window`. Padding to
