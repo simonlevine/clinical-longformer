@@ -183,9 +183,9 @@ def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path
                                     block_size= tokenizer.max_len)
 
 
-    data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer_for_mlm, mlm=True, mlm_probability=0.15)
+    data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
 
-    trainer = Trainer(model=model_for_mlm, args=training_args, data_collator=data_collator,
+    trainer = Trainer(model=model, args=training_args, data_collator=data_collator,
                       train_dataset=train_dataset, eval_dataset=val_dataset, prediction_loss_only=True)
 
     eval_loss = trainer.evaluate()
