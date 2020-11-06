@@ -174,7 +174,7 @@ class LongformerSelfAttention(nn.Module):
         self.one_sided_attn_window_size = attention_window // 2
 
     def forward(
-        self, hidden_states, attention_mask=None, is_index_masked=None, is_index_global_attn=None, is_global_attn=None,**kwargs
+        self, hidden_states, attention_mask=None, is_index_masked=None, is_index_global_attn=None, is_global_attn=None,*args
     ):
         """
         LongformerSelfAttention expects `len(hidden_states)` to be multiple of `attention_window`. Padding to
@@ -687,9 +687,9 @@ class RobertaLongSelfAttention(LongformerSelfAttention):
         encoder_hidden_states=None,
         encoder_attention_mask=None,
         output_attentions=False,
-        **kwargs
+        *args
         ):
-        return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions,**kwargs)
+        return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions,*args)
 
 class RobertaLongModel(RobertaForMaskedLM):
     """RobertaLongForMaskedLM represents the "long" version of the RoBERTa model.
