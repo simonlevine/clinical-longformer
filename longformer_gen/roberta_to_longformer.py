@@ -146,7 +146,7 @@ def main():
         do_train=True
         )
 
-    pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
+    pretrain_and_evaluate(training_args, RobertaLongForMaskedLM.from_pretrained(model), tokenizer, eval_only=False, model_path=training_args.output_dir)
 
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
     tokenizer.save_pretrained(model_path)
@@ -718,30 +718,7 @@ class LongformerSelfAttention(nn.Module):
         return global_attn_output, global_attn_probs
 
 
-class RobertaLongSelfAttention(LongformerSelfAttention):
-    '''
-    Inherits above...
-    '''
-    def forward(
-        self,
-        hidden_states,
-        attention_mask=None,
-        head_mask=None,
-        encoder_hidden_states=None,
-        encoder_attention_mask=None,
-        output_attentions=False,
-        ):
-        return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
 
-class RobertaLongForMaskedLM(RobertaForMaskedLM):
-    """RobertaLongForMaskedLM represents the "long" version of the RoBERTa model.
-     It replaces BertSelfAttention with RobertaLongSelfAttention, which is 
-     a thin wrapper around LongformerSelfAttention."""
-    def __init__(self, config):
-        super().__init__(config)
-        for i, layer in enumerate(self.encoder.layer):
-            # replace the `modeling_bert.BertSelfAttention` object with `LongformerSelfAttention`
-            layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
 
 def create_long_model(model_specified, attention_window, max_pos):
 
@@ -833,6 +810,32 @@ def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
         logger.info(f'Eval bpc after pretraining: {eval_loss/math.log(2)}')
 
 
+
+
+class RobertaLongSelfAttention(LongformerSelfAttention):
+    '''
+    Inherits above...
+    '''
+    def forward(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        encoder_hidden_states=None,
+        encoder_attention_mask=None,
+        output_attentions=False,
+        ):
+        return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
+
+class RobertaLongForMaskedLM(RobertaForMaskedLM):
+    """RobertaLongForMaskedLM represents the "long" version of the RoBERTa model.
+     It replaces BertSelfAttention with RobertaLongSelfAttention, which is 
+     a thin wrapper around LongformerSelfAttention."""
+    def __init__(self, config):
+        super().__init__(config)
+        for i, layer in enumerate(self.encoder.layer):
+            # replace the `modeling_bert.BertSelfAttention` object with `RobertaLongSelfAttention`
+            layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
 
 
 
