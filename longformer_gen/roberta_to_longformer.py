@@ -762,7 +762,14 @@ def create_long_model(model_specified, attention_window, max_pos):
         new_pos_embed[k:(
             k + step)] = model.roberta.embeddings.position_embeddings.weight[2:]
         k += step
+        
     model.roberta.embeddings.position_embeddings.weight.data = new_pos_embed
+    model.roberta.embeddings.position_embeddings.num_embeddings = len(new_pos_embed.data)
+# first, check that model.roberta.embeddings.position_embeddings.weight.data.shape is correct — has to be 4096 (default) of your desired length
+    model.roberta.embeddings.position_ids = torch.arange(
+        0, model.roberta.embeddings.position_embeddings.num_embeddings
+    )[None]
+
     model.roberta.embeddings.position_ids.data = torch.tensor([i for i in range(max_pos)]).reshape(1, max_pos)
     
 
