@@ -146,7 +146,7 @@ def main():
         do_train=True
         )
 
-    pretrain_and_evaluate(training_args, RobertaLongForMaskedLM.from_pretrained(model), tokenizer, eval_only=False, model_path=training_args.output_dir)
+    pretrain_and_evaluate(training_args, RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path), tokenizer, eval_only=False, model_path=training_args.output_dir)
 
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
     tokenizer.save_pretrained(model_path)
@@ -716,7 +716,6 @@ class LongformerSelfAttention(nn.Module):
             batch_size, self.num_heads, max_num_global_attn_indices, self.head_dim
         )
         return global_attn_output, global_attn_probs
-
 
 
 
