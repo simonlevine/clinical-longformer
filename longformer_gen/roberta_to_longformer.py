@@ -51,7 +51,6 @@ GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 
 FAST_DEV_RUN=True
 
-
 if FAST_DEV_RUN == True:
     TRAIN_FPATH = VAL_FPATH
 
@@ -69,14 +68,14 @@ def main():
     logger.info(
         f'Converting roberta-biomed-base --> {base_model_name} with global attn. window of {GLOBAL_MAX_POS} tokens.')
 
-    model, tokenizer, config = create_long_model(
-        model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
+    # model, tokenizer, config = create_long_model(
+    #     model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
 
-    logger.info('Long model, tokenizer, and config created.')
+    # logger.info('Long model, tokenizer, and config created.')
 
-    model.save_pretrained(unpretrained_model_path) #save elongated, not pre-trained model, to the disk.
-    tokenizer.save_pretrained(unpretrained_model_path)
-    config.save_pretrained(unpretrained_model_path)
+    # model.save_pretrained(unpretrained_model_path) #save elongated, not pre-trained model, to the disk.
+    # tokenizer.save_pretrained(unpretrained_model_path)
+    # config.save_pretrained(unpretrained_model_path)
 
     logger.warning('SAVED elongated (but not pretrained) model, tokenizer, and config!')
 
@@ -84,7 +83,7 @@ def main():
 
     logger.info(f'Pretraining roberta-biomed-{GLOBAL_MAX_POS} ... ')
 
-    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
+    # model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
 
     if FAST_DEV_RUN == True:
@@ -128,6 +127,9 @@ def main():
         )
 
 
+    model = RobertaForMaskedLM.from_pretrained('roberta-base')
+    tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+    
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
 
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
