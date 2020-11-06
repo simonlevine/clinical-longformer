@@ -10,7 +10,7 @@ After this script completes, can access the pre-trained model from:
 
 2311015 rows of mimic-iii + cxr are combined 
 
-    # tokenizer = RobertaTokenizerFast.from_pretrained(model_path)
+    # tokenizer = RobertaTokenizerFastFast.from_pretrained(model_path)
     # model = RobertaLongForMaskedLM.from_pretrained(model_path)
 
 Simon Levine-Gottreich, 2020
@@ -22,7 +22,7 @@ import os
 import copy
 import math
 from dataclasses import dataclass, field
-from transformers import RobertaForMaskedLM, RobertaTokenizer, DataCollatorForLanguageModeling, Trainer, LineByLineTextDataset
+from transformers import RobertaForMaskedLM, RobertaTokenizerFast, DataCollatorForLanguageModeling, Trainer, LineByLineTextDataset
 from transformers import TrainingArguments, HfArgumentParser
 
 # from datasets import load_dataset
@@ -177,7 +177,7 @@ def create_long_model(model_specified, attention_window, max_pos):
         the expected performance of this model before pretraining."""
 
     model = RobertaForMaskedLM.from_pretrained(model_specified,gradient_checkpointing=True)
-    tokenizer = RobertaTokenizer.from_pretrained(
+    tokenizer = RobertaTokenizerFast.from_pretrained(
         model_specified, model_max_length=max_pos)
     config = model.config
 
