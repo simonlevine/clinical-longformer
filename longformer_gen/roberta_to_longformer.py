@@ -71,7 +71,7 @@ LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
 GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 
 
-FAST_DEV_RUN=True
+FAST_DEV_RUN = True
 
 if FAST_DEV_RUN == True:
     TRAIN_FPATH = VAL_FPATH
@@ -447,7 +447,7 @@ class LongformerSelfAttention(nn.Module):
         implementation splits the input into overlapping chunks of size 2w (e.g. 512 for pretrained Longformer) with an
         overlap of size window_overlap
         """
-        batch_size, seq_len, num_heads, head_dim = query.size()
+        batch_size, seq_len, num_heads, head_dim,_ = query.size()
         assert (
             seq_len % (window_overlap * 2) == 0
         ), f"Sequence length should be multiple of {window_overlap * 2}. Given {seq_len}"
