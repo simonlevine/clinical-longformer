@@ -166,7 +166,7 @@ class LineByLineTextDataset(Dataset):
         # Here, we do not cache the features, operating under the assumption
         # that we will soon use fast multithreaded tokenizers from the
         # `tokenizers` repo everywhere =)
-        logger.info("Creating features from dataset file at %s", file_path)
+        logger.info(f"Creating features from dataset file at {file_path})
 
         with open(file_path, encoding="utf-8") as f:
             lines = [line for line in f.read().splitlines() if (len(line) > 0 and not line.isspace())]
@@ -730,9 +730,9 @@ class RobertaLongSelfAttention(LongformerSelfAttention):
         encoder_hidden_states=None,
         encoder_attention_mask=None,
         output_attentions=False,
-        *args
+        **kwargs
         ):
-        return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions,*args)
+        return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions,**kwargs)
 
 class RobertaLongModel(RobertaForMaskedLM):
     """RobertaLongForMaskedLM represents the "long" version of the RoBERTa model.
