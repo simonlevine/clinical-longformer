@@ -224,7 +224,7 @@ class LongformerSelfAttention(nn.Module):
         self.one_sided_attn_window_size = attention_window // 2
 
     def forward(
-        self, hidden_states, attention_mask=None, is_index_masked=None, is_index_global_attn=None, is_global_attn=None,**kwargs
+        self, hidden_states, attention_mask=None, is_index_masked=None, is_index_global_attn=None, is_global_attn=None,*args
     ):
         """
         LongformerSelfAttention expects `len(hidden_states)` to be multiple of `attention_window`. Padding to
@@ -762,7 +762,7 @@ def create_long_model(model_specified, attention_window, max_pos):
         new_pos_embed[k:(
             k + step)] = model.roberta.embeddings.position_embeddings.weight[2:]
         k += step
-        
+
     model.roberta.embeddings.position_embeddings.weight.data = new_pos_embed
     model.roberta.embeddings.position_embeddings.num_embeddings = len(new_pos_embed.data)
 # first, check that model.roberta.embeddings.position_embeddings.weight.data.shape is correct — has to be 4096 (default) of your desired length
