@@ -730,7 +730,6 @@ class RobertaLongSelfAttention(LongformerSelfAttention):
         encoder_hidden_states=None,
         encoder_attention_mask=None,
         output_attentions=False,
-        *args
         ):
         return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions,*args)
 
