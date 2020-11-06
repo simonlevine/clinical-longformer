@@ -166,7 +166,7 @@ class LineByLineTextDataset(Dataset):
         # Here, we do not cache the features, operating under the assumption
         # that we will soon use fast multithreaded tokenizers from the
         # `tokenizers` repo everywhere =)
-        logger.info(f"Creating features from dataset file at {file_path})
+        logger.info(f'Creating features from dataset file at {file_path}')
 
         with open(file_path, encoding="utf-8") as f:
             lines = [line for line in f.read().splitlines() if (len(line) > 0 and not line.isspace())]
