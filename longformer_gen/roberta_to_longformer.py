@@ -77,35 +77,6 @@ if FAST_DEV_RUN == True:
 def main():
 
 
-    base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
-    base_model_name = base_model_name_HF.split('/')[-1]
-    model_path = f'{MODEL_OUT_DIR}/bioclinical-longformer' #includes speedfix
-    unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-{GLOBAL_MAX_POS}' #includes speedfix
-
-    if not os.path.exists(model_path):
-        os.makedirs(model_path)
-
-    logger.info(
-        f'Converting roberta-biomed-base --> {base_model_name} with global attn. window of {GLOBAL_MAX_POS} tokens.')
-
-    model, tokenizer, config = create_long_model(
-        model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
-
-    logger.info('Long model, tokenizer, and config created.')
-
-    model.save_pretrained(unpretrained_model_path) #save elongated, not pre-trained model, to the disk.
-    tokenizer.save_pretrained(unpretrained_model_path)
-    config.save_pretrained(unpretrained_model_path)
-
-    logger.warning('SAVED elongated (but not pretrained) model, tokenizer, and config!')
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0" #GPU
-
-    logger.info(f'Pretraining roberta-biomed-{GLOBAL_MAX_POS} ... ')
-
-    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
-
-
     if FAST_DEV_RUN == True:
         training_args = TrainingArguments(
             output_dir="./longformer_gen/checkpoints",
@@ -146,7 +117,38 @@ def main():
         do_train=True
         )
 
-    pretrain_and_evaluate(training_args, RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path), tokenizer, eval_only=False, model_path=training_args.output_dir)
+
+
+    base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
+    base_model_name = base_model_name_HF.split('/')[-1]
+    model_path = f'{MODEL_OUT_DIR}/bioclinical-longformer' #includes speedfix
+    unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-{GLOBAL_MAX_POS}' #includes speedfix
+
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
+
+    logger.info(
+        f'Converting roberta-biomed-base --> {base_model_name} with global attn. window of {GLOBAL_MAX_POS} tokens.')
+
+    model, tokenizer, config = create_long_model(
+        model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
+
+    logger.info('Long model, tokenizer, and config created.')
+
+    model.save_pretrained(unpretrained_model_path) #save elongated, not pre-trained model, to the disk.
+    tokenizer.save_pretrained(unpretrained_model_path)
+    config.save_pretrained(unpretrained_model_path)
+
+    logger.warning('SAVED elongated (but not pretrained) model, tokenizer, and config!')
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0" #GPU
+
+    logger.info(f'Pretraining roberta-biomed-{GLOBAL_MAX_POS} ... ')
+
+    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
+
+
+    pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
 
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
     tokenizer.save_pretrained(model_path)
@@ -217,7 +219,7 @@ class LongformerSelfAttention(nn.Module):
         self.one_sided_attn_window_size = attention_window // 2
 
     def forward(
-        self, hidden_states, attention_mask=None, is_index_masked=None, is_index_global_attn=None, is_global_attn=None,**kwargs
+        self, hidden_states, attention_mask=None, is_index_masked=None, is_index_global_attn=None, is_global_attn=None,*args
     ):
         """
         LongformerSelfAttention expects `len(hidden_states)` to be multiple of `attention_window`. Padding to
@@ -809,32 +811,30 @@ def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
         logger.info(f'Eval bpc after pretraining: {eval_loss/math.log(2)}')
 
 
+# class RobertaLongSelfAttention(LongformerSelfAttention):
+#     '''
+#     Inherits above...
+#     '''
+#     def forward(
+#         self,
+#         hidden_states,
+#         attention_mask=None,
+#         head_mask=None,
+#         encoder_hidden_states=None,
+#         encoder_attention_mask=None,
+#         output_attentions=False,
+#         ):
+#         return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
 
-
-class RobertaLongSelfAttention(LongformerSelfAttention):
-    '''
-    Inherits above...
-    '''
-    def forward(
-        self,
-        hidden_states,
-        attention_mask=None,
-        head_mask=None,
-        encoder_hidden_states=None,
-        encoder_attention_mask=None,
-        output_attentions=False,
-        ):
-        return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
-
-class RobertaLongForMaskedLM(RobertaForMaskedLM):
-    """RobertaLongForMaskedLM represents the "long" version of the RoBERTa model.
-     It replaces BertSelfAttention with RobertaLongSelfAttention, which is 
-     a thin wrapper around LongformerSelfAttention."""
-    def __init__(self, config):
-        super().__init__(config)
-        for i, layer in enumerate(self.encoder.layer):
-            # replace the `modeling_bert.BertSelfAttention` object with `RobertaLongSelfAttention`
-            layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
+# class RobertaLongForMaskedLM(RobertaForMaskedLM):
+#     """RobertaLongForMaskedLM represents the "long" version of the RoBERTa model.
+#      It replaces BertSelfAttention with RobertaLongSelfAttention, which is 
+#      a thin wrapper around LongformerSelfAttention."""
+#     def __init__(self, config):
+#         super().__init__(config)
+#         for i, layer in enumerate(self.encoder.layer):
+#             # replace the `modeling_bert.BertSelfAttention` object with `RobertaLongSelfAttention`
+#             layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
 
 
 
