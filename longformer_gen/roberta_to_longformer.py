@@ -48,7 +48,15 @@ MODEL_OUT_DIR = './longformer_gen'
 LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
 GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 
+
+FAST_DEV_RUN=True
+
+
+if FAST_DEV_RUN == True:
+    TRAIN_FPATH = VAL_FPATH
+
 def main(training_args,model_args):
+
 
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
     base_model_name = base_model_name_HF.split('/')[-1]
@@ -86,6 +94,45 @@ def main(training_args,model_args):
         logger.critical('This will take ~ 2-3 days!!!!')
 
     model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
+
+
+    if FAST_DEV_RUN == True:
+        training_args = TrainingArguments(
+            output_dir="./longformer_gen/checkpoints",
+            overwrite_output_dir=True,
+            num_train_epochs=1,
+            warmup_steps= 0,
+            logging_steps=1,
+            save_steps=1,
+            max_grad_norm= 5.0,
+            per_device_eval_batch_size=8,
+            per_device_train_batch_size=2,
+            gradient_accumulation_steps= 32,
+            learning_rate = 0.00003,
+            adam_epsilon= 1e-6,
+            weight_decay= 0.01,
+            do_eval= True,
+            do_train=True,
+            )
+    
+    else:
+        training_args = TrainingArguments(
+        output_dir="./longformer_gen/checkpoints",
+        overwrite_output_dir=True,
+        num_train_epochs=3000,
+        warmup_steps= 500,
+        logging_steps=500,
+        save_steps=500,
+        max_grad_norm= 5.0,
+        per_device_eval_batch_size=8,
+        per_device_train_batch_size=2,
+        gradient_accumulation_steps= 32,
+        learning_rate = 0.00003,
+        adam_epsilon= 1e-6,
+        weight_decay= 0.01,
+        do_eval= True,
+        do_train=True,
+        )
 
 
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
@@ -215,31 +262,7 @@ def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
 
 
 
-@dataclass
-class ModelArgs:
-    attention_window: int = field(default=LOCAL_ATTN_WINDOW, metadata={"help": "Size of attention window"})
-    max_pos: int = field(default=GLOBAL_MAX_POS, metadata={"help": "Maximum position"})
-
-parser = HfArgumentParser((TrainingArguments, ModelArgs,))
-
-training_args, model_args = parser.parse_args_into_dataclasses(look_for_args_file=False, args=[
-    '--output_dir', 'tmp',
-    '--warmup_steps', '500',
-    '--learning_rate', '0.00003',
-    '--weight_decay', '0.01',
-    '--adam_epsilon', '1e-6',
-    '--max_steps', '3000',
-    '--logging_steps', '500',
-    '--save_steps', '500',
-    '--max_grad_norm', '5.0',
-    '--per_device_eval_batch_size', '8',
-    '--per_device_train_batch_size', '2',  # 32GB gpu with fp32
-    '--gradient_accumulation_steps', '32',
-    '--evaluate_during_training',
-    '--do_train',
-    '--do_eval',
-])
 
 
 if __name__ == "__main__":
-    main(training_args, model_args)
+    main()
