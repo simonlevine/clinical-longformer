@@ -134,7 +134,7 @@ def main():
 
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
     tokenizer.save_pretrained(model_path)
-    config.save_pretrained(model_path)
+    model.config.save_pretrained(model_path)
 
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
