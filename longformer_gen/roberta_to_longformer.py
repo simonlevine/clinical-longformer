@@ -31,7 +31,7 @@ from transformers import LongformerForMaskedLM, LongformerTokenizerFast
 
 # from datasets import load_dataset
 
-# from transformers.modeling_longformer import LongformerSelfAttention #CAN UNCOMMENT AND REMOVE AFTER HF>>3.02 RELEASES, RERUN
+from transformers.modeling_longformer import LongformerSelfAttention #CAN UNCOMMENT AND REMOVE AFTER HF>>3.02 RELEASES, RERUN
 # from self_attn import LongformerSelfAttention
 
 
@@ -121,33 +121,33 @@ def main():
 
 
 
-    # base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
-    # base_model_name = base_model_name_HF.split('/')[-1]
-    # model_path = f'{MODEL_OUT_DIR}/bioclinical-longformer' #includes speedfix
-    # unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-{GLOBAL_MAX_POS}' #includes speedfix
+    base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
+    base_model_name = base_model_name_HF.split('/')[-1]
+    model_path = f'{MODEL_OUT_DIR}/bioclinical-longformer' #includes speedfix
+    unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-{GLOBAL_MAX_POS}' #includes speedfix
 
-    # if not os.path.exists(model_path):
-    #     os.makedirs(model_path)
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
 
-    # logger.info(
-    #     f'Converting roberta-biomed-base --> {base_model_name} with global attn. window of {GLOBAL_MAX_POS} tokens.')
+    logger.info(
+        f'Converting roberta-biomed-base --> {base_model_name} with global attn. window of {GLOBAL_MAX_POS} tokens.')
 
-    # model, tokenizer, config = create_long_model(
-    #     model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
+    model, tokenizer, config = create_long_model(
+        model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS)
 
-    # logger.info('Long model, tokenizer, and config created.')
+    logger.info('Long model, tokenizer, and config created.')
 
-    # model.save_pretrained(unpretrained_model_path) #save elongated, not pre-trained model, to the disk.
-    # tokenizer.save_pretrained(unpretrained_model_path)
-    # config.save_pretrained(unpretrained_model_path)
+    model.save_pretrained(unpretrained_model_path) #save elongated, not pre-trained model, to the disk.
+    tokenizer.save_pretrained(unpretrained_model_path)
+    config.save_pretrained(unpretrained_model_path)
 
-    # logger.warning('SAVED elongated (but not pretrained) model, tokenizer, and config!')
+    logger.warning('SAVED elongated (but not pretrained) model, tokenizer, and config!')
 
-    # os.environ["CUDA_VISIBLE_DEVICES"] = "0" #GPU
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0" #GPU
 
-    # logger.info(f'Pretraining roberta-biomed-{GLOBAL_MAX_POS} ... ')
+    logger.info(f'Pretraining roberta-biomed-{GLOBAL_MAX_POS} ... ')
 
-    model, tokenizer = LongformerForMaskedLM.from_pretrained('allenai/longformer-base-4096'), LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
+    # model, tokenizer = LongformerForMaskedLM.from_pretrained('allenai/longformer-base-4096'), LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 
     model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
@@ -224,7 +224,7 @@ class LongformerSelfAttention(nn.Module):
         self.one_sided_attn_window_size = attention_window // 2
 
     def forward(
-        self, hidden_states, attention_mask=None, is_index_masked=None, is_index_global_attn=None, is_global_attn=None,*args
+        self, hidden_states, attention_mask=None, is_index_masked=None, is_index_global_attn=None, is_global_attn=None,**kwargs
     ):
         """
         LongformerSelfAttention expects `len(hidden_states)` to be multiple of `attention_window`. Padding to
