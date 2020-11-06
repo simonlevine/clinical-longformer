@@ -129,7 +129,7 @@ def main():
 
     model = RobertaForMaskedLM.from_pretrained('roberta-base')
     tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
-    
+
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
 
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
@@ -228,7 +228,7 @@ def create_long_model(model_specified, attention_window, max_pos):
 def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
     logger.info(f'Loading and tokenizing data is usually slow: {VAL_FPATH}')
     val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                              file_path=args.val_datapath,
+                              file_path=VAL_FPATH,
                               block_size=tokenizer.max_len)
 
     if eval_only:
@@ -236,7 +236,7 @@ def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
     else:
         logger.info(f'Loading and tokenizing training data is usually slow: {TRAIN_FPATH}')
         train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                                    file_path=args.train_datapath,
+                                    file_path=TRAIN_FPATH,
                                     block_size=tokenizer.max_len)
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
