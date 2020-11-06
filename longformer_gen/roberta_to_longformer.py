@@ -55,7 +55,7 @@ FAST_DEV_RUN=True
 if FAST_DEV_RUN == True:
     TRAIN_FPATH = VAL_FPATH
 
-def main(training_args,model_args):
+def main():
 
 
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
@@ -80,18 +80,9 @@ def main(training_args,model_args):
 
     logger.warning('SAVED elongated (but not pretrained) model, tokenizer, and config!')
 
-    training_args.val_datapath = TRAIN_FPATH
-    training_args.train_datapath = VAL_FPATH
-
-
     os.environ["CUDA_VISIBLE_DEVICES"] = "0" #GPU
 
-    logger.info(f'Pretraining roberta-base-{model_args.max_pos} ... ')
-
-    training_args.max_steps = 3   ## <<<<<<<<<<<<<<<<<<<<<<<< REMOVE THIS <<<<<<<<<<<<<<<<<<<<<<<<
-
-    if training_args.max_steps != 3:
-        logger.critical('This will take ~ 2-3 days!!!!')
+    logger.info(f'Pretraining roberta-biomed-{GLOBAL_MAX_POS} ... ')
 
     model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
@@ -100,7 +91,7 @@ def main(training_args,model_args):
         training_args = TrainingArguments(
             output_dir="./longformer_gen/checkpoints",
             overwrite_output_dir=True,
-            num_train_epochs=1,
+            max_steps=2,
             warmup_steps= 0,
             logging_steps=1,
             save_steps=1,
@@ -116,12 +107,14 @@ def main(training_args,model_args):
             )
     
     else:
+        logger.critical(f'Pre-Training {model.num_parameters()}-parameter model. This will take ~ 2-3 days!!!!')
+
         training_args = TrainingArguments(
-        output_dir="./longformer_gen/checkpoints",
+        output_dir=f"./longformer_gen/checkpoints/bioclinicaLongformer",
         overwrite_output_dir=True,
-        num_train_epochs=3000,
         warmup_steps= 500,
         logging_steps=500,
+        max_steps = 3000,
         save_steps=500,
         max_grad_norm= 5.0,
         per_device_eval_batch_size=8,
