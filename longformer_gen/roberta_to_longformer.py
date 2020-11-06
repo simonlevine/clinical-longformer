@@ -147,11 +147,12 @@ def main():
 
     # logger.info(f'Pretraining roberta-biomed-{GLOBAL_MAX_POS} ... ')
 
-    # model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
+    model, tokenizer = LongformerForMaskedLM.from_pretrained('allenai/longformer-base-4096'), LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
+
+    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
 
-    # pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
-    pretrain_and_evaluate(training_args, LongformerForMaskedLM.from_pretrained('allenai/longformer-base-4096'), LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096'), eval_only=False, model_path=training_args.output_dir)
+    pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path=training_args.output_dir)
 
 
     model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
