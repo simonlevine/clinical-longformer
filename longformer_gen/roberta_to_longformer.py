@@ -44,21 +44,7 @@ from torch.nn import CrossEntropyLoss, MSELoss
 from torch.nn import functional as F
 
 
-import json
-import os
-import pickle
-import random
-import time
-import warnings
-from typing import Dict, List, Optional
 
-import torch
-from torch.utils.data.dataset import Dataset
-
-from filelock import FileLock
-
-from ...tokenization_utils import PreTrainedTokenizer
-from ...utils import logging
 
 
 # Format: each document should be separated by an empty line
@@ -161,7 +147,7 @@ class LineByLineTextDataset(Dataset):
     This will be superseded by a framework-agnostic approach soon.
     """
 
-    def __init__(self, tokenizer: PreTrainedTokenizer, file_path: str, block_size: int):
+    def __init__(self, tokenizer, file_path: str, block_size: int):
         # warnings.warn(DEPRECATION_WARNING, FutureWarning)
         assert os.path.isfile(file_path), f"Input file path {file_path} not found"
         # Here, we do not cache the features, operating under the assumption
