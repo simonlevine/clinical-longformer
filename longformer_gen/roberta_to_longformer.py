@@ -187,6 +187,9 @@ def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
 
+    # model_for_mlm = RobertaLongForMaskedLM.from_pretrained(model_path)
+    # tokenizer_for_mlm = RobertaTokenizerFast.from_pretrained(model_path)
+
     trainer = Trainer(model=model, args=None, data_collator=data_collator,
                       train_dataset=train_dataset, eval_dataset=val_dataset, prediction_loss_only=True)
 
@@ -291,7 +294,7 @@ def create_long_model(model_specified, attention_window, max_pos):
     # replace the `modeling_bert.BertSelfAttention` object with `LongformerSelfAttention`
     config.attention_window = [attention_window] * config.num_hidden_layers
     for i, layer in enumerate(model.roberta.encoder.layer):
-        longformer_self_attn = RobertaLongSelfAttention(config, layer_id=i)
+        longformer_self_attn = LongformerSelfAttention(config, layer_id=i)
         longformer_self_attn.query = copy.deepcopy(layer.attention.self.query)
         longformer_self_attn.key = copy.deepcopy(layer.attention.self.key)
         longformer_self_attn.value = copy.deepcopy(layer.attention.self.value)
