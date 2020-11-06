@@ -764,7 +764,7 @@ def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
     logger.info(f'Loading and tokenizing data is usually slow: {VAL_FPATH}')
     val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                               file_path=VAL_FPATH,
-                              block_size=tokenizer.max_model_input_sizes)
+                              block_size= 4096) #tokenizer.max_len)
 
     if eval_only:
         train_dataset = val_dataset
@@ -772,7 +772,7 @@ def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
         logger.info(f'Loading and tokenizing training data is usually slow: {TRAIN_FPATH}')
         train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                                     file_path=TRAIN_FPATH,
-                                    block_size=tokenizer.max_model_input_sizes)
+                                    block_size= 4096)#tokenizer.max_len)
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
     trainer = Trainer(model=model, args=args, data_collator=data_collator,
