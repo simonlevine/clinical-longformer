@@ -22,8 +22,10 @@ import os
 import copy
 import math
 from dataclasses import dataclass, field
-from transformers import RobertaForMaskedLM, RobertaTokenizerFast, DataCollatorForLanguageModeling, Trainer, LineByLineTextDataset
+from transformers import RobertaForMaskedLM, RobertaTokenizerFast, DataCollatorForLanguageModeling, Trainer
 from transformers import TrainingArguments, HfArgumentParser
+
+from torch.utils.data import Dataset
 
 # from datasets import load_dataset
 
@@ -137,6 +139,31 @@ def main():
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
 
+class LineByLineTextDataset(Dataset):
+    """
+    This will be superseded by a framework-agnostic approach soon.
+    """
+
+    def __init__(self, tokenizer: PreTrainedTokenizer, file_path: str, block_size: int):
+        # warnings.warn(DEPRECATION_WARNING, FutureWarning)
+        assert os.path.isfile(file_path), f"Input file path {file_path} not found"
+        # Here, we do not cache the features, operating under the assumption
+        # that we will soon use fast multithreaded tokenizers from the
+        # `tokenizers` repo everywhere =)
+        logger.info("Creating features from dataset file at %s", file_path)
+
+        with open(file_path, encoding="utf-8") as f:
+            lines = [line for line in f.read().splitlines() if (len(line) > 0 and not line.isspace())]
+
+        batch_encoding = tokenizer(lines, add_special_tokens=True, truncation=True, max_length=block_size,padding=True)
+        self.examples = batch_encoding["input_ids"]
+        self.examples = [{"input_ids": torch.tensor(e, dtype=torch.long)} for e in self.examples]
+
+    def __len__(self):
+        return len(self.examples)
+
+    def __getitem__(self, i) -> Dict[str, torch.tensor]:
+        return self.examples[i]
 
 
 class LongformerSelfAttention(nn.Module):
@@ -764,7 +791,7 @@ def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
     logger.info(f'Loading and tokenizing data is usually slow: {VAL_FPATH}')
     val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                               file_path=VAL_FPATH,
-                              block_size= 4096) #tokenizer.max_len)
+                              block_size=tokenizer.max_len)
 
     if eval_only:
         train_dataset = val_dataset
@@ -772,7 +799,7 @@ def pretrain_and_evaluate(args, model, tokenizer, eval_only, model_path):
         logger.info(f'Loading and tokenizing training data is usually slow: {TRAIN_FPATH}')
         train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                                     file_path=TRAIN_FPATH,
-                                    block_size= 4096)#tokenizer.max_len)
+                                    block_size= tokenizer.max_len)
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
     trainer = Trainer(model=model, args=args, data_collator=data_collator,
