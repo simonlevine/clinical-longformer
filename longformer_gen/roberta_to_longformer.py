@@ -150,7 +150,6 @@ def main():
 
 
 
-
 def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path_out):
     logger.info(f'Loading and tokenizing data is usually slow: {VAL_FPATH}')
     val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
