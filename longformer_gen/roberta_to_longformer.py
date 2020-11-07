@@ -92,6 +92,7 @@ def main():
             weight_decay= 0.01,
             do_eval= True,
             do_train=True,
+            fp16=True
             )
     
     elif FAST_DEV_RUN == False:
@@ -112,6 +113,7 @@ def main():
         weight_decay= 0.01,
         do_eval= True,
         do_train=True,
+        fp16=True
         )
 
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
@@ -157,7 +159,6 @@ def main():
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
 
-
 def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path_out):
     logger.info(f'Loading and tokenizing data is usually slow: {VAL_FPATH}')
 
@@ -177,7 +178,7 @@ def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
 
-    logger.warning(f'Gradient Checkpointing set to {model.config.gradient_checkpointing}')
+    logger.warning(f'Model Params set to {training_args}')
 
     trainer = Trainer(model=model, args=training_args, data_collator=data_collator,
                       train_dataset=train_dataset, eval_dataset=val_dataset, prediction_loss_only=True)
