@@ -55,16 +55,19 @@ from filelock import FileLock
 # Format: each document should be separated by an empty line
 TRAIN_FPATH = 'data/filtered_all_notes_train.txt'
 VAL_FPATH = 'data/filtered_all_notes_val.txt'
+SAMPLE_FPATH = 'data/filtered_all_notes_SAMPLE.txt'
 
 MODEL_OUT_DIR = './longformer_gen'
 LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
 GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 
 
-FAST_DEV_RUN = False
+FAST_DEV_RUN = TRUE
 
 if FAST_DEV_RUN == True:
-    TRAIN_FPATH = VAL_FPATH
+    pd.read_csv('data/filtered_all_notes_val.txt',sep='\t',header=None).sample(500).to_csv('data/filtered_all_notes_SAMPLE.txt',index=None,header=None)
+    TRAIN_FPATH = SAMPLE_FPATH
+    VAL_FPATH = SAMPLE_FPATH
 
 def main():
 
