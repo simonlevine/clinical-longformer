@@ -14,7 +14,7 @@ wget -r -N -c -np --user slevineg --password Mivdo9-merjuh-gokwuc https://physio
 wget -r -N -c -np --user slevineg --password Mivdo9-merjuh-gokwuc https://physionet.org/files/mimic-cxr/2.0.0/mimic-cxr-reports.zip
 wget -r -N -c -np --user slevineg --password Mivdo9-merjuh-gokwuc https://physionet.org/files/mimic-cxr/2.0.0/cxr-study-list.csv.gz
 
-unzip physionet.org/files/mimic-cxr/2.0.0/mimic-cxr-reports.zip -d physionet.org/files/mimic-cxr/2.0.0/
+cd data && unzip physionet.org/files/mimic-cxr/2.0.0/mimic-cxr-reports.zip -d physionet.org/files/mimic-cxr/2.0.0/
 rm -rf physionet.org/files/mimic-cxr/2.0.0/mimic-cxr-reports.zip
 
 # MIMIC-iii ANNOTATED

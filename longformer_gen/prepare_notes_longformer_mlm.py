@@ -57,7 +57,7 @@ def main():
     train, val = train_test_split(all_notes, test_size=0.10) #10% test size
 
 
-    logger.info('Saving filtered text files to CSV (this may take some time)...')
+    logger.info('Saving filtered text files to .txt (this may take some time)...')
     train.to_csv('data/filtered_all_notes_train.txt',sep='\t',header=None,index=None)
     val.to_csv('data/filtered_all_notes_val.txt',sep='\t',header=None,index=None)
 
