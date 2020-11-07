@@ -155,10 +155,13 @@ def main():
 
 def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path_out):
     logger.info(f'Loading and tokenizing data is usually slow: {VAL_FPATH}')
+
     val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                               file_path=VAL_FPATH,
                               block_size=GLOBAL_MAX_POS)
     
+
+    tokenizer.max_len = GLOBAL_MAX_POS
     if eval_only:
         train_dataset = val_dataset
     else:
