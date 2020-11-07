@@ -63,7 +63,7 @@ LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
 GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 
 
-FAST_DEV_RUN = True
+FAST_DEV_RUN = False
 
 if FAST_DEV_RUN == True:
     pd.read_csv('data/filtered_all_notes_val.txt',sep='\t',header=None).sample(500).to_csv('data/filtered_all_notes_SAMPLE.txt',index=None,header=None)
