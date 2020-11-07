@@ -138,6 +138,7 @@ def main():
 
     logger.info(f'Loading the model from {unpretrained_model_path}')
     tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path)
+    tokenizer.max_len=GLOBAL_MAX_POS
     model = RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path)
 
     # model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
