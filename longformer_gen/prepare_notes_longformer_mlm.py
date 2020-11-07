@@ -103,6 +103,7 @@ def preprocess_and_clean_notes(admin_language, notes_df: pd.DataFrame) -> pd.Dat
             ("\d+", ""),
             ('\s+', ' '),
             ('\"', '')
+            (':', '')
         ]:
             notes_df["text"] = notes_df["text"].str.replace(
                 original, replacement)
