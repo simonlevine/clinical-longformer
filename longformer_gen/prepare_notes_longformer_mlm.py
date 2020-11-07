@@ -53,6 +53,8 @@ def main():
     logger.info('adding newline chars for ingestion...')
     all_notes = all_notes_df['text'] + '\n'
 
+    all_notes = all_notes.drop_duplicates(subset=['text'])
+
     logger.info('Splitting into Train/Validation (90%/10%)')
     train, val = train_test_split(all_notes, test_size=0.10) #10% test size
 
