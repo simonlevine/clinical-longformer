@@ -16,7 +16,6 @@ After this script completes, can access the pre-trained model from:
 Simon Levine-Gottreich, 2020
 '''
 
-
 from loguru import logger
 import os
 import copy
@@ -28,14 +27,7 @@ from transformers import TrainingArguments, HfArgumentParser
 from torch.utils.data import Dataset
 
 from transformers import LongformerForMaskedLM, LongformerTokenizerFast
-
-# from datasets import load_dataset
-
-from transformers.modeling_longformer import LongformerSelfAttention #CAN UNCOMMENT AND REMOVE AFTER HF>>3.02 RELEASES, RERUN
-# from self_attn import LongformerSelfAttention
-
-
-import yaml
+from transformers.modeling_longformer import LongformerSelfAttention
 
 import logging
 import warnings
@@ -71,7 +63,7 @@ LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
 GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 
 
-FAST_DEV_RUN = True
+FAST_DEV_RUN = False
 
 if FAST_DEV_RUN == True:
     TRAIN_FPATH = VAL_FPATH
@@ -98,7 +90,7 @@ def main():
             do_train=True,
             )
     
-    else:
+    elif FAST_DEV_RUN == False:
         logger.critical(f'Pre-Training {model.num_parameters()}-parameter model. This will take ~ 2-3 days!!!!')
 
         training_args = TrainingArguments(
@@ -118,8 +110,6 @@ def main():
         do_eval= True,
         do_train=True
         )
-
-
 
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
     base_model_name = base_model_name_HF.split('/')[-1]
@@ -152,17 +142,10 @@ def main():
 
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path_out=training_args.output_dir)
 
-
-    # model.save_pretrained(model_path) #save elongated AND pre-trained model, to the disk.
-    # tokenizer.save_pretrained(model_path)
-    # model.config.save_pretrained(model_path)
-
-
-    logger.info(f'Copying local projection layers into global projection layers ... ')
+    logger.warning(f'Copying local projection layers into global projection layers ... ')
     model = copy_proj_layers(model)
-    logger.info(f'Saving model to {model_path}')
+    logger.warning(f'Saving model to {model_path}')
     model.save_pretrained(model_path)
-
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
 
