@@ -66,7 +66,6 @@ GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 FAST_DEV_RUN = True
 
 if FAST_DEV_RUN == True:
-    pd.read_csv('data/filtered_all_notes_val.txt',sep='\t',header=None).sample(500).to_csv('data/filtered_all_notes_SAMPLE.txt',index=None,header=None)
     TRAIN_FPATH = SAMPLE_FPATH
     VAL_FPATH = SAMPLE_FPATH
 
@@ -78,12 +77,12 @@ def main():
             output_dir="./longformer_gen/checkpoints",
             overwrite_output_dir=True,
             max_steps=2,
-            warmup_steps= 0,
+            warmup_steps= 0, #-->3000
             logging_steps=1,
             save_steps=1,
             max_grad_norm= 5.0,
             per_device_eval_batch_size=2,
-            per_device_train_batch_size=1,
+            per_device_train_batch_size=8,
             gradient_accumulation_steps= 32,
             learning_rate = 0.00003,
             adam_epsilon= 1e-6,
