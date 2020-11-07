@@ -146,7 +146,7 @@ def main():
     logger.warning(f'Tokenizer {tokenizer} parameterized with model_max_len as {tokenizer.model_max_length}')
 
     model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
-
+    
     logger.critical(f'Pre-Training {model.num_parameters()}-parameter model. This could take ~ 2-3 days!!!!')
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path_out=training_args.output_dir)
 
@@ -176,6 +176,8 @@ def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path
 
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
+
+    logger.warning(f'Gradient Checkpointing set to {model.config.gradient_checkpointing}')
 
     trainer = Trainer(model=model, args=training_args, data_collator=data_collator,
                       train_dataset=train_dataset, eval_dataset=val_dataset, prediction_loss_only=True)
