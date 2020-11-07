@@ -53,7 +53,7 @@ def main():
     logger.info('adding newline chars for ingestion...')
     all_notes = all_notes_df['text'] + '\n'
 
-    all_notes = all_notes.drop_duplicates(subset=['text'])
+    all_notes = all_notes.drop_duplicates()
 
 
     logger.info('saving sample of 500 lines for testing purposes...')
