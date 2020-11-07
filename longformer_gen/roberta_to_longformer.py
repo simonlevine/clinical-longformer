@@ -84,8 +84,8 @@ def main():
             logging_steps=1,
             save_steps=1,
             max_grad_norm= 5.0,
-            per_device_eval_batch_size=4,
-            per_device_train_batch_size=16,
+            per_device_eval_batch_size=8,
+            per_device_train_batch_size=8,
             gradient_accumulation_steps= 32,
             learning_rate = 0.00003,
             adam_epsilon= 1e-6,
@@ -112,7 +112,6 @@ def main():
         weight_decay= 0.01,
         do_eval= True,
         do_train=True,
-        # n_gp
         )
 
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
