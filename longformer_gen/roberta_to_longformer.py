@@ -66,8 +66,8 @@ GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 FAST_DEV_RUN = True
 
 if FAST_DEV_RUN == True:
-    TRAIN_FPATH = SAMPLE_FPATH
-    VAL_FPATH = SAMPLE_FPATH
+    TRAIN_FPATH = VAL_FPATH
+    VAL_FPATH = VAL_FPATH
 
 def main():
 
