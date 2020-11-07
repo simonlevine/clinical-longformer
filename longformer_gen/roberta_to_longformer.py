@@ -84,8 +84,8 @@ def main():
             logging_steps=1,
             save_steps=1,
             max_grad_norm= 5.0,
-            per_device_eval_batch_size=2,
-            per_device_train_batch_size=2,
+            per_device_eval_batch_size=4,
+            per_device_train_batch_size=16,
             gradient_accumulation_steps= 32,
             learning_rate = 0.00003,
             adam_epsilon= 1e-6,
@@ -146,7 +146,7 @@ def main():
 
     logger.warning(f'Tokenizer {tokenizer} parameterized with model_max_len as {tokenizer.model_max_length}')
 
-    # model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
+    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
     logger.critical(f'Pre-Training {model.num_parameters()}-parameter model. This could take ~ 2-3 days!!!!')
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path_out=training_args.output_dir)
