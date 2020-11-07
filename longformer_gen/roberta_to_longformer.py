@@ -91,7 +91,6 @@ def main():
             )
     
     elif FAST_DEV_RUN == False:
-        logger.critical(f'Pre-Training {model.num_parameters()}-parameter model. This will take ~ 2-3 days!!!!')
 
         training_args = TrainingArguments(
         output_dir=f"./longformer_gen/checkpoints/bioclinicaLongformer",
@@ -140,6 +139,7 @@ def main():
     model = RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path)
     model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
+    logger.critical(f'Pre-Training {model.num_parameters()}-parameter model. This could take ~ 2-3 days!!!!')
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path_out=training_args.output_dir)
 
     logger.warning(f'Copying local projection layers into global projection layers ... ')
