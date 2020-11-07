@@ -113,6 +113,7 @@ def main():
         )
 
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
+
     base_model_name = base_model_name_HF.split('/')[-1]
     model_path = f'{MODEL_OUT_DIR}/bioclinical-longformer' #includes speedfix
     unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-{GLOBAL_MAX_POS}' #includes speedfix
@@ -138,7 +139,9 @@ def main():
 
     logger.info(f'Loading the model from {unpretrained_model_path}')
     tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path,model_max_length=GLOBAL_MAX_POS)
-    model = RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path)
+    model = RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path,model_max_length=GLOBAL_MAX_POS)
+
+    logger.warning(f'Tokenizer {tokenizer} parameterized with model_max_len as {tokenizer.model_max_length}')
 
     # model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
@@ -161,7 +164,6 @@ def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path
                               block_size=GLOBAL_MAX_POS)
     
 
-    tokenizer.max_len = GLOBAL_MAX_POS
     if eval_only:
         train_dataset = val_dataset
     else:
