@@ -79,7 +79,7 @@ def main():
         training_args = TrainingArguments(
             output_dir="./longformer_gen/checkpoints",
             overwrite_output_dir=True,
-            max_steps=2,
+            max_steps=1,
             warmup_steps= 0, #-->3000
             logging_steps=1,
             save_steps=1,
