@@ -50,6 +50,7 @@ import torch
 from torch.utils.data.dataset import Dataset
 
 from filelock import FileLock
+import pandas as pd
 
 
 # Format: each document should be separated by an empty line
