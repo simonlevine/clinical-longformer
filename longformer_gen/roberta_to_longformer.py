@@ -137,8 +137,7 @@ def main():
     # model, tokenizer = LongformerForMaskedLM.from_pretrained('allenai/longformer-base-4096'), LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
 
     logger.info(f'Loading the model from {unpretrained_model_path}')
-    tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path)
-    tokenizer.max_len=GLOBAL_MAX_POS
+    tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path,model_max_length=GLOBAL_MAX_POS)
     model = RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path)
 
     # model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
