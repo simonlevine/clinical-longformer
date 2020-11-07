@@ -55,6 +55,11 @@ def main():
 
     all_notes = all_notes.drop_duplicates(subset=['text'])
 
+
+    logger.info('saving sample of 500 lines for testing purposes...')
+    all_notes_df.sample(500).to_csv('data/filtered_all_notes_SAMPLE.txt',index=None,header=None)
+
+
     logger.info('Splitting into Train/Validation (90%/10%)')
     train, val = train_test_split(all_notes, test_size=0.10) #10% test size
 
