@@ -66,6 +66,9 @@ GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 FAST_DEV_RUN = True
 
 if FAST_DEV_RUN == True:
+
+    pd.read_csv('VAL_FPATH',sep='\t', header=None).sample(100).to_csv(SAMPLE_FPATH,header=None,index=None,sep='\t')
+
     TRAIN_FPATH = VAL_FPATH
     VAL_FPATH = VAL_FPATH
 
