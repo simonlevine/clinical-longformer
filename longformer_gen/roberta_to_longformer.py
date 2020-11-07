@@ -140,7 +140,8 @@ def main():
     logger.info(f'Loading the model from {unpretrained_model_path}')
     tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path)
     model = RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path)
-    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
+
+    # model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
 
     logger.critical(f'Pre-Training {model.num_parameters()}-parameter model. This could take ~ 2-3 days!!!!')
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path_out=training_args.output_dir)
@@ -237,7 +238,7 @@ def create_long_model(model_specified, attention_window, max_pos, save_model_to)
         Check tables 6 and 11 in [the paper](https://arxiv.org/pdf/2004.05150.pdf) to get a sense of 
         the expected performance of this model before pretraining."""
 
-    model = RobertaForMaskedLM.from_pretrained(model_specified,gradient_checkpointing=True)
+    model = RobertaForMaskedLM.from_pretrained(model_specified) #,gradient_checkpointing=True)
     tokenizer = RobertaTokenizerFast.from_pretrained(
         model_specified, model_max_length=max_pos)
     config = model.config
