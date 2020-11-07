@@ -162,7 +162,7 @@ def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path
     val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                               file_path=VAL_FPATH,
                               block_size=GLOBAL_MAX_POS)
-    
+
 
     if eval_only:
         train_dataset = val_dataset
@@ -198,6 +198,9 @@ class LineByLineTextDataset(Dataset):
     """
 
     def __init__(self, tokenizer, file_path: str, block_size: int):
+
+
+        logger.warning(f'Block size in dataset set as {block_size}')
         # warnings.warn(DEPRECATION_WARNING, FutureWarning)
         assert os.path.isfile(file_path), f"Input file path {file_path} not found"
         # Here, we do not cache the features, operating under the assumption
