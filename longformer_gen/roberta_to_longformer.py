@@ -106,7 +106,7 @@ def main():
         weight_decay= 0.01,
         do_eval= True,
         do_train=True,
-        n_gp
+        # n_gp
         )
 
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
