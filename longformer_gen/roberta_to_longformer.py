@@ -67,7 +67,7 @@ FAST_DEV_RUN = True
 
 if FAST_DEV_RUN == True:
 
-    pd.read_csv('VAL_FPATH',sep='\t', header=None).sample(100).to_csv(SAMPLE_FPATH,header=None,index=None,sep='\t')
+    pd.read_csv(VAL_FPATH,sep='\t', header=None).sample(100).to_csv(SAMPLE_FPATH,header=None,index=None,sep='\t')
 
     TRAIN_FPATH = SAMPLE_FPATH
     VAL_FPATH = SAMPLE_FPATH
