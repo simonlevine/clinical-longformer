@@ -52,8 +52,6 @@ from torch.utils.data.dataset import Dataset
 from filelock import FileLock
 
 
-
-
 # Format: each document should be separated by an empty line
 TRAIN_FPATH = 'data/filtered_all_notes_train.txt'
 VAL_FPATH = 'data/filtered_all_notes_val.txt'
@@ -144,8 +142,8 @@ def main():
 
     logger.warning(f'Copying local projection layers into global projection layers ... ')
     model = copy_proj_layers(model)
-    logger.warning(f'Saving model to {model_path}')
-    model.save_pretrained(model_path)
+    logger.warning(f'Saving model to {model_path}/final')
+    model.save_pretrained(f'{model_path}/final') # --> "./longformer_gen/bioclinicaLongformer/final"
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
 
