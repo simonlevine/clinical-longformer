@@ -157,7 +157,7 @@ def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path
     logger.info(f'Loading and tokenizing data is usually slow: {VAL_FPATH}')
     val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                               file_path=VAL_FPATH,
-                              block_size=tokenizer.max_len)
+                              block_size=GLOBAL_MAX_POS)
     
     if eval_only:
         train_dataset = val_dataset
@@ -165,7 +165,7 @@ def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path
         logger.info(f'Loading and tokenizing training data is usually slow: {TRAIN_FPATH}')
         train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                                     file_path=TRAIN_FPATH,
-                                    block_size= tokenizer.max_len)
+                                    block_size= GLOBAL_MAX_POS)
 
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
@@ -201,9 +201,9 @@ class LineByLineTextDataset(Dataset):
         logger.info(f'Creating features from dataset file at {file_path}')
 
         with open(file_path, encoding="utf-8") as f:
-            lines = [line for line in f.read().splitlines() if (len(line) > 0 and not line.isspace())]
+            lines = [line for line in f.read().splitlines() if (len(line) > 10 and not line.isspace())]
 
-        batch_encoding = tokenizer(lines, add_special_tokens=True, truncation=True, max_length=GLOBAL_MAX_POS, padding=True)
+        batch_encoding = tokenizer(lines, add_special_tokens=True, truncation=True, max_length=block_size, padding=True)
         
         self.examples = batch_encoding["input_ids"]
         self.examples = [{"input_ids": torch.tensor(e, dtype=torch.long)} for e in self.examples]
