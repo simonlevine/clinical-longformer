@@ -26,7 +26,7 @@ from transformers import TrainingArguments, HfArgumentParser
 
 from torch.utils.data import Dataset
 
-from transformers import LongformerForMaskedLM, LongformerTokenizerFast
+# from transformers import LongformerForMaskedLM, LongformerTokenizerFast
 from transformers.modeling_longformer import LongformerSelfAttention
 
 import logging
@@ -203,7 +203,8 @@ class LineByLineTextDataset(Dataset):
         with open(file_path, encoding="utf-8") as f:
             lines = [line for line in f.read().splitlines() if (len(line) > 0 and not line.isspace())]
 
-        batch_encoding = tokenizer(lines, add_special_tokens=True, truncation=True, max_length=block_size, padding=True)
+        batch_encoding = tokenizer(lines, add_special_tokens=True, truncation=True, max_length=GLOBAL_MAX_POS, padding=True)
+        
         self.examples = batch_encoding["input_ids"]
         self.examples = [{"input_ids": torch.tensor(e, dtype=torch.long)} for e in self.examples]
 
@@ -238,8 +239,10 @@ def create_long_model(model_specified, attention_window, max_pos, save_model_to)
         the expected performance of this model before pretraining."""
 
     model = RobertaForMaskedLM.from_pretrained(model_specified) #,gradient_checkpointing=True)
+
     tokenizer = RobertaTokenizerFast.from_pretrained(
         model_specified, model_max_length=max_pos)
+
     config = model.config
 
     # extend position embeddings
