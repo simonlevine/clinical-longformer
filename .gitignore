@@ -17,4 +17,4 @@ data/mimiciii-14/NOTEEVENTS.csv
 filtered_all_notes_val.raw
 *.raw
 *.zip
-# download_and_unzip_mimicdata.sh
+download_and_unzip_mimicdata.sh
