@@ -49,8 +49,8 @@ def main():
             logging_steps=1,
             save_steps=1,
             max_grad_norm= 5.0,
-            per_device_eval_batch_size=32, #4,4 WORKS
-            per_device_train_batch_size=32,
+            per_device_eval_batch_size=16, #4,4 WORKS with FP32
+            per_device_train_batch_size=16,
             gradient_accumulation_steps= 32,
             learning_rate = 0.00003,
             adam_epsilon= 1e-6,
