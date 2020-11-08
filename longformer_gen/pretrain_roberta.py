@@ -26,7 +26,6 @@ VAL_FPATH = 'data/filtered_all_notes_val.txt'
 SAMPLE_FPATH = 'data/filtered_all_notes_SAMPLE.txt'
 
 MODEL_OUT_DIR = './roberta_gen'
-LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
 
 FAST_DEV_RUN = False
 
