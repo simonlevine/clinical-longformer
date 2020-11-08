@@ -88,8 +88,9 @@ def main():
     unpretrained_model_path = base_model_name_HF
 
     logger.info(f'Loading the model from {unpretrained_model_path}')
+    
     tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path)
-    model = RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path) #,gradient_checkpointing=True)
+    model = RobertaForMaskedLM.from_pretrained(unpretrained_model_path) #,gradient_checkpointing=True)
 
     logger.warning(f'Tokenizer {tokenizer} parameterized with model_max_len as {tokenizer.model_max_length}')
     
@@ -99,27 +100,6 @@ def main():
     logger.warning(f'Saving model to {model_path}/final')
     model.save_pretrained(f'{model_path}/final') # --> "./longformer_gen/bioclinicaLongformer/final"
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
-
-
-class RobertaLongSelfAttention(LongformerSelfAttention):
-    def forward(
-        self,
-        hidden_states,
-        attention_mask=None,
-        head_mask=None,
-        encoder_hidden_states=None,
-        encoder_attention_mask=None,
-        output_attentions=False,
-    ):
-        return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
-
-
-class RobertaLongForMaskedLM(RobertaForMaskedLM):
-    def __init__(self, config):
-        super().__init__(config)
-        for i, layer in enumerate(self.roberta.encoder.layer):
-            # replace the `modeling_bert.BertSelfAttention` object with `LongformerSelfAttention`
-            layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
 
 
 def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path_out):
