@@ -62,6 +62,7 @@ def main():
     logger.info(f"loading {NOTE_EVENTS_CSV_FP} into memory")
     notes_df = pd.read_csv(NOTE_EVENTS_CSV_FP, low_memory=False)
     notes_filtered_df = preprocess_and_clean_notes(notes_df)
+    logger.warning('Saving to CSV. Make take a few minutes...')
     notes_filtered_df.to_csv(FILTERED_NOTE_EVENTS_CSV_FP)
 
 def preprocess_and_clean_notes(notes_df: pd.DataFrame) -> pd.DataFrame:
