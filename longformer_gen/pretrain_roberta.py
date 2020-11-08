@@ -4,7 +4,7 @@ import os
 import copy
 import math
 from dataclasses import dataclass, field
-from transformers import RobertaForMaskedLM, RobertaTokenizerFast, DataCollatorForLanguageModeling, Trainer, TextDataset
+from transformers import RobertaForMaskedLM, RobertaTokenizer, DataCollatorForLanguageModeling, Trainer, TextDataset
 from transformers import TrainingArguments, HfArgumentParser
 
 from torch.utils.data import Dataset
@@ -89,7 +89,7 @@ def main():
 
     logger.info(f'Loading the model from {unpretrained_model_path}')
 
-    tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path)
+    tokenizer = RobertaTokenizer.from_pretrained(unpretrained_model_path)
     model = RobertaForMaskedLM.from_pretrained(unpretrained_model_path, gradient_checkpointing=True)
 
     logger.warning(f'Tokenizer {tokenizer} parameterized with model_max_len as {tokenizer.model_max_length}')
