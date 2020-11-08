@@ -488,7 +488,7 @@ class Classifier(pl.LightningModule):
         )
         parser.add_argument(
             "--nr_frozen_epochs",
-            default=1,
+            default=99,
             type=int,
             help="Number of epochs we want to keep the encoder model frozen.",
         )

@@ -4,6 +4,49 @@ Sandbox: https://colab.research.google.com/drive/1n0vaflnGpRpEnRAgwkCOLqVFRr1p1S
 
 - clone this repo. Includes sampled CSV (80/20/20 rows of train,valid,test).
 
+# To Run:
+
+- download the data via a scipt Simon can provide.
+  
+- run ICD classification task:
+  - *Here, use a transformer as an encoder with a simple linear classifier with tanh activation.*
+  - install requirements from requirements.txt in a Python (~3.8+) virtual environment.
+  - run *format_mimic_for_ICD_classifier.sh* to clean notes and ready a dataframe. Note that this step can be varied using params.yaml to pull in other code sets (such as ICD procedures) as desired!
+  - run *run_icd_classifier.sh*. Note that you may want to alter the hyperparameters used by the training script (BERT vs RoBERTA vs Long-Clinical-RoBERTa, etc.). Theis is done via command line flags (see bottom of classifier_one_label.py)
+  - By default, we load in the 50 most frequent primary ICD9 diagnosis codes in MIMIC-III discharge summaries.
+    - ['41401', '0389', '41071', 'V3001', '4241', '51881', 'V3000', 'V3101', '431', '4240', '5070', '4280', '41041', '41011', '5789', '430', '486', '1983', '99859', '5849', '5770', '43491', '5712', '99662', '4271', '03842', '99811', 'V3401', '42731', '56212', '4373', '43411', '4321', '41519', '51884', '85221', '570', '03811', '53140', '03849', '4412', '42823', '44101', '42833', '0380', '85220', '4210', '4414', '51919', '5715']
+  - By default, Simon's bioclinical-Longformer is benchmarked with global attention.
+    - You should increase batch sizes and you may not need gradient checkpointing if just running roberta or bert.
+  - By default, **encoder weights are frozen during training** since we are benchmarking pre-trained encoders as-is, not fine-tuning.
+    - The classifier head is still used.
+  
+
+- Run masked-language modeling (generate your own clinical encoder!):
+  - run *format_mimic_for_ICD_classifier.sh*
+    - This will concatenate all of MIMIC-III and MIMIC-CXR, sans those encounters used in test datasets for becnhmarking.
+    - This will filter notes for administrative language, some punctuation, etcetera.
+  - run *split_data_and_run_mlm_training.sh*
+    - We pre-train AllenAI/BiomedRobertaBase as a default, as pre-training with global attention results in severe memory issues (OOM on 200gb VM) and extreme training time requirements (as it is, 300 hours were used to train our 5000-epoch RobertaForMaskedLM model).
+    - It's also unclear, given that we "chunk" our entire 2.2 million -encounter corpus, what benefit this would bring.
+    - Ideally, someone shoud get a corpus an order of magnitude larger and train document-by-document longformer from scratch...
+  - run *elongate_roberta.sh* to pull in a huggingface model and elongate it with global attention.
+    - Defaults to 4096 global attention tokens and 512 local.
+    - This will convert a roberta model to a longformer, essentially, but allows for larger document ingestion.
+    - Note that nothing is stopping you from attempting MLM pre-training using this model rather than roberta.
+      - In fact, we provide *pretrain_roberta_long.py* for just that task if you have the resources.
+
+-Run MedNLI:
+  -in Progress
+
+-Run Phenotype Annotation:
+  -in progress
+
+-Run X-transformer for MIMIC-III using your new encoder:
+  - We provide a forked repository using X-Transformer allowing for training your encoder on every ICD code in MIMIC-III, proc or diag, an extreme multilabel classification problem.
+  - We welcome PRs.
+  - Some code is shared, such as note preprocessing.
+
+
 # To do:
 - ~~Update logging for PT-lighting: see https://pytorch-lightning.readthedocs.io/en/latest/logging.html~~
 - ~~elongate bioclinical_BERT~~

@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-python ./longformer_gen/prepare_notes_longformer_mlm.py
+python ./longformer_gen/roberta_to_longformer.py
