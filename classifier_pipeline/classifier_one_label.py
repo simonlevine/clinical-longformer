@@ -56,7 +56,7 @@ class Classifier(pl.LightningModule):
             :return: List of records as dictionaries
             """
             df = pd.read_csv(path)
-            df = df[["TEXT", "ICD9_CODE"]]3
+            df = df[["TEXT", "ICD9_CODE"]]
             df = df.rename(columns={'TEXT':'text', 'ICD9_CODE':'label'})
             top_fifty_codes=df['label'].value_counts()[:50].index.tolist()
             logger.warning(f'Predicting the top 50 most frequent ICD codes: {top_fifty_codes}')
