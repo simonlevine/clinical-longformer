@@ -41,7 +41,7 @@ Sandbox: https://colab.research.google.com/drive/1n0vaflnGpRpEnRAgwkCOLqVFRr1p1S
 -Run Phenotype Annotation:
   -in progress
 
--Run X-transformer for MIMIC-III using your new encoder:
+- Here's an idea: run X-transformer for MIMIC-III (https://github.com/simonlevine/auto-icd-transformers) using your new encoder:
   - We provide a forked repository using X-Transformer allowing for training your encoder on every ICD code in MIMIC-III, proc or diag, an extreme multilabel classification problem.
   - We welcome PRs.
   - Some code is shared, such as note preprocessing.
