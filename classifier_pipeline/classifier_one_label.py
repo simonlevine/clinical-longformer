@@ -44,7 +44,7 @@ class Classifier(pl.LightningModule):
                     reserved_labels=[]
                 )
 
-            # self.label_encoder.unknown_index = None
+            self.label_encoder.unknown_index = None
 
         def get_mimic_data(self, path: str) -> list:
             """ Reads a comma separated value file.
