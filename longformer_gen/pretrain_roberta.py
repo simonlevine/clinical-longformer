@@ -58,12 +58,7 @@ if FAST_DEV_RUN == True:
 def main():
 
     if FAST_DEV_RUN == True:
-
-        pd.read_csv(VAL_FPATH,sep='\t', header=None).sample(100).to_csv(SAMPLE_FPATH,header=None,index=None,sep='\t')
-
-        TRAIN_FPATH = SAMPLE_FPATH
-        VAL_FPATH = SAMPLE_FPATH
-
+        
         training_args = TrainingArguments(
             output_dir="./longformer_gen/checkpoints",
             overwrite_output_dir=True,
