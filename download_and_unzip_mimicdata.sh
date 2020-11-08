@@ -9,6 +9,8 @@ cd data
 
 wget -r -N -c -np --user slevineg --password Mivdo9-merjuh-gokwuc https://physionet.org/files/mimiciii/1.4/NOTEEVENTS.csv.gz
 wget -r -N -c -np --user slevineg --password Mivdo9-merjuh-gokwuc https://physionet.org/files/mimiciii/1.4/PROCEDURES_ICD.csv.gz
+wget -r -N -c -np --user slevineg --password Mivdo9-merjuh-gokwuc https://physionet.org/files/mimiciii/1.4/DIAGNOSES_ICS.csv.gz
+
 wget -r -N -c -np --user slevineg --password Mivdo9-merjuh-gokwuc https://physionet.org/files/mimiciii/1.4/D_ICD_DIAGNOSES.csv.gz
 wget -r -N -c -np --user slevineg --password Mivdo9-merjuh-gokwuc https://physionet.org/files/mimiciii/1.4/D_ICD_PROCEDURES.csv.gz
 # MIMIC-CXR
