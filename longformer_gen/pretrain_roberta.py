@@ -50,7 +50,7 @@ def main():
             save_steps=1,
             max_grad_norm= 5.0,
             per_device_eval_batch_size=16,
-            per_device_train_batch_size=8,
+            per_device_train_batch_size=16,
             gradient_accumulation_steps= 32,
             learning_rate = 0.00003,
             adam_epsilon= 1e-6,
@@ -82,13 +82,12 @@ def main():
 
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
 
-    base_model_name = base_model_name_HF.split('/')[-1]
     model_path = f'{MODEL_OUT_DIR}/bioclinical-roberta'
 
     unpretrained_model_path = base_model_name_HF
 
     logger.info(f'Loading the model from {unpretrained_model_path}')
-    
+
     tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path)
     model = RobertaForMaskedLM.from_pretrained(unpretrained_model_path) #,gradient_checkpointing=True)
 
