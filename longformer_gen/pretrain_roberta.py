@@ -108,11 +108,11 @@ def main():
 
     logger.info(f'Loading the model from {unpretrained_model_path}')
     tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path,model_max_length=GLOBAL_MAX_POS)
-    model = RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path) #,gradient_checkpointing=True)
+    model = RobertaLongForMaskedLM.from_pretrained(unpretrained_model_path,gradient_checkpointing=True)
 
     logger.warning(f'Tokenizer {tokenizer} parameterized with model_max_len as {tokenizer.model_max_length}')
 
-    # model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
+    model.config.gradient_checkpointing = True #set this to ensure GPU memory constraints are OK.
     
     logger.critical(f'Pre-Training {model.num_parameters()}-parameter model. This could take ~ 2-3 days!!!!')
     pretrain_and_evaluate(training_args, model, tokenizer, eval_only=False, model_path_out=training_args.output_dir)
