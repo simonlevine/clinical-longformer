@@ -8,7 +8,7 @@ from loguru import logger
 from tqdm import tqdm
 
 # MIMIC_DIR = Path("./data/mimiciii-14/")
-NOTE_EVENTS_CSV_FP = './data/physionet.org/files/mimiciii/1.4NOTEEVENTS.csv.gz'
+NOTE_EVENTS_CSV_FP = './data/physionet.org/files/mimiciii/1.4/NOTEEVENTS.csv.gz'
 
 FILTERED_NOTE_EVENTS_CSV_FP = './data/physionet.org/files/mimiciii/1.4/NOTEEVENTS.FILTERED.csv.gz'
 
