@@ -27,7 +27,7 @@ SAMPLE_FPATH = 'data/filtered_all_notes_SAMPLE.txt'
 
 MODEL_OUT_DIR = './roberta_gen'
 
-FAST_DEV_RUN = True
+FAST_DEV_RUN = False
 
 if FAST_DEV_RUN == True:
 
@@ -49,7 +49,7 @@ def main():
             logging_steps=1,
             save_steps=1,
             max_grad_norm= 5.0,
-            per_device_eval_batch_size=4,
+            per_device_eval_batch_size=4, #4,4 WORKS
             per_device_train_batch_size=4,
             gradient_accumulation_steps= 32,
             learning_rate = 0.00003,
