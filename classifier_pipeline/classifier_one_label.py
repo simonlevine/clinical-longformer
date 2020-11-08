@@ -44,10 +44,6 @@ class Classifier(pl.LightningModule):
                     reserved_labels=[]
                 )
 
-            elif self.hparams.single_label_encoding == 'graphical':
-                logger.critical('Graphical label embedding not yet implemented!')
-                break
-
             # self.label_encoder.unknown_index = None
 
         def get_mimic_data(self, path: str) -> list:
@@ -60,6 +56,10 @@ class Classifier(pl.LightningModule):
             df = pd.read_csv(path)
             df = df[["TEXT", "ICD9_CODE"]]
             df = df.rename(columns={'TEXT':'text', 'ICD9_CODE':'label'})
+            top_fifty_codes=df['label'].value_counts()[:50].index.tolist()
+
+            # df = df[df['label'].isin(top_fifty_codes)]
+            
             df["text"] = df["text"].astype(str)
             df["label"] = df["label"].astype(str)
             return df.to_dict("records")
@@ -437,7 +437,7 @@ class Classifier(pl.LightningModule):
         """
         parser.add_argument(
             "--encoder_model",
-            default='simonlevine/biomed_roberta_base-4096-speedfix', # 'bert-base-uncased',
+            default= 'allenai/biomed_roberta_base',#'simonlevine/biomed_roberta_base-4096-speedfix', # 'bert-base-uncased',
             type=str,
             help="Encoder model to be used.",
         )

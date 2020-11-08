@@ -1,5 +1,5 @@
 # max_seq_len: 4096 #Max number of words to consider per example when xbert/preprocessing.
-# #Default is 128. MIMIC mean/std/max = 1358/792/7711
+# #Default is 128. MIMIC discharge summary mean/std/max = 1358/792/7711
 # max_char_len: None # Max number of characters to consider per example when xbert/preprocessing for tokenizer.
 # #Default is 4096. MIMIC mean/std/max = 8794/5118/51230. Truncation is now ON, but defaults to max 
 # local_attention_window: 512
