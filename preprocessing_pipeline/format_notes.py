@@ -7,11 +7,10 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 
-MIMIC_DIR = Path("./data/mimiciii-14/")
-NOTE_EVENTS_CSV_FP = MIMIC_DIR / "NOTEEVENTS.csv.gz"
-OUTDIR = Path("./data/intermediary-data/filtered_notes/")
-(OUTDIR).mkdir(exist_ok=True)
-FILTERED_NOTE_EVENTS_CSV_FP = OUTDIR / "NOTEEVENTS.FILTERED.csv.gz"
+# MIMIC_DIR = Path("./data/mimiciii-14/")
+NOTE_EVENTS_CSV_FP = './data/physionet.org/files/mimiciii/1.4NOTEEVENTS.csv.gz'
+
+FILTERED_NOTE_EVENTS_CSV_FP = './data/physionet.org/files/mimiciii/1.4/NOTEEVENTS.FILTERED.csv.gz'
 
 ADMIN_LANGUAGE = [
     "FINAL REPORT",
@@ -60,7 +59,7 @@ ADMIN_LANGUAGE = [
 ]
 
 def main():
-    logger.info(f"loading {NOTE_EVENTS_CSV_FP.name} into memory")
+    logger.info(f"loading {NOTE_EVENTS_CSV_FP} into memory")
     notes_df = pd.read_csv(NOTE_EVENTS_CSV_FP, low_memory=False)
     notes_filtered_df = preprocess_and_clean_notes(notes_df)
     notes_filtered_df.to_csv(FILTERED_NOTE_EVENTS_CSV_FP)
@@ -105,7 +104,6 @@ def preprocess_and_clean_notes(notes_df: pd.DataFrame) -> pd.DataFrame:
         notes_df["TEXT"] = notes_df["TEXT"].str.strip()
         pbar.update(1)
     return notes_df
-
 
 if __name__ == "__main__":
     main()

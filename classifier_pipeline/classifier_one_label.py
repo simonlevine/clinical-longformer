@@ -58,7 +58,7 @@ class Classifier(pl.LightningModule):
             df = df.rename(columns={'TEXT':'text', 'ICD9_CODE':'label'})
             top_fifty_codes=df['label'].value_counts()[:50].index.tolist()
 
-            # df = df[df['label'].isin(top_fifty_codes)]
+            df = df[df['label'].isin(top_fifty_codes)]
             
             df["text"] = df["text"].astype(str)
             df["label"] = df["label"].astype(str)
