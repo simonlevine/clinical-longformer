@@ -128,48 +128,9 @@ def main():
     logger.info(
         f'Converting roberta-biomed-base --> {base_model_name} with global attn. window of {GLOBAL_MAX_POS} tokens.')
 
-    model, tokenizer = create_long_model(
-        model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS, save_model_to=unpretrained_model_path)
-
+    create_long_model(model_specified=base_model_name_HF, attention_window=LOCAL_ATTN_WINDOW, max_pos=GLOBAL_MAX_POS, save_model_to=unpretrained_model_path)
 
     logger.critical(f'Long model, tokenizer created, saved to disk at {unpretrained_model_path}.')
-
-def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path_out):
-    logger.info(f'Loading and tokenizing data is usually slow: {VAL_FPATH}')
-
-    val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                              file_path=VAL_FPATH,
-                              block_size=GLOBAL_MAX_POS)
-
-
-    if eval_only:
-        train_dataset = val_dataset
-    else:
-        logger.info(f'Loading and tokenizing training data is usually slow: {TRAIN_FPATH}')
-        train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                                    file_path=TRAIN_FPATH,
-                                    block_size= GLOBAL_MAX_POS)
-
-
-    data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
-
-    logger.warning(f'Model Params set to {training_args}')
-
-    trainer = Trainer(model=model, args=training_args, data_collator=data_collator,
-                      train_dataset=train_dataset, eval_dataset=val_dataset, prediction_loss_only=True)
-
-    eval_loss = trainer.evaluate()
-    eval_loss = eval_loss['eval_loss']
-    logger.info(f'Initial eval bpc: {eval_loss/math.log(2)}')
-    
-    if not eval_only:
-        trainer.train(model_path=model_path_out)
-        trainer.save_model()
-
-        eval_loss = trainer.evaluate()
-        eval_loss = eval_loss['eval_loss']
-        logger.info(f'Eval bpc after pretraining: {eval_loss/math.log(2)}')
-
 
 
 def create_long_model(model_specified, attention_window, max_pos, save_model_to):
@@ -240,7 +201,7 @@ def create_long_model(model_specified, attention_window, max_pos, save_model_to)
     model.save_pretrained(save_model_to)
     tokenizer.save_pretrained(save_model_to)
 
-    return model, tokenizer
+    # return model, tokenizer
 
 if __name__ == "__main__":
     main()
