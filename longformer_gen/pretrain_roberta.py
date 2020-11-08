@@ -35,19 +35,21 @@ from filelock import FileLock
 import pandas as pd
 
 
-# Format: each document should be separated by an empty line
-TRAIN_FPATH = 'data/filtered_all_notes_train.txt'
-VAL_FPATH = 'data/filtered_all_notes_val.txt'
-SAMPLE_FPATH = 'data/filtered_all_notes_SAMPLE.txt'
-
-MODEL_OUT_DIR = './longformer_gen'
-LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
-GLOBAL_MAX_POS = 4096 #params['global_attention_window']
-
-FAST_DEV_RUN = True
 
 
 def main():
+
+    # Format: each document should be separated by an empty line
+    TRAIN_FPATH = 'data/filtered_all_notes_train.txt'
+    VAL_FPATH = 'data/filtered_all_notes_val.txt'
+    SAMPLE_FPATH = 'data/filtered_all_notes_SAMPLE.txt'
+
+    MODEL_OUT_DIR = './longformer_gen'
+    LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
+    GLOBAL_MAX_POS = 4096 #params['global_attention_window']
+
+    FAST_DEV_RUN = True
+
 
     if FAST_DEV_RUN == True:
 
