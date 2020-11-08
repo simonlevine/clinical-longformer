@@ -70,7 +70,7 @@ def main():
         max_steps = 5000,
         save_steps=500,
         max_grad_norm= 5.0,
-        per_device_eval_batch_size=16,
+        per_device_eval_batch_size=8,
         per_device_train_batch_size=8,
         gradient_accumulation_steps= 32,
         learning_rate = 0.00003,
