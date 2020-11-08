@@ -220,3 +220,6 @@ def copy_proj_layers(model):
         layer.attention.self.key_global = layer.attention.self.key
         layer.attention.self.value_global = layer.attention.self.value
     return model
+
+if __name__=="__main__":
+    main()
