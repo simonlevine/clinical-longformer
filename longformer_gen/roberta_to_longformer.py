@@ -21,7 +21,7 @@ import os
 import copy
 import math
 from dataclasses import dataclass, field
-from transformers import RobertaForMaskedLM, RobertaTokenizerFast, DataCollatorForLanguageModeling, Trainer
+from transformers import RobertaForMaskedLM, RobertaTokenizer, DataCollatorForLanguageModeling, Trainer
 from transformers import TrainingArguments, HfArgumentParser
 
 from torch.utils.data import Dataset
@@ -52,7 +52,7 @@ from torch.utils.data.dataset import Dataset
 from filelock import FileLock
 import pandas as pd
 
-
+HF_BASE_MODEL = 'allenai/biomed_roberta_base'
 # Format: each document should be separated by an empty line
 TRAIN_FPATH = 'data/filtered_all_notes_train.txt'
 VAL_FPATH = 'data/filtered_all_notes_val.txt'
@@ -67,9 +67,10 @@ FAST_DEV_RUN = False
 
 def main():
 
-    base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
-
+    base_model_name_HF = HF_BASE_MODEL #params['base_model_name']
     base_model_name = base_model_name_HF.split('/')[-1]
+
+
     model_path = f'{MODEL_OUT_DIR}/bioclinical-longformer' #includes speedfix
     unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-{GLOBAL_MAX_POS}' #includes speedfix
 
@@ -100,7 +101,7 @@ def create_long_model(model_specified, attention_window, max_pos, save_model_to)
 
     model = RobertaForMaskedLM.from_pretrained(model_specified) #,gradient_checkpointing=True)
 
-    tokenizer = RobertaTokenizerFast.from_pretrained(
+    tokenizer = RobertaTokenizer.from_pretrained(
         model_specified, model_max_length=max_pos)
 
     config = model.config
