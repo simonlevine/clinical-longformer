@@ -31,6 +31,8 @@ class Classifier(pl.LightningModule):
         def __init__(self, classifier_instance):
             super().__init__()
             self.hparams = classifier_instance.hparams
+
+
             if self.hparams.transformer_type == 'longformer':
                 self.hparams.batch_size = 1
             self.classifier = classifier_instance
@@ -54,7 +56,7 @@ class Classifier(pl.LightningModule):
             :return: List of records as dictionaries
             """
             df = pd.read_csv(path)
-            df = df[["TEXT", "ICD9_CODE"]]
+            df = df[["TEXT", "ICD9_CODE"]]3
             df = df.rename(columns={'TEXT':'text', 'ICD9_CODE':'label'})
             top_fifty_codes=df['label'].value_counts()[:50].index.tolist()
             logger.warning(f'Predicting the top 50 most frequent ICD codes: {top_fifty_codes}')
@@ -438,14 +440,14 @@ class Classifier(pl.LightningModule):
         """
         parser.add_argument(
             "--encoder_model",
-            default= 'allenai/biomed_roberta_base',#'simonlevine/biomed_roberta_base-4096-speedfix', # 'bert-base-uncased',
+            default= 'emilyalsentzer/Bio_ClinicalBERT',# 'allenai/biomed_roberta_base',#'simonlevine/biomed_roberta_base-4096-speedfix', # 'bert-base-uncased',
             type=str,
             help="Encoder model to be used.",
         )
 
         parser.add_argument(
             "--transformer_type",
-            default='longformer',
+            default='bert', #'longformer',
             type=str,
             help="Encoder model /tokenizer to be used (has consequences for tokenization and encoding; default = longformer).",
         )
