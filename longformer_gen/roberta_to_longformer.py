@@ -65,56 +65,7 @@ GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 
 FAST_DEV_RUN = False
 
-if FAST_DEV_RUN == True:
-
-    pd.read_csv(VAL_FPATH,sep='\t', header=None).sample(100).to_csv(SAMPLE_FPATH,header=None,index=None,sep='\t')
-
-    TRAIN_FPATH = SAMPLE_FPATH
-    VAL_FPATH = SAMPLE_FPATH
-
 def main():
-
-
-    if FAST_DEV_RUN == True:
-        training_args = TrainingArguments(
-            output_dir="./longformer_gen/checkpoints",
-            overwrite_output_dir=True,
-            max_steps=1,
-            warmup_steps= 0, #-->3000
-            logging_steps=1,
-            save_steps=1,
-            max_grad_norm= 5.0,
-            per_device_eval_batch_size=2,
-            per_device_train_batch_size=1,
-            gradient_accumulation_steps= 32,
-            learning_rate = 0.00003,
-            adam_epsilon= 1e-6,
-            weight_decay= 0.01,
-            do_eval= True,
-            do_train=True,
-            fp16=True
-            )
-    
-    elif FAST_DEV_RUN == False:
-
-        training_args = TrainingArguments(
-        output_dir=f"./longformer_gen/checkpoints/bioclinicaLongformer",
-        overwrite_output_dir=True,
-        warmup_steps= 500,
-        logging_steps=500,
-        max_steps = 3000,
-        save_steps=500,
-        max_grad_norm= 5.0,
-        per_device_eval_batch_size=2,
-        per_device_train_batch_size=8,
-        gradient_accumulation_steps= 32,
-        learning_rate = 0.00003,
-        adam_epsilon= 1e-6,
-        weight_decay= 0.01,
-        do_eval= True,
-        do_train=True,
-        fp16=True
-        )
 
     base_model_name_HF = 'allenai/biomed_roberta_base' #params['base_model_name']
 
