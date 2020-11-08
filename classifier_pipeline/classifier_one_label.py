@@ -165,7 +165,7 @@ class Classifier(pl.LightningModule):
                 pretrained_model=self.hparams.encoder_model,
                 max_tokens = self.hparams.max_tokens_longformer)
 
-        else: self.hparams.tokenizer = Tokenizer(
+        else: self.tokenizer = Tokenizer(
             pretrained_model=self.hparams.encoder_model,
             max_tokens = self.hparams.max_tokens)
 
