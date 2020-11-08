@@ -84,7 +84,8 @@ def main():
 
     base_model_name = base_model_name_HF.split('/')[-1]
     model_path = f'{MODEL_OUT_DIR}/bioclinical-roberta'
-    unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}' #includes speedfix
+
+    unpretrained_model_path = base_model_name_HF
 
     logger.info(f'Loading the model from {unpretrained_model_path}')
     tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path)
