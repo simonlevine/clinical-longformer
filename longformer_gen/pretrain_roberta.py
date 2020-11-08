@@ -27,7 +27,7 @@ SAMPLE_FPATH = 'data/filtered_all_notes_SAMPLE.txt'
 
 MODEL_OUT_DIR = './roberta_gen'
 
-FAST_DEV_RUN = False
+FAST_DEV_RUN = True
 
 if FAST_DEV_RUN == True:
 
