@@ -134,6 +134,8 @@ class Classifier(pl.LightningModule):
             # gradient_checkpointing=True, #critical for training speed.
         )
 
+        logger.warning(f'model is {self.transformer}')
+
         if self.hparams.transformer_type == 'longformer':
             logger.warning('Turnin ON gradient checkpointing...')
 
