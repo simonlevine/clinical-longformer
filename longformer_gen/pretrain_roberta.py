@@ -44,7 +44,7 @@ MODEL_OUT_DIR = './longformer_gen'
 LOCAL_ATTN_WINDOW = 512 #params['local_attention_window']
 GLOBAL_MAX_POS = 4096 #params['global_attention_window']
 
-FAST_DEV_RUN = True
+FAST_DEV_RUN = False
 
 if FAST_DEV_RUN == True:
 
@@ -68,7 +68,7 @@ def main():
             save_steps=1,
             max_grad_norm= 5.0,
             per_device_eval_batch_size=2,
-            per_device_train_batch_size=2,
+            per_device_train_batch_size=1,
             gradient_accumulation_steps= 32,
             learning_rate = 0.00003,
             adam_epsilon= 1e-6,
@@ -89,7 +89,7 @@ def main():
         save_steps=500,
         max_grad_norm= 5.0,
         per_device_eval_batch_size=2,
-        per_device_train_batch_size=2,
+        per_device_train_batch_size=1,
         gradient_accumulation_steps= 32,
         learning_rate = 0.00003,
         adam_epsilon= 1e-6,
@@ -104,7 +104,6 @@ def main():
     base_model_name = base_model_name_HF.split('/')[-1]
     model_path = f'{MODEL_OUT_DIR}/bioclinical-longformer' #includes speedfix
     unpretrained_model_path = f'{MODEL_OUT_DIR}/{base_model_name}-{GLOBAL_MAX_POS}' #includes speedfix
-
 
     logger.info(f'Loading the model from {unpretrained_model_path}')
     tokenizer = RobertaTokenizerFast.from_pretrained(unpretrained_model_path,model_max_length=GLOBAL_MAX_POS)
