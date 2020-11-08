@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         '--freeze_encoder',
-        default = True
+        default = 99
         )
 
     # Batching
