@@ -4,7 +4,7 @@ import os
 import copy
 import math
 from dataclasses import dataclass, field
-from transformers import RobertaForMaskedLM, RobertaTokenizerFast, DataCollatorForLanguageModeling, Trainer
+from transformers import RobertaForMaskedLM, RobertaTokenizerFast, DataCollatorForLanguageModeling, Trainer, TextDataset
 from transformers import TrainingArguments, HfArgumentParser
 
 from torch.utils.data import Dataset
@@ -52,7 +52,6 @@ if FAST_DEV_RUN == True:
 
     TRAIN_FPATH = SAMPLE_FPATH
     VAL_FPATH = SAMPLE_FPATH
-
 
 
 def main():
@@ -123,7 +122,6 @@ def main():
     logger.critical('Final pre-trained model, tokenizer,and config saved!')
 
 
-
 class RobertaLongSelfAttention(LongformerSelfAttention):
     def forward(
         self,
@@ -135,7 +133,6 @@ class RobertaLongSelfAttention(LongformerSelfAttention):
         output_attentions=False,
     ):
         return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
-
 
 class RobertaLongForMaskedLM(RobertaForMaskedLM):
     def __init__(self, config):
@@ -180,16 +177,15 @@ class LineByLineTextDataset(Dataset):
 def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path_out):
     logger.info(f'Loading and tokenizing data is usually slow: {VAL_FPATH}')
 
-    val_dataset = LineByLineTextDataset(tokenizer=tokenizer,
+    val_dataset = TextDataset(tokenizer=tokenizer,
                               file_path=VAL_FPATH,
                               block_size=GLOBAL_MAX_POS)
-
 
     if eval_only:
         train_dataset = val_dataset
     else:
         logger.info(f'Loading and tokenizing training data is usually slow: {TRAIN_FPATH}')
-        train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
+        train_dataset = TextDataset(tokenizer=tokenizer,
                                     file_path=TRAIN_FPATH,
                                     block_size= GLOBAL_MAX_POS)
 
@@ -212,8 +208,6 @@ def pretrain_and_evaluate(training_args, model, tokenizer, eval_only, model_path
         eval_loss = trainer.evaluate()
         eval_loss = eval_loss['eval_loss']
         logger.info(f'Eval bpc after pretraining: {eval_loss/math.log(2)}')
-
-
 
 
 def copy_proj_layers(model):
