@@ -113,7 +113,7 @@ class Classifier(pl.LightningModule):
         # Loss criterion initialization.
         self.__build_loss()
 
-        if hparams.nr_frozen_epochs > 0:
+        if hparams.nr_frozen_epochs > 0 or hparams.freeze_encoder != False:
             self.freeze_encoder()
         else:
             self._frozen = False

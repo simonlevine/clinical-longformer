@@ -1,14 +1,14 @@
-max_seq_len: 4096 #Max number of words to consider per example when xbert/preprocessing.
-#Default is 128. MIMIC mean/std/max = 1358/792/7711
-max_char_len: None # Max number of characters to consider per example when xbert/preprocessing for tokenizer.
-#Default is 4096. MIMIC mean/std/max = 8794/5118/51230. Truncation is now ON, but defaults to max 
-local_attention_window: 512
-global_attention_window: 4096 #Max number of tokens to consider. MIMIC mean/std/max = 2742/1602/17593
-base_model_name: 'allenai/biomed_roberta_base'
-model_name: 'simonlevine/biomed_roberta_base-4096-speedfix'
+# max_seq_len: 4096 #Max number of words to consider per example when xbert/preprocessing.
+# #Default is 128. MIMIC mean/std/max = 1358/792/7711
+# max_char_len: None # Max number of characters to consider per example when xbert/preprocessing for tokenizer.
+# #Default is 4096. MIMIC mean/std/max = 8794/5118/51230. Truncation is now ON, but defaults to max 
+# local_attention_window: 512
+# global_attention_window: 4096 #Max number of tokens to consider. MIMIC mean/std/max = 2742/1602/17593
+# base_model_name: 'allenai/biomed_roberta_base'
+# model_name: 'simonlevine/biomed_roberta_base-4096-speedfix'
 
-label_text_emb_model_name: 'allenai/biomed_roberta_base' #'sentence-transformers/roberta-large-nli-stsb-mean-tokens'
-# label_emb: 'pifa-tfidf' #'text-emb'
+# label_text_emb_model_name: 'allenai/biomed_roberta_base' #'sentence-transformers/roberta-large-nli-stsb-mean-tokens'
+# # label_emb: 'pifa-tfidf' #'text-emb'
 
 prepare_for_xbert:
   subsampling: false #take a trivially small subsample.

@@ -148,6 +148,11 @@ if __name__ == "__main__":
         help='Run for a trivial single batch and single epoch.'
     )
 
+    parser.add_argument(
+        '--freeze_encoder',
+        default = True
+        )
+
     # Batching
     parser.add_argument(
         "--batch_size", default=12, type=int, help="Batch size to be used."
