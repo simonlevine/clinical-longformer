@@ -19,6 +19,26 @@ from utils import mask_fill
 
 from loguru import logger
 
+
+class RobertaLongSelfAttention(LongformerSelfAttention):
+    def forward(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        encoder_hidden_states=None,
+        encoder_attention_mask=None,
+        output_attentions=False,
+    ):
+        return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
+
+class RobertaLongForMaskedLM(RobertaForMaskedLM):
+    def __init__(self, config):
+        super().__init__(config)
+        for i, layer in enumerate(self.roberta.encoder.layer):
+            # replace the `modeling_bert.BertSelfAttention` object with `LongformerSelfAttention`
+            layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
+
 class Classifier(pl.LightningModule):
     """
     Sample model to show how to use a Transformer model to classify sentences.
@@ -55,11 +75,13 @@ class Classifier(pl.LightningModule):
             
             :return: List of records as dictionaries
             """
+
+            n = 50
             df = pd.read_csv(path)
             df = df[["TEXT", "ICD9_CODE"]]
             df = df.rename(columns={'TEXT':'text', 'ICD9_CODE':'label'})
-            top_fifty_codes=df['label'].value_counts()[:50].index.tolist()
-            logger.warning(f'Predicting the top 50 most frequent ICD codes: {top_fifty_codes}')
+            top_codes=df['label'].value_counts()[:n].index.tolist()
+            logger.warning(f'Predicting the top {n} most frequent ICD codes: {top_codes}')
 
             df = df[df['label'].isin(top_fifty_codes)]
             
@@ -126,15 +148,27 @@ class Classifier(pl.LightningModule):
     def __build_model(self) -> None:
         """ Init transformer model + tokenizer + classification head."""
 
-        #simonlevine/biomed_roberta_base-4096-speedfix'
-        
-        self.transformer = AutoModel.from_pretrained(
-            self.hparams.encoder_model,
-            output_hidden_states=True,
-            # gradient_checkpointing=True, #critical for training speed.
-        )
+        if self.hparams.transformer_type == 'roberta-long':
+            self.transformer= RobertaLongForMaskedLM.from_pretrained(
+                self.hparams.encoder_model,
+                output_hidden_states=True,
+                gradient_checkpointing=True
+            )
 
-        logger.warning(f'model is {self.transformer}')
+        elif self.hparams.transformer_type == 'longformer':
+            self.transformer = AutoModel.from_pretrained(
+                self.hparams.encoder_model,
+                output_hidden_states=True,
+                gradient_checkpointing=True, #critical for training speed.
+            )
+
+        else: #BERT
+            self.transformer = AutoModel.from_pretrained(
+                self.hparams.encoder_model,
+                output_hidden_states=True,
+                )
+
+        logger.warning(f'model is {self.hparams.encoder_model}')
 
         if self.hparams.transformer_type == 'longformer':
             logger.warning('Turnin ON gradient checkpointing...')
@@ -150,20 +184,17 @@ class Classifier(pl.LightningModule):
             output_hidden_states=True,
                 )
             
-           #others to try:
-            # bert-base-uncased
-            #'emilyalsentzer/Bio_ClinicalBERT'
-            # allenai/biomed_roberta_base
-            # simonlevine/biomed_roberta_base-4096-speedfix'
+
         
         # set the number of features our encoder model will return...
         self.encoder_features = 768
 
         # Tokenizer
-        if self.hparams.transformer_type  == 'longformer':
+        if self.hparams.transformer_type  == 'longformer' or self.hparams.transformer_type == 'roberta-long':
             self.tokenizer = Tokenizer(
                 pretrained_model=self.hparams.encoder_model,
                 max_tokens = self.hparams.max_tokens_longformer)
+ 
 
         else: self.tokenizer = Tokenizer(
             pretrained_model=self.hparams.encoder_model,
@@ -449,7 +480,7 @@ class Classifier(pl.LightningModule):
 
         parser.add_argument(
             "--transformer_type",
-            default='bert', #'longformer',
+            default='bert', #'longformer', roberta-long
             type=str,
             help="Encoder model /tokenizer to be used (has consequences for tokenization and encoding; default = longformer).",
         )
