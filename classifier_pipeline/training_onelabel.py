@@ -47,7 +47,7 @@ def main(hparams) -> None:
     # Path(tb_log_dir).mkdir(exist_ok=True)
 
     tb_logger = TensorBoardLogger(
-        save_dir='experiments/',
+        save_dir=os.path.join(hparams.encoder_model,'/experiments/'),
         version="version_" + datetime.now().strftime("%d-%m-%Y--%H-%M-%S"),
         name="",
     )
@@ -55,7 +55,7 @@ def main(hparams) -> None:
     # Model Checkpoint Callback
 
     ckpt_path = os.path.join(
-        f"experiments/", tb_logger.version, "checkpoints",
+        hparams.encoder_model,"/experiments/", tb_logger.version, "checkpoints",
     )
 
     # --------------------------------
