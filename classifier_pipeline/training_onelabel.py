@@ -4,6 +4,7 @@ Runs a model on a single node across N-gpus.
 import argparse
 import os
 from datetime import datetime
+from pathlib import Path
 
 from classifier_one_label import Classifier
 
@@ -43,7 +44,7 @@ def main(hparams) -> None:
     # Tensorboard Callback
 
     tb_log_dir=f"/experiments/{hparams.encoder_model}"
-    tb_log_dir.mkdir(exist_ok=True)
+    Path(tb_log_dir).mkdir(exist_ok=True)
 
     tb_logger = TensorBoardLogger(
         save_dir=tb_log_dir,
@@ -56,7 +57,7 @@ def main(hparams) -> None:
     ckpt_path = os.path.join(
         f"experiments/{hparams.encoder_model}", tb_logger.version, "checkpoints",
     )
-    ckpt_path.mkdir(exist_ok=True)
+    Path(ckpt_path).mkdir(exist_ok=True)
 
     # --------------------------------
     # 4 INIT MODEL CHECKPOINT CALLBACK
