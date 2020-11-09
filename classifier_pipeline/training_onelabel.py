@@ -62,34 +62,34 @@ def main(hparams) -> None:
     # --------------------------------
     # 4 INIT MODEL CHECKPOINT CALLBACK
     # -------------------------------
-    checkpoint_callback = ModelCheckpoint(
-        filepath=ckpt_path,
-        save_top_k=hparams.save_top_k,
-        verbose=True,
-        monitor=hparams.monitor,
-        period=1,
-        mode=hparams.metric_mode,
-        save_weights_only=True
-    )
+    # checkpoint_callback = ModelCheckpoint(
+    #     filepath=ckpt_path,
+    #     save_top_k=hparams.save_top_k,
+    #     verbose=True,
+    #     monitor=hparams.monitor,
+    #     period=1,
+    #     mode=hparams.metric_mode,
+    #     save_weights_only=True
+    # )
 
     # ------------------------
     # 5 INIT TRAINER
     # ------------------------
     trainer = Trainer(
         logger=tb_logger,
-        checkpoint_callback=True,
+        # checkpoint_callback=True,
         # callbacks=early_stop_callback,
         
         gradient_clip_val=1.0,
         gpus=hparams.gpus,
         log_gpu_memory="all",
         deterministic=True,
-        check_val_every_n_epoch=1,
+        # check_val_every_n_epoch=1,
         fast_dev_run=hparams.fast_dev_run,
         accumulate_grad_batches=hparams.accumulate_grad_batches,
-        # max_epochs=hparams.max_epochs,
+        max_epochs=hparams.max_epochs,
         # min_epochs=hparams.min_epochs,
-        max_steps = 20,
+        # max_steps = 20,
         # val_check_interval=hparams.val_check_interval,
         # distributed_backend="None",
     )
