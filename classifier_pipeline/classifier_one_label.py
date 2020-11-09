@@ -95,7 +95,6 @@ class Classifier(pl.LightningModule):
             df["text"] = df["text"].astype(str)
             df["label"] = df["label"].astype(str)
 
-
             # df = df.iloc[:10]
             logger.warning(f'{path} dataframe has {len(df)} examples.' )
             return df.to_dict("records")
