@@ -69,6 +69,10 @@ class Classifier(pl.LightningModule):
 
             self.label_encoder.unknown_index = None
 
+            self.n = 50
+            self.top_codes = pd.read_csv(self.hparams.train_csv)['ICD9_CODE'].value_counts()[:self.n].index.tolist()
+            logger.warning(f'Classifying against the top {len(self.n)} most frequent ICD codes: {self.top_codes}')
+
         def get_mimic_data(self, path: str) -> list:
             """ Reads a comma separated value file.
 
@@ -81,17 +85,17 @@ class Classifier(pl.LightningModule):
             df = pd.read_csv(path)
             df = df[["TEXT", "ICD9_CODE"]]
             df = df.rename(columns={'TEXT':'text', 'ICD9_CODE':'label'})
-            top_codes=df['label'].value_counts()[:n].index.tolist()
-            logger.warning(f'Predicting the top {n} most frequent ICD codes: {top_codes}')
 
-            df = df[df['label'].isin(top_codes)]
-            
+            df = df[df['label'].isin(self.top_codes)]
             df["text"] = df["text"].astype(str)
             df["label"] = df["label"].astype(str)
+
+            logger.warning(f'{path} dataframe has {len(df)} examples.' )
             return df.to_dict("records")
 
         def train_dataloader(self) -> DataLoader:
             """ Function that loads the train set. """
+            logger.warning('Loading training data...')
             self._train_dataset = self.get_mimic_data(self.hparams.train_csv)
             return DataLoader(
                 dataset=self._train_dataset,
@@ -102,6 +106,8 @@ class Classifier(pl.LightningModule):
             )
 
         def val_dataloader(self) -> DataLoader:
+            logger.warning('Loading validation data...')
+
             """ Function that loads the validation set. """
             self._dev_dataset = self.get_mimic_data(self.hparams.dev_csv)
             return DataLoader(
@@ -112,6 +118,8 @@ class Classifier(pl.LightningModule):
             )
 
         def test_dataloader(self) -> DataLoader:
+            logger.warning('Loading testing data...')
+
             """ Function that loads the validation set. """
             self._test_dataset = self.get_mimic_data(self.hparams.test_csv)
 

@@ -95,6 +95,7 @@ def main(hparams) -> None:
     # 6 START TRAINING
     # ------------------------
     trainer.fit(model, model.data)
+    trainer.test(model.data.test_dataloader)
 
     # model.save(...)
 
