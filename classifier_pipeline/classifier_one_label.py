@@ -71,7 +71,7 @@ class Classifier(pl.LightningModule):
 
             self.n = 50
             self.top_codes = pd.read_csv(self.hparams.train_csv)['ICD9_CODE'].value_counts()[:self.n].index.tolist()
-            logger.warning(f'Classifying against the top {len(self.n)} most frequent ICD codes: {self.top_codes}')
+            logger.warning(f'Classifying against the top {self.n} most frequent ICD codes: {self.top_codes}')
 
         def get_mimic_data(self, path: str) -> list:
             """ Reads a comma separated value file.
