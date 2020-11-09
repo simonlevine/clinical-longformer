@@ -43,11 +43,11 @@ def main(hparams) -> None:
     # ------------------------
     # Tensorboard Callback
 
-    tb_log_dir=f"/experiments/{hparams.encoder_model}"
-    Path(tb_log_dir).mkdir(exist_ok=True)
+    # tb_log_dir=f"/experiments/{hparams.encoder_model}"
+    # Path(tb_log_dir).mkdir(exist_ok=True)
 
     tb_logger = TensorBoardLogger(
-        save_dir=tb_log_dir,
+        save_dir='experiments/',
         version="version_" + datetime.now().strftime("%d-%m-%Y--%H-%M-%S"),
         name="",
     )
@@ -55,9 +55,8 @@ def main(hparams) -> None:
     # Model Checkpoint Callback
 
     ckpt_path = os.path.join(
-        f"experiments/{hparams.encoder_model}", tb_logger.version, "checkpoints",
+        f"experiments/", tb_logger.version, "checkpoints",
     )
-    Path(ckpt_path).mkdir(exist_ok=True)
 
     # --------------------------------
     # 4 INIT MODEL CHECKPOINT CALLBACK
