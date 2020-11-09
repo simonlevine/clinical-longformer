@@ -96,6 +96,8 @@ def main(hparams) -> None:
     # ------------------------
     trainer.fit(model, model.data)
 
+    # model.save(...)
+
 
 if __name__ == "__main__":
     # ------------------------
