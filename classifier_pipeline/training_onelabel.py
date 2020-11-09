@@ -42,14 +42,14 @@ def main(hparams) -> None:
     # ------------------------
     # Tensorboard Callback
     tb_logger = TensorBoardLogger(
-        save_dir="experiments/",
+        save_dir=f"/experiments/{hparams.encoder_model}",
         version="version_" + datetime.now().strftime("%d-%m-%Y--%H-%M-%S"),
         name="",
     )
 
     # Model Checkpoint Callback
     ckpt_path = os.path.join(
-        "experiments/", tb_logger.version, "checkpoints",
+        f"experiments/{hparams.encoder_model}", tb_logger.version, "checkpoints",
     )
 
     # --------------------------------
