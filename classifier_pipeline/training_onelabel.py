@@ -79,6 +79,7 @@ def main(hparams) -> None:
         logger=tb_logger,
         checkpoint_callback=True,
         # callbacks=early_stop_callback,
+        
         gradient_clip_val=1.0,
         gpus=hparams.gpus,
         log_gpu_memory="all",
@@ -88,6 +89,7 @@ def main(hparams) -> None:
         accumulate_grad_batches=hparams.accumulate_grad_batches,
         max_epochs=hparams.max_epochs,
         min_epochs=hparams.min_epochs,
+        max_steps = 20,
         # val_check_interval=hparams.val_check_interval,
         # distributed_backend="None",
     )
@@ -95,8 +97,8 @@ def main(hparams) -> None:
     # ------------------------
     # 6 START TRAINING
     # ------------------------
-    trainer.fit(model, model.data)
-    trainer.test(model.data.test_dataloader)
+    # trainer.fit(model, model.data)
+    trainer.test(model, model.data.test_dataloader())
 
     # model.save(...)
 

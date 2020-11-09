@@ -22,6 +22,7 @@ import pytorch_lightning.metrics.classification as metrics
 from loguru import logger
 
 
+
 class RobertaLongSelfAttention(LongformerSelfAttention):
     def forward(
         self,
@@ -40,6 +41,7 @@ class RobertaLongForMaskedLM(RobertaForMaskedLM):
         for i, layer in enumerate(self.roberta.encoder.layer):
             # replace the `modeling_bert.BertSelfAttention` object with `LongformerSelfAttention`
             layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
+
 
 class Classifier(pl.LightningModule):
     """
@@ -61,18 +63,21 @@ class Classifier(pl.LightningModule):
 
             self.transformer_type = self.hparams.transformer_type
 
-            # Label Encoder
-            if self.hparams.single_label_encoding == 'default':
-                self.label_encoder = LabelEncoder(
-                    pd.read_csv(self.hparams.train_csv).ICD9_CODE.unique().tolist(), 
-                    reserved_labels=[]
-                )
-
-            self.label_encoder.unknown_index = None
+           
 
             self.n_labels = 50
             self.top_codes = pd.read_csv(self.hparams.train_csv)['ICD9_CODE'].value_counts()[:self.n_labels].index.tolist()
             logger.warning(f'Classifying against the top {self.n_labels} most frequent ICD codes: {self.top_codes}')
+            
+
+             # Label Encoder
+            if self.hparams.single_label_encoding == 'default':
+                self.label_encoder = LabelEncoder(
+                    np.unique(self.top_codes).tolist(), 
+                    reserved_labels=[]
+                )
+
+            self.label_encoder.unknown_index = None
 
         def get_mimic_data(self, path: str) -> list:
             """ Reads a comma separated value file.
@@ -81,7 +86,6 @@ class Classifier(pl.LightningModule):
             
             :return: List of records as dictionaries
             """
-
         
             df = pd.read_csv(path)
             df = df[["TEXT", "ICD9_CODE"]]
@@ -91,9 +95,9 @@ class Classifier(pl.LightningModule):
             df["text"] = df["text"].astype(str)
             df["label"] = df["label"].astype(str)
 
-            logger.warning(f'{path} dataframe has {len(df)} examples.' )
 
-            df = df.iloc[:10]
+            # df = df.iloc[:10]
+            logger.warning(f'{path} dataframe has {len(df)} examples.' )
             return df.to_dict("records")
 
         def train_dataloader(self) -> DataLoader:
@@ -158,7 +162,7 @@ class Classifier(pl.LightningModule):
 
 
 
-        self.prec = metrics.Precision(num_classes=self.data.n_labels, multilabel=False)
+        self.prec = metrics.Precision(num_classes=self.data.n_labels)
         self.fbeta = metrics.Fbeta(num_classes=self.data.n_labels)
         self.recall = metrics.Recall(num_classes=self.data.n_labels)
         self.acc = metrics.Accuracy()
@@ -443,9 +447,9 @@ class Classifier(pl.LightningModule):
         self.log('val_acc',val_acc)
 
 
-        self.log('val_prec',self.prec(y_hat, y))
-        self.log('val_fbeta',self.fbeta(y_hat, y))
-        self.log('val_recall',self.recall(y_hat, y))
+        self.log('val_prec',self.prec(labels_hat, y))
+        self.log('val_fbeta',self.fbeta(labels_hat, y))
+        self.log('val_recall',self.recall(labels_hat, y))
         
 
         return loss_val
