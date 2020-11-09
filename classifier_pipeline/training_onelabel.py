@@ -47,7 +47,7 @@ def main(hparams) -> None:
     # Path(tb_log_dir).mkdir(exist_ok=True)
 
     tb_logger = TensorBoardLogger(
-        save_dir=os.path.join(hparams.encoder_model,'/experiments/'),
+        save_dir='experiments/',
         version="version_" + datetime.now().strftime("%d-%m-%Y--%H-%M-%S"),
         name="",
     )
