@@ -2,21 +2,26 @@
 
 python classifier_pipeline/training_onelabel.py \
     --transformer_type bert \
-    --encoder_model bert-base-uncased
+    --encoder_model bert-base-uncased \
+    --fast_dev_run True
 
 python classifier_pipeline/training_onelabel.py \
     --transformer_type bert \
-    --encoder_model emilyalsentzer/Bio_ClinicalBERT
+    --encoder_model emilyalsentzer/Bio_ClinicalBERT \
+    --fast_dev_run True
 
 python classifier_pipeline/training_onelabel.py \
     --transformer_type roberta \
-    --encoder_model allenai/biomed_roberta_base
+    --encoder_model allenai/biomed_roberta_base \
+    --fast_dev_run True
 
 
 python classifier_pipeline/training_onelabel.py
     --transformer_type roberta-long \
-    --encoder_model simonlevine/biomed_roberta_base-4096
+    --encoder_model simonlevine/biomed_roberta_base-4096 \
+    --fast_dev_run True
 
 python classifier_pipeline/training_onelabel.py \
     --transformer_type roberta-long \
-    --encoder_model simonlevine/bioclinical-longformer
+    --encoder_model simonlevine/bioclinical-longformer \
+    --fast_dev_run True
