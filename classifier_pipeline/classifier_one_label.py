@@ -84,7 +84,7 @@ class Classifier(pl.LightningModule):
             top_codes=df['label'].value_counts()[:n].index.tolist()
             logger.warning(f'Predicting the top {n} most frequent ICD codes: {top_codes}')
 
-            df = df[df['label'].isin(top_fifty_codes)]
+            df = df[df['label'].isin(top_codes)]
             
             df["text"] = df["text"].astype(str)
             df["label"] = df["label"].astype(str)
