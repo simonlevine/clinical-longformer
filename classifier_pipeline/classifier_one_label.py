@@ -92,6 +92,8 @@ class Classifier(pl.LightningModule):
             df["label"] = df["label"].astype(str)
 
             logger.warning(f'{path} dataframe has {len(df)} examples.' )
+
+            df = df.iloc[:10]
             return df.to_dict("records")
 
         def train_dataloader(self) -> DataLoader:
@@ -399,12 +401,13 @@ class Classifier(pl.LightningModule):
 
         
         y_hat=model_out['logits']
+        labels_hat = torch.argmax(y_hat, dim=1)
         y=targets['labels']
-        
-        self.log('test_prec',self.prec(y_hat, y))
-        self.log('test_fbeta',self.fbeta(y_hat, y))
-        self.log('test_recall',self.recall(y_hat, y))
-        self.log('test_acc', self.acc(y_hat, y))
+
+        self.log('test_prec',self.prec(labels_hat, y))
+        self.log('test_fbeta',self.fbeta(labels_hat, y))
+        self.log('test_recall',self.recall(labels_hat, y))
+        self.log('test_acc', self.acc(labels_hat, y))
 
         # can also return just a scalar instead of a dict (return loss_val)
         return loss_val
