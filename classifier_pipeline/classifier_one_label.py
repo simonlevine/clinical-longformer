@@ -18,6 +18,7 @@ from torchnlp.encoders import LabelEncoder
 from torchnlp.utils import collate_tensors, lengths_to_mask
 from utils import mask_fill
 
+import pytorch_lightning.metrics.classification as metrics
 from loguru import logger
 
 
@@ -69,9 +70,9 @@ class Classifier(pl.LightningModule):
 
             self.label_encoder.unknown_index = None
 
-            self.n = 50
-            self.top_codes = pd.read_csv(self.hparams.train_csv)['ICD9_CODE'].value_counts()[:self.n].index.tolist()
-            logger.warning(f'Classifying against the top {self.n} most frequent ICD codes: {self.top_codes}')
+            self.n_labels = 50
+            self.top_codes = pd.read_csv(self.hparams.train_csv)['ICD9_CODE'].value_counts()[:self.n_labels].index.tolist()
+            logger.warning(f'Classifying against the top {self.n_labels} most frequent ICD codes: {self.top_codes}')
 
         def get_mimic_data(self, path: str) -> list:
             """ Reads a comma separated value file.
@@ -81,7 +82,7 @@ class Classifier(pl.LightningModule):
             :return: List of records as dictionaries
             """
 
-            n = 50
+        
             df = pd.read_csv(path)
             df = df[["TEXT", "ICD9_CODE"]]
             df = df.rename(columns={'TEXT':'text', 'ICD9_CODE':'label'})
@@ -152,6 +153,14 @@ class Classifier(pl.LightningModule):
         else:
             self._frozen = False
         self.nr_frozen_epochs = hparams.nr_frozen_epochs
+
+
+
+        self.prec = metrics.Precision(num_classes=self.data.n_labels, multilabel=False)
+        self.fbeta = metrics.Fbeta(num_classes=self.data.n_labels)
+        self.recall = metrics.Recall(num_classes=self.data.n_labels)
+        self.acc = metrics.Accuracy()
+
 
 
     def __build_model(self) -> None:
@@ -358,6 +367,7 @@ class Classifier(pl.LightningModule):
         if self.trainer.use_dp or self.trainer.use_ddp2:
             loss_val = loss_val.unsqueeze(0)
 
+
         self.log('loss',loss_val)
 
         # can also return just a scalar instead of a dict (return loss_val)
@@ -385,6 +395,16 @@ class Classifier(pl.LightningModule):
             loss_val = loss_val.unsqueeze(0)
             
         self.log('test_loss',loss_val)
+
+
+        
+        y_hat=model_out['logits']
+        y=targets['labels']
+        
+        self.log('test_prec',self.prec(y_hat, y))
+        self.log('test_fbeta',self.fbeta(y_hat, y))
+        self.log('test_recall',self.recall(y_hat, y))
+        self.log('test_acc', self.acc(y_hat, y))
 
         # can also return just a scalar instead of a dict (return loss_val)
         return loss_val
@@ -418,7 +438,13 @@ class Classifier(pl.LightningModule):
 
         self.log('val_loss',loss_val)
         self.log('val_acc',val_acc)
-    
+
+
+        self.log('val_prec',self.prec(y_hat, y))
+        self.log('val_fbeta',self.fbeta(y_hat, y))
+        self.log('val_recall',self.recall(y_hat, y))
+        
+
         return loss_val
 
     def validation_end(self, outputs: list) -> dict:
