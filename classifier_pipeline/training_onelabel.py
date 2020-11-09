@@ -50,7 +50,7 @@ def main(hparams) -> None:
     tb_logger = TensorBoardLogger(
         save_dir='experiments/',
         version="version_" + datetime.now().strftime("%d-%m-%Y--%H-%M-%S"),
-        name={hparams.encoder_model},
+        name=f'{hparams.encoder_model}',
     )
 
     # Model Checkpoint Callback
