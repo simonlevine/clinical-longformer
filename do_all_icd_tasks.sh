@@ -22,11 +22,13 @@ python classifier_pipeline/training_onelabel.py \
 python classifier_pipeline/training_onelabel.py
     --transformer_type roberta-long \
     --encoder_model simonlevine/biomed_roberta_base-4096 \
+    --batch_size 2 \
     --fast_dev_run True \
     --gpus 0 \
 
 python classifier_pipeline/training_onelabel.py \
     --transformer_type roberta-long \
     --encoder_model simonlevine/bioclinical-longformer \
+    --batch_size 2 \
     --fast_dev_run True \
     --gpus 0 \
