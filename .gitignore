@@ -22,3 +22,4 @@ data/filtered_all_notes_train.txt
 data/filtered_all_notes_val.txt
 data/physionet.org/robots.txt
 data/filtered_all_notes_SAMPLE.txt
+testing.ipynb
