@@ -61,7 +61,7 @@ def main(hparams) -> None:
         accumulate_grad_batches=hparams.accumulate_grad_batches,
         max_epochs=hparams.max_epochs,
         max_steps = 20,
-        early_stop_callback=early_stop_callback,
+        callbacks=[early_stop_callback],
     )
 
     # ------------------------
