@@ -31,13 +31,13 @@ def main(hparams) -> None:
     # ------------------------
     # 2 INIT EARLY STOPPING
     # ------------------------
-    early_stop_callback = EarlyStopping(
-        monitor=hparams.monitor,
-        min_delta=0.0,
-        patience=hparams.patience,
-        verbose=True,
-        mode=hparams.metric_mode,
-    )
+    # early_stop_callback = EarlyStopping(
+    #     monitor=hparams.monitor,
+    #     min_delta=0.0,
+    #     patience=hparams.patience,
+    #     verbose=True,
+    #     mode=hparams.metric_mode,
+    # )
 
     # ------------------------
     # 3 INIT LOGGERS
@@ -54,14 +54,13 @@ def main(hparams) -> None:
     # ------------------------
     trainer = Trainer(
         logger=tb_logger,
-        gradient_clip_val=1.0,
         gpus=hparams.gpus,
         log_gpu_memory="all",
         fast_dev_run=hparams.fast_dev_run,
         accumulate_grad_batches=hparams.accumulate_grad_batches,
         max_epochs=hparams.max_epochs,
-        max_steps = 20,
-        callbacks=[early_stop_callback],
+        # max_steps = 20,
+        # callbacks=[early_stop_callback],
     )
 
     # ------------------------
@@ -144,15 +143,8 @@ if __name__ == "__main__":
 
     # gpu args
     parser.add_argument("--gpus", type=int, default=1, help="How many gpus")
-    parser.add_argument(
-        "--val_check_interval",
-        default=1.0, #1.0
-        type=float,
-        help=(
-            "If you don't want to use the entire dev set (for debugging or "
-            "if it's huge), set how much of the dev set you want to use with this flag."
-        ),
-    )
+
+
 
     # each LightningModule defines arguments relevant to it
     parser = Classifier.add_model_specific_args(parser)
