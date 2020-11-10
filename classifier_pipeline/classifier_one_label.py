@@ -480,14 +480,15 @@ class Classifier(pl.LightningModule):
     def test_epoch_end(self, outputs):
         preds = torch.cat([tmp['pred'] for tmp in outputs])
         targets = torch.cat([tmp['target'] for tmp in outputs])
+        
         cm = metrics.confusion_matrix(preds,targets,num_classes=self.data.n_labels,normalize=True)
         figure = plot_confusion_matrix(cm, class_names=self.data.top_codes)
         cm_image = plot_to_image(figure)
 
-        f1 = metrics.f1_score(labels_hat, y,class_reduction='weighted')
-        prec =metrics.precision(labels_hat, y,class_reduction='weighted')
-        recall = metrics.recall(labels_hat, y,class_reduction='weighted')
-        acc = metrics.accuracy(labels_hat, y,class_reduction='weighted')
+        f1 = metrics.f1_score(preds,targets,   class_reduction='weighted')
+        prec =metrics.precision(preds,targets, class_reduction='weighted')
+        recall = metrics.recall(preds,targets, class_reduction='weighted')
+        acc = metrics.accuracy(preds,targets,  class_reduction='weighted')
 
         self.log('test_prec',prec)
         self.log('test_f1',f1)
