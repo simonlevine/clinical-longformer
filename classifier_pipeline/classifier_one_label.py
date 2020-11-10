@@ -38,6 +38,8 @@ def plot_confusion_matrix(cm, class_names):
 
     credit: https://towardsdatascience.com/exploring-confusion-matrix-evolution-on-tensorboard-e66b39f4ac12
     """
+
+    cm.cpu()
     font = FontProperties()
     font.set_family('serif')
     font.set_name('Times New Roman')
