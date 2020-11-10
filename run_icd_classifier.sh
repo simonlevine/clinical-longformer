@@ -4,4 +4,4 @@ python classifier_pipeline/training_onelabel.py \
     --transformer_type bert \
     --encoder_model bert-base-uncased \
     --gpus 1 \
-    --fast_dev_run True
+    # --fast_dev_run True
