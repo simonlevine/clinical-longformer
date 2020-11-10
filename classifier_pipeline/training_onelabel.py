@@ -13,7 +13,9 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import LightningLoggerBase, TensorBoardLogger
 from torchnlp.random import set_seed
 
-
+'''
+The trivial solution to Pr = Re = F1 is TP = 0. So we know precision, recall and F1 can have the same value in general
+'''
 
 
 def main(hparams) -> None:
@@ -59,15 +61,14 @@ def main(hparams) -> None:
         fast_dev_run=hparams.fast_dev_run,
         accumulate_grad_batches=hparams.accumulate_grad_batches,
         max_epochs=hparams.max_epochs,
-        # max_steps = 20,
-        # callbacks=[early_stop_callback],
     )
 
     # ------------------------
     # 6 START TRAINING
     # ------------------------
-    trainer.fit(model, model.data)
+    trainer.fit(model, model.data,default_root_dir=f'./classifier_pipeline/{hparams.freeze_encoder}')
     trainer.test(model, model.data.test_dataloader())
+
 
 if __name__ == "__main__":
     # ------------------------
