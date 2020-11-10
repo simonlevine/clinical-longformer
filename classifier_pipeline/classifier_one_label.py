@@ -478,9 +478,11 @@ class Classifier(pl.LightningModule):
         return {'pred':labels_hat,'target': y}
 
     def test_epoch_end(self, outputs):
-
+        logger.critical(outputs)
         preds = torch.cat([tmp['pred'] for tmp in outputs])
         targets = torch.cat([tmp['target'] for tmp in outputs])
+        logger.critical(preds.shape)
+        logger.critical(targets.shape)
 
         cm = metrics.confusion_matrix(preds,targets,num_classes=self.data.n_labels,normalize=True)
         # figure = plot_confusion_matrix(cm, class_names=self.data.top_codes)
