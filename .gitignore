@@ -3,7 +3,7 @@
 intermediary-data/notes2diagnosis-icd-test.json.gz
 intermediary-data/notes2diagnosis-icd-train.json.gz
 data/intermediary-data/filtered_notes/NOTEEVENTS.FILTERED.csv.gz
-*.txt
+# *.txt
 data/intermediary-data/xbert_inputs/Y.trn.npz
 *.npz
 data/intermediary-data/notes2diagnosis-icd-test_df
@@ -18,3 +18,7 @@ filtered_all_notes_val.raw
 *.raw
 *.zip
 # download_and_unzip_mimicdata.sh
+data/filtered_all_notes_train.txt
+data/filtered_all_notes_val.txt
+data/physionet.org/robots.txt
+data/filtered_all_notes_SAMPLE.txt
