@@ -153,7 +153,7 @@ class Classifier(pl.LightningModule):
         # Loss criterion initialization.
         self.__build_loss()
 
-        if hparams.nr_frozen_epochs > 0 or hparams.freeze_encoder != False:
+        if hparams.nr_frozen_epochs > 0:
             self.freeze_encoder()
         else:
             self._frozen = False
@@ -560,7 +560,7 @@ class Classifier(pl.LightningModule):
         )
         parser.add_argument(
             "--nr_frozen_epochs",
-            default=99,
+            default=0,
             type=int,
             help="Number of epochs we want to keep the encoder model frozen.",
         )

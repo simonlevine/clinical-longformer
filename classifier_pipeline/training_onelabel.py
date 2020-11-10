@@ -61,12 +61,13 @@ def main(hparams) -> None:
         fast_dev_run=hparams.fast_dev_run,
         accumulate_grad_batches=hparams.accumulate_grad_batches,
         max_epochs=hparams.max_epochs,
+        default_root_dir=f'./classifier_pipeline/{hparams.encoder_model}'
     )
 
     # ------------------------
     # 6 START TRAINING
     # ------------------------
-    trainer.fit(model, model.data,default_root_dir=f'./classifier_pipeline/{hparams.freeze_encoder}')
+    trainer.fit(model, model.data)
     trainer.test(model, model.data.test_dataloader())
 
 
@@ -122,11 +123,6 @@ if __name__ == "__main__":
         type=bool,
         help='Run for a trivial single batch and single epoch.'
     )
-
-    parser.add_argument(
-        '--freeze_encoder',
-        default = 99
-        )
 
     # Batching
     parser.add_argument(
