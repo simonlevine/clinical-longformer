@@ -469,7 +469,6 @@ class Classifier(pl.LightningModule):
         self.log('test_loss',loss_val)
 
 
-        
         y_hat=model_out['logits']
         labels_hat = torch.argmax(y_hat, dim=1)
         y=targets['labels']
@@ -484,7 +483,7 @@ class Classifier(pl.LightningModule):
         logger.critical(preds.shape)
         logger.critical(targets.shape)
 
-        cm = metrics.confusion_matrix(preds,targets,num_classes=self.data.n_labels,normalize=True)
+        cm = metrics.confusion_matrix(preds,targets,num_classes=self.data.n_labels,normalize=True).unsqueeze(0)
         # figure = plot_confusion_matrix(cm, class_names=self.data.top_codes)
         # cm_image = plot_to_image(figure)
 
