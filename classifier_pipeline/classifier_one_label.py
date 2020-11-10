@@ -24,8 +24,8 @@ from utils import mask_fill
 import pytorch_lightning.metrics.functional.classification as metrics
 from loguru import logger
 
-# import matplotlib.pyplot as plt
-# from matplotlib.font_manager import FontProperties
+import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
 
 
 
