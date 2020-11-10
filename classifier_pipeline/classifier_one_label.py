@@ -29,72 +29,44 @@ from loguru import logger
 
 
 
-# def plot_confusion_matrix(cm, class_names):
-#     """
-#     Returns a matplotlib figure containing the plotted confusion matrix.
+def plot_confusion_matrix(cm, class_names, model):
+    """
+    Returns a matplotlib figure containing the plotted confusion matrix.
     
-#     Args:
-#        cm (array, shape = [n, n]): a confusion matrix of integer classes
-#        class_names (array, shape = [n]): String names of the integer classes
+    Args:
+       cm (array, shape = [n, n]): a confusion matrix of integer classes
+       class_names (array, shape = [n]): String names of the integer classes
 
-#     credit: https://towardsdatascience.com/exploring-confusion-matrix-evolution-on-tensorboard-e66b39f4ac12
-#     """
+    credit: https://towardsdatascience.com/exploring-confusion-matrix-evolution-on-tensorboard-e66b39f4ac12
+    """
 
-#     cm = cm.cpu().detach().numpy() 
-#     font = FontProperties()
-#     font.set_family('serif')
-#     font.set_name('Times New Roman')
-#     font.set_style('normal')
+    cm = cm.cpu().detach().numpy() 
+    font = FontProperties()
+    font.set_family('serif')
+    font.set_name('Times New Roman')
+    font.set_style('normal')
 
-#     figure = plt.figure(figsize=(8, 8))
-#     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-#     plt.title("Confusion matrix")
-#     plt.colorbar()
-#     tick_marks = np.arange(len(class_names))
-#     plt.xticks(tick_marks, class_names, rotation=45)
-#     plt.yticks(tick_marks, class_names)
+    figure = plt.figure(figsize=(8, 8))
+    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    plt.title("Confusion matrix")
+    plt.colorbar()
+    tick_marks = np.arange(len(class_names))
+    plt.xticks(tick_marks, class_names, rotation=45)
+    plt.yticks(tick_marks, class_names)
     
-#     # # Normalize the confusion matrix.
-#     # cm = np.around(cm.astype('float') / cm.sum(axis=1)[:, np.newaxis], decimals=2)
+    # Use white text if squares are dark; otherwise black.
+    threshold = cm.max() / 2.
     
-#     # Use white text if squares are dark; otherwise black.
-#     threshold = cm.max() / 2.
-    
-#     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-#         color = "white" if cm[i, j] > threshold else "black"
-#         plt.text(j, i, cm[i, j], horizontalalignment="center", color=color)
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        color = "white" if cm[i, j] > threshold else "black"
+        plt.text(j, i, cm[i, j], horizontalalignment="center", color=color)
         
-#     plt.tight_layout()
-#     plt.ylabel('True label')
-#     plt.xlabel('Predicted label')
-#     return figure
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    figure.savefig(f'experiments/{model}/test_mtx.png')
 
-# def plot_to_image(figure):
-#     """
-#     credit: https://towardsdatascience.com/exploring-confusion-matrix-evolution-on-tensorboard-e66b39f4ac12
 
-#     Converts the matplotlib plot specified by 'figure' to a PNG image and
-#     returns it. The supplied figure is closed and inaccessible after this call.
-#     """
-    
-#     buf = io.BytesIO()
-    
-#     # Use plt.savefig to save the plot to a PNG in memory.
-#     plt.savefig(buf, format='png')
-    
-#     # Closing the figure prevents it from being displayed directly inside
-#     # the notebook.
-#     plt.close(figure)
-#     buf.seek(0)
-    
-#     # Use tf.image.decode_png to convert the PNG buffer
-#     # to a TF image. Make sure you use 4 channels.
-#     image = tf.image.decode_png(buf.getvalue(), channels=4)
-    
-#     # Use tf.expand_dims to add the batch dimension
-#     image = tf.expand_dims(image, 0)
-    
-#     return image
 
 
 class RobertaLongSelfAttention(LongformerSelfAttention):
@@ -485,19 +457,23 @@ class Classifier(pl.LightningModule):
 
         cm = metrics.confusion_matrix(preds,targets,normalize=True).unsqueeze(0)
         logger.critical(f'Test confusion matrix:\n {cm}')
-        # figure = plot_confusion_matrix(cm, class_names=self.data.top_codes)
-        # cm_image = plot_to_image(figure)
+
+        plot_confusion_matrix(cm, self.data.top_codes, self.hparams.encoder_model)
+
+
 
         f1 = metrics.f1_score(preds,targets,   class_reduction='weighted')
         prec =metrics.precision(preds,targets, class_reduction='weighted')
         recall = metrics.recall(preds,targets, class_reduction='weighted')
         acc = metrics.accuracy(preds,targets,  class_reduction='weighted')
 
+
+
         self.log('test_prec',prec)
         self.log('test_f1',f1)
         self.log('test_recall',recall)
         self.log('test_weighted_acc', acc)
-        self.log('conf_mtx',cm)
+        # self.log('conf_mtx',cm)
 
 
     def validation_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
@@ -533,7 +509,6 @@ class Classifier(pl.LightningModule):
         prec =metrics.precision(labels_hat, y,class_reduction='weighted')
         recall = metrics.recall(labels_hat, y,class_reduction='weighted')
         acc = metrics.accuracy(labels_hat, y,class_reduction='weighted')
-        # cm = metrics.confusion_matrix(labels_hat, y,num_classes=self.data.n_labels)
 
         self.log('val_prec',prec)
         self.log('val_f1',f1)
