@@ -471,6 +471,15 @@ class Classifier(pl.LightningModule):
         labels_hat = torch.argmax(y_hat, dim=1)
         y=targets['labels']
 
+        # can also return just a scalar instead of a dict (return loss_val)
+        return {'pred':labels_hat,'target': y}
+
+    def test_epoch_end(self, outputs):
+        preds = torch.cat([tmp['pred'] for tmp in outputs])
+        targets = torch.cat([tmp['target'] for tmp in outputs])
+        cm = metrics.confusion_matrix(preds,targets,num_classes=self.data.n_labels,normalize=True)
+        figure = plot_confusion_matrix(cm, class_names=self.data.top_codes)
+        cm_image = plot_to_image(figure)
 
         f1 = metrics.f1_score(labels_hat, y,class_reduction='weighted')
         prec =metrics.precision(labels_hat, y,class_reduction='weighted')
@@ -481,17 +490,6 @@ class Classifier(pl.LightningModule):
         self.log('test_f1',f1)
         self.log('test_recall',recall)
         self.log('test_weighted_acc', acc)
-        self.log('test_cm',cm)
-
-        # can also return just a scalar instead of a dict (return loss_val)
-        return {'pred':labels_hat,'target': y}
-
-    def test_epoch_end(self, outputs):
-        preds = torch.cat([tmp['pred'] for tmp in outputs])
-        targets = torch.cat([tmp['target'] for tmp in outputs])
-        cm = metrics.confusion_matrix(preds,targets,num_classes=self.data.n_labels,normalize=True)
-        figure = plot_confusion_matrix(cm, class_names=self.data.top_codes)
-        cm_image = plot_to_image(figure)
         self.log('conf_mtx',cm_image)
 
 
