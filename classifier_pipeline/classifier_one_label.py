@@ -455,8 +455,8 @@ class Classifier(pl.LightningModule):
         logger.critical(preds.shape)
         logger.critical(targets.shape)
 
-        cm = metrics.confusion_matrix(preds,targets,normalize=True)
-        logger.critical(f'Test confusion matrix:\n {cm}')
+        cm = metrics.confusion_matrix(preds,targets, normalize=True)
+        logger.info(f'Test confusion matrix:\n {cm}')
 
         plot_confusion_matrix(cm, self.data.top_codes, self.hparams.encoder_model)
 
