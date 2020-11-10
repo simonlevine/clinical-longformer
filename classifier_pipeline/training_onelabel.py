@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--max_epochs",
-        default=20,
+        default=2,
         type=int,
         help="Limits training to a max number number of epochs",
     )
