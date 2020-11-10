@@ -5,6 +5,7 @@ from collections import OrderedDict
 import io
 import tensorflow as tf
 
+import itertools
 import numpy as np
 import pandas as pd
 import torch
