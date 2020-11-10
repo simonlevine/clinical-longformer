@@ -44,54 +44,24 @@ def main(hparams) -> None:
     # ------------------------
     # Tensorboard Callback
 
-    # tb_log_dir=f"/experiments/{hparams.encoder_model}"
-    # Path(tb_log_dir).mkdir(exist_ok=True)
-
     tb_logger = TensorBoardLogger(
         save_dir='experiments/',
         version="version_" + datetime.now().strftime("%d-%m-%Y--%H-%M-%S"),
         name=f'{hparams.encoder_model}',
     )
-
-    # Model Checkpoint Callback
-
-    ckpt_path = os.path.join(
-        hparams.encoder_model,"/experiments/", tb_logger.version, "checkpoints",
-    )
-
-    # --------------------------------
-    # 4 INIT MODEL CHECKPOINT CALLBACK
-    # -------------------------------
-    # checkpoint_callback = ModelCheckpoint(
-    #     filepath=ckpt_path,
-    #     save_top_k=hparams.save_top_k,
-    #     verbose=True,
-    #     monitor=hparams.monitor,
-    #     period=1,
-    #     mode=hparams.metric_mode,
-    #     save_weights_only=True
-    # )
-
     # ------------------------
     # 5 INIT TRAINER
     # ------------------------
     trainer = Trainer(
         logger=tb_logger,
-        # checkpoint_callback=True,
-        # callbacks=early_stop_callback,
-        
         gradient_clip_val=1.0,
         gpus=hparams.gpus,
         log_gpu_memory="all",
-        deterministic=True,
-        # check_val_every_n_epoch=1,
         fast_dev_run=hparams.fast_dev_run,
         accumulate_grad_batches=hparams.accumulate_grad_batches,
         max_epochs=hparams.max_epochs,
-        # min_epochs=hparams.min_epochs,
-        # max_steps = 20,
-        # val_check_interval=hparams.val_check_interval,
-        # distributed_backend="None",
+        max_steps = 20,
+        early_stop_callback=early_stop_callback,
     )
 
     # ------------------------
@@ -99,9 +69,6 @@ def main(hparams) -> None:
     # ------------------------
     trainer.fit(model, model.data)
     trainer.test(model, model.data.test_dataloader())
-
-    # model.save(...)
-
 
 if __name__ == "__main__":
     # ------------------------
@@ -119,6 +86,7 @@ if __name__ == "__main__":
         type=int,
         help="The best k models according to the quantity monitored will be saved.",
     )
+
     # Early Stopping
     parser.add_argument(
         "--monitor", default="val_acc", type=str, help="Quantity to monitor."
@@ -133,22 +101,17 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--patience",
-        default=3,
+        default=5,
         type=int,
         help=(
             "Number of epochs with no improvement "
             "after which training will be stopped."
         ),
     )
-    parser.add_argument(
-        "--min_epochs",
-        default=1,
-        type=int,
-        help="Limits training to a minimum number of epochs",
-    )
+
     parser.add_argument(
         "--max_epochs",
-        default=10,
+        default=20,
         type=int,
         help="Limits training to a max number number of epochs",
     )
