@@ -468,7 +468,7 @@ class Classifier(pl.LightningModule):
         preds = torch.cat([tmp['pred'] for tmp in outputs])
         targets = torch.cat([tmp['target'] for tmp in outputs])
 
-        cm = torch.sum([tmp['batch_cm'] for tmp in outputs])
+        cm = torch.sum(torch.stack([tmp['batch_cm'] for tmp in outputs]), dim=0)
 
         logger.info(f'Test-set avaraged confusion matrix ({cm.shape}):\n {cm}')
 
