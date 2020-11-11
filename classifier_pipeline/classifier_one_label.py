@@ -145,7 +145,8 @@ class Classifier(pl.LightningModule):
             df["text"] = df["text"].astype(str)
             df["label"] = df["label"].astype(str)
 
-            # df = df.iloc[:10]
+            df.to_csv(f'{path}_top_codes_filetered.csv')
+            
             logger.warning(f'{path} dataframe has {len(df)} examples.' )
             return df.to_dict("records")
 
