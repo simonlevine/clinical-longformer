@@ -53,6 +53,10 @@ def plot_confusion_matrix(cm, class_names, model):
     tick_marks = np.arange(len(class_names))
     plt.xticks(tick_marks, class_names, rotation=45)
     plt.yticks(tick_marks, class_names)
+
+    
+    # Normalize the confusion matrix.
+    cm = np.around(cm.astype('float') / cm.sum(axis=1)[:, np.newaxis], decimals=2)
     
     # Use white text if squares are dark; otherwise black.
     threshold = cm.max() / 2.
@@ -470,12 +474,8 @@ class Classifier(pl.LightningModule):
 
         cm = torch.sum(torch.stack([tmp['batch_cm'] for tmp in outputs]), dim=0)
 
-        logger.info(f'Test-set avaraged confusion matrix ({cm.shape}):\n {cm}')
-
+        logger.info(f'Test-set averaged confusion matrix ({cm.shape}):\n {cm}')
         plot_confusion_matrix(cm, self.data.top_codes, self.hparams.encoder_model)
-
-        logger.critical(preds.shape)
-        logger.critical(targets.shape)
 
         f1 = metrics.f1_score(preds,targets,   class_reduction='weighted')
         prec =metrics.precision(preds,targets, class_reduction='weighted')
