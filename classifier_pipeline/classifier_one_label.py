@@ -389,8 +389,7 @@ class Classifier(pl.LightningModule):
 
         inputs = {"tokens": tokens, "lengths": lengths}
 
-        logger.warning(inputs['lengths'][40])
-        logger.warning(inputs['lengths'][99])
+        logger.warning(inputs)
 
 
         if not prepare_target:
