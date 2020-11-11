@@ -460,36 +460,6 @@ class Classifier(pl.LightningModule):
         self.log('test_batch_recall',recall)
         self.log('test_batch_weighted_acc', acc)
 
-        # can also return just a scalar instead of a dict (return loss_val)
-
-        cm = metrics.confusion_matrix(labels_hat, y, normalize=True)
-
-        return {'pred':labels_hat,'target': y, 'batch_cm':cm}
-
-    def test_epoch_end(self, outputs):
-
-        logger.critical(outputs)
-        preds = torch.cat([tmp['pred'] for tmp in outputs])
-        targets = torch.cat([tmp['target'] for tmp in outputs])
-
-        cm = torch.sum(torch.stack([tmp['batch_cm'] for tmp in outputs][:-1]), dim=0)
-
-        logger.info(f'Test-set averaged confusion matrix ({cm.shape}):\n {cm}')
-        plot_confusion_matrix(cm, self.data.top_codes, self.hparams.encoder_model)
-
-        f1 = metrics.f1_score(preds,targets,   class_reduction='weighted')
-        prec =metrics.precision(preds,targets, class_reduction='weighted')
-        recall = metrics.recall(preds,targets, class_reduction='weighted')
-        acc = metrics.accuracy(preds,targets,  class_reduction='weighted')
-
-        self.log('test_prec',prec)
-        self.log('test_f1',f1)
-        self.log('test_recall',recall)
-        self.log('test_weighted_acc', acc)
-
-
-        # self.log('conf_mtx',cm)
-
 
     def validation_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
         """ Similar to the training step but with the model in eval mode.
