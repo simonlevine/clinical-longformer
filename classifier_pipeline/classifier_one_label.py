@@ -261,6 +261,7 @@ class Classifier(pl.LightningModule):
             self.tokenizer = Tokenizer(
                 pretrained_model=self.hparams.encoder_model,
                 max_tokens = self.hparams.max_tokens_longformer)
+            self.tokenizer.max_len = self.tokenizer.model_max_length
  
 
         else: self.tokenizer = Tokenizer(
@@ -383,7 +384,10 @@ class Classifier(pl.LightningModule):
             - dictionary with the expected target labels.
         """
         sample = collate_tensors(sample)
-        tokens, lengths = self.tokenizer.batch_encode(sample["text"])
+        
+
+        tokens, lengths = self.tokenizer.batch_encode(sample["text"],padding='max_length')
+        #will default to model's max_length (?)
 
         inputs = {"tokens": tokens, "lengths": lengths}
 
