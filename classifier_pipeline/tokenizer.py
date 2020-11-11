@@ -75,11 +75,11 @@ class Tokenizer(TextEncoder):
         tokenizer_output = self.tokenizer(
             sentences, 
             return_tensors="pt", 
-            padding=True, 
+            padding='max_length', 
             return_length=True, 
             return_token_type_ids=False, 
             return_attention_mask=False,
-            truncation="only_first",
+            truncation=True,
             max_length=self.max_length
         )
         return tokenizer_output["input_ids"], tokenizer_output["length"]
