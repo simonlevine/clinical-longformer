@@ -445,34 +445,48 @@ class Classifier(pl.LightningModule):
         labels_hat = torch.argmax(y_hat, dim=1)
         y=targets['labels']
 
+
+        f1 = metrics.f1_score(labels_hat,y,    class_reduction='weighted')
+        prec =metrics.precision(labels_hat,y,  class_reduction='weighted')
+        recall = metrics.recall(labels_hat,y,  class_reduction='weighted')
+        acc = metrics.accuracy(labels_hat,y,   class_reduction='weighted')
+
+        self.log('test_batch_prec',prec)
+        self.log('test_batch_f1',f1)
+        self.log('test_batch_recall',recall)
+        self.log('test_batch_weighted_acc', acc)
+
         # can also return just a scalar instead of a dict (return loss_val)
-        return {'pred':labels_hat,'target': y}
+
+        cm = metrics.confusion_matrix(labels_hat, y, normalize=True)
+
+        return {'pred':labels_hat,'target': y, 'batch_cm':cm}
 
     def test_epoch_end(self, outputs):
+
         logger.critical(outputs)
         preds = torch.cat([tmp['pred'] for tmp in outputs])
         targets = torch.cat([tmp['target'] for tmp in outputs])
-        logger.critical(preds.shape)
-        logger.critical(targets.shape)
 
-        cm = metrics.confusion_matrix(preds,targets, normalize=True)
-        logger.info(f'Test confusion matrix:\n {cm}')
+        cm = torch.mean([tmp['batch_cm'] for tmp in outputs])
+        logger.info(f'Test-set avaraged confusion matrix:\n {cm}')
 
         plot_confusion_matrix(cm, self.data.top_codes, self.hparams.encoder_model)
 
-
+        logger.critical(preds.shape)
+        logger.critical(targets.shape)
 
         f1 = metrics.f1_score(preds,targets,   class_reduction='weighted')
         prec =metrics.precision(preds,targets, class_reduction='weighted')
         recall = metrics.recall(preds,targets, class_reduction='weighted')
         acc = metrics.accuracy(preds,targets,  class_reduction='weighted')
 
-
-
         self.log('test_prec',prec)
         self.log('test_f1',f1)
         self.log('test_recall',recall)
         self.log('test_weighted_acc', acc)
+
+
         # self.log('conf_mtx',cm)
 
 
