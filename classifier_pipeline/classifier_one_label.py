@@ -386,7 +386,7 @@ class Classifier(pl.LightningModule):
         sample = collate_tensors(sample)
         
 
-        tokens, lengths = self.tokenizer.batch_encode(sample["text"],padding='max_length', truncation = 'true', max_length=4096)
+        tokens, lengths = self.tokenizer(sample["text"],padding='max_length', truncation = 'true', max_length=4096)
         #will default to model's max_length (?)
 
         logger.warning([l for l in inputs['lengths']])
