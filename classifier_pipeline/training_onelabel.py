@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 from classifier_one_label import Classifier
-
+import numpy as np
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import LightningLoggerBase, TensorBoardLogger
@@ -69,6 +69,9 @@ def main(hparams) -> None:
     # ------------------------
     trainer.fit(model, model.data)
     trainer.test(model, model.data.test_dataloader())
+
+    cms = np.array(model.test_conf_matrices)
+    np.save(f'experiments/{model.hparams.encoder_model}/test_confusion_matrices.npy',cms)
 
 
 if __name__ == "__main__":

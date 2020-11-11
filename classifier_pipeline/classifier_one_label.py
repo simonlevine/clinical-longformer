@@ -210,7 +210,7 @@ class Classifier(pl.LightningModule):
             self._frozen = False
         self.nr_frozen_epochs = hparams.nr_frozen_epochs
 
-
+        self.test_conf_matrices=[]
 
     def __build_model(self) -> None:
         """ Init transformer model + tokenizer + classification head."""
@@ -261,7 +261,7 @@ class Classifier(pl.LightningModule):
             self.tokenizer = Tokenizer(
                 pretrained_model=self.hparams.encoder_model,
                 max_tokens = self.hparams.max_tokens_longformer)
-            self.tokenizer.max_len = self.tokenizer.model_max_length
+            self.tokenizer.max_len = 4096
  
 
         else: self.tokenizer = Tokenizer(
@@ -389,6 +389,8 @@ class Classifier(pl.LightningModule):
         tokens, lengths = self.tokenizer.batch_encode(sample["text"],padding='max_length', truncation = 'true', max_length=4096)
         #will default to model's max_length (?)
 
+        logger.warning([l for l in inputs['lengths']])
+
         inputs = {"tokens": tokens, "lengths": lengths}
 
         if not prepare_target:
@@ -464,6 +466,9 @@ class Classifier(pl.LightningModule):
         self.log('test_batch_f1',f1)
         self.log('test_batch_recall',recall)
         self.log('test_batch_weighted_acc', acc)
+
+        cm = metrics.confusion_matrix(pred = labels_hat,target=y,normalize=False)
+        self.test_conf_matrices.append(cm)
 
 
     def validation_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
