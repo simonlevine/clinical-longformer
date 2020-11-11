@@ -468,7 +468,7 @@ class Classifier(pl.LightningModule):
         preds = torch.cat([tmp['pred'] for tmp in outputs])
         targets = torch.cat([tmp['target'] for tmp in outputs])
 
-        cm = torch.add([tmp['batch_cm'].to_numpy() for tmp in outputs])
+        cm = torch.add([tmp['batch_cm'] for tmp in outputs])
         logger.info(f'Test-set avaraged confusion matrix:\n {cm}')
 
         plot_confusion_matrix(cm, self.data.top_codes, self.hparams.encoder_model)
