@@ -2,7 +2,7 @@
 
 Sandbox: https://colab.research.google.com/drive/1n0vaflnGpRpEnRAgwkCOLqVFRr1p1S3L?usp=sharing
 
-- clone this repo. Includes sampled CSV (80/20/20 rows of train,valid,test).
+- clone this repo. ~~Includes sampled CSV (80/20/20 rows of train,valid,test).~~
 
 # To Run:
 
