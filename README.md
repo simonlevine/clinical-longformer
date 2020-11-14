@@ -99,6 +99,7 @@ In preprocessing_pipeline, run:
   
 - format_data_for_training.py , OR, format_data_for_for_multilabel.py
   - depending on your use-case
+
   
  Finally, in longformer_gen, if you don't want to pull our models from https://huggingface.co/simonlevine: 
  
@@ -106,6 +107,8 @@ In preprocessing_pipeline, run:
     - if you want to convert your own Roberta to Longformer (with the Longformer speed-fix)
  - elongate_bert.py
     - if you want to model global document token dependencies using BERT.
+    
+ The classifier_pipeline folder contains scrits for ICD classification and a requirements.txt
 
 ### Run training
 
@@ -119,19 +122,16 @@ This project is the course project for Fall 2020, 11-785: Deep Learning, at Carn
 Here, we benchmark various Transformer-based encoders (BERT, RoBERTa, Longformer) on electronic health records data from the MIMIC-III data lake.
 We also benchmark our new pipeline against another novel pipeline developed in 2020 by Simon Levine and Jeremy Fisher, auto-icd-Transformers.
 - The x-transformer pipeline uses the state-of-the-art extreme multilabel classification with label clustering and PIFA-TFIDF features to amke good use of label descriptions. ICD code labels not only have 'ICD9_CODE' labels, but also 'LONG_TITLE' labels with rich semantic information.
-- However, this ignores the natural ICD hierarchy, hence this project.
+- However, this ignores the natural ICD hierarchy and uses existing encoders, hence this project.
 
-Though our pipeline can handle any category of ICU note events present in MIMIC, we focus on Discharge Summaries with ICD-9-CM and ICD-9-PCS codes as outputs.
-Data preprocessing scripts are included in this repository with novel logic to filter out administrative language and extraneous characters.
+We use base-BERT-uncased as a baseline transformer. We then try bio-clinical-BERT, biomed-RoBERTa, and finally our bespoke "Longformer" bioclinical-roberta-long.
 
-We use base-BERT-uncased as a baseline transformer. We then try bio-clinical-BERT, biomed-RoBERTa, and finally our bespoke "Longformer" biomed-RoBERTa-4096-speedfix.
 This latter model is simply allenAI's biomed-roberta with global attention, such that documents of up to 4096 token length are able to be used without truncation, a critical aspect of free-text EHR data).
 
-We choose not to pre-train the Longformer on MIMIC data as
+We pre-train the Longformer on MIMIC data for ~1000 epochs.
+This is not often done as:
 1) This is costly
-2) The corpus is likely not sufficient to have dramatic increases in performance, per AllenAI, and
-3) out focus is more on developing a good, new classifier head as high fidelity encoders are largely a solved/solvable issue.
-
+2) The corpus is likely not sufficient to have dramatic increases in performance, per AllenAI
 
 ## Transformers
 
