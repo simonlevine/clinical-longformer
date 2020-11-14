@@ -55,12 +55,13 @@ Sandbox: https://colab.research.google.com/drive/1n0vaflnGpRpEnRAgwkCOLqVFRr1p1S
 
 
 - rewrite BERT medNLI classifier script (benchmark) for Roberta (pt-lighting ?)
- - copy data processing. Otherwise, will just be a RobertaForSequence classification task (like for ICDs)
- - need to combine MIMIC-III (and MIMIC-CXR ?) into a single corpus.
- - get working on longformer-4096 or biomed-roberta, or similar.
- - need to work on clinicalBERT (already does from old script).
+- implement medNLI classifier
+ - ~~copy data processing. Otherwise, will just be a RobertaForSequence classification task (like for ICDs)~~
+ - ~~need to combine MIMIC-III (and MIMIC-CXR ?) into a single corpus.~~
+ - ~~get working on longformer-4096 or biomed-roberta, or similar.~~
+ - ~~need to work on clinicalBERT (already does from old script).~~
  
-- get ROBERTA working,~~single~~ and multilabel (?) case
+- ~~get ROBERTA working,single~~label case
 
 # Time Permitting:
 - build a hierarchical classifier head
