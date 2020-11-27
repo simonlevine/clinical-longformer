@@ -106,10 +106,10 @@ class MedNLIClassifier(pl.LightningModule):
                 self.hparams.batch_size = 1
                 
             self.classifier=classifier_instance
-            
+
         def setup(self, stage=None):
             mednli_train, mednli_dev, mednli_test = load_mednli()
-            self.train_dataset, self.val_dataset, self.test_dataset = MedNLIDataset(hparams,mednli_train,self.tokenizer),MedNLIDataset(hparams,mednli_dev,self.tokenizer),MedNLIDataset(hparams,mednli_test,self.tokenizer)
+            self.train_dataset, self.val_dataset, self.test_dataset = MedNLIDataset(self.hparams,mednli_train,self.tokenizer),MedNLIDataset(self.hparams,mednli_dev,self.tokenizer),MedNLIDataset(self.hparams,mednli_test,self.tokenizer)
             logger.info('MedNLI JSONs loaded...')
 
         def train_dataloader(self) -> DataLoader:
