@@ -97,12 +97,66 @@ class MedNLIClassifier(pl.LightningModule):
     
     :param hparams: ArgumentParser containing the hyperparameters.
     """
+    
+    class MedNLIDataModule(pl.LightningDataModule):
+        def __init__(self, hparams):
+            super().__init__()
+            self.hparams = hparams
+            if self.hparams.transformer_type == 'longformer':
+                self.hparams.batch_size = 1
+
+        def setup(self, stage=None):
+            mednli_train, mednli_dev, mednli_test = load_mednli()
+            self.train_dataset, self.val_dataset, self.test_dataset = MedNLIDataset(hparams,mednli_train,self.tokenizer),MedNLIDataset(hparams,mednli_dev,self.tokenizer),MedNLIDataset(hparams,mednli_test,self.tokenizer)
+            logger.info('MedNLI JSONs loaded...')
+
+        def train_dataloader(self) -> DataLoader:
+            logger.warning('Loading training data...')
+            return DataLoader(
+                dataset=self.train_dataset,
+                shuffle=True,
+                batch_size=self.hparams.batch_size,
+                num_workers=self.hparams.loader_workers,
+            )
+        def val_dataloader(self) -> DataLoader:
+            logger.warning('Loading validation data...')
+            return DataLoader(
+                dataset=self.val_dataset,
+                shuffle= False,
+                batch_size=self.hparams.batch_size,
+                num_workers=self.hparams.loader_workers,
+            )
+        def test_dataloader(self) -> DataLoader:
+            logger.warning('Loading testing data...')
+            return DataLoader(
+                dataset=self.test_dataset,
+                shuffle= False,
+                batch_size=self.hparams.batch_size,
+                num_workers=self.hparams.loader_workers,
+            )
+
+
 
     def __init__(self, hparams: Namespace) -> None:
         super(MedNLIClassifier,self).__init__()
 
         self.hparams = hparams
+        self.label_vocab_size = 3
         self.batch_size = hparams.batch_size
+
+        if self.hparams.transformer_type  == 'longformer' or self.hparams.transformer_type == 'roberta-long':
+            self.tokenizer = AutoTokenizer.from_pretrainedenizer(
+                pretrained_model=self.hparams.encoder_model,
+                max_tokens = self.hparams.max_tokens_longformer)
+            self.tokenizer.max_len = 4096
+ 
+        else: self.tokenizer = AutoTokenizer.from_pretrained(
+            pretrained_model=self.hparams.encoder_model,
+            max_tokens = 512)
+
+        
+        # Build Data module
+        self.data = self.DataModule(self)
         
         # build model
         self.__build_model()
@@ -164,13 +218,11 @@ class MedNLIClassifier(pl.LightningModule):
         # Classification head
         if self.hparams.single_label_encoding == 'default':
             self.classification_head = nn.Sequential(
-
                 nn.Linear(self.encoder_features, self.encoder_features * 2),
                 nn.Tanh(),
                 nn.Linear(self.encoder_features * 2, self.encoder_features),
                 nn.Tanh(),
-                nn.Linear(self.encoder_features, self.data.label_encoder.vocab_size),
-
+                nn.Linear(self.encoder_features, self.label_vocab_size),
             )
 
         elif self.hparams.single_label_encoding == 'graphical':
@@ -203,7 +255,7 @@ class MedNLIClassifier(pl.LightningModule):
             param.requires_grad = False
         self._frozen = True
 
-    def predict(self, sample: dict) -> dict:
+    def predict(self, sample: dict) -> dict: #BUG
         """ Predict function.
         :param sample: dictionary with the text we want to classify.
 
