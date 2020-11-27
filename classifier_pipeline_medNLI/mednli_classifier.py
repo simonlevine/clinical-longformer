@@ -146,12 +146,12 @@ class MedNLIClassifier(pl.LightningModule):
 
         if self.hparams.transformer_type  == 'longformer' or self.hparams.transformer_type == 'roberta-long':
             self.tokenizer = AutoTokenizer.from_pretrainedenizer(
-                pretrained_model=self.hparams.encoder_model,
+                pretrained_model_name_or_path=self.hparams.encoder_model,
                 max_tokens = self.hparams.max_tokens_longformer)
             self.tokenizer.max_len = 4096
  
         else: self.tokenizer = AutoTokenizer.from_pretrained(
-            pretrained_model=self.hparams.encoder_model,
+            pretrained_model_name_or_path=self.hparams.encoder_model,
             max_tokens = 512)
 
         
