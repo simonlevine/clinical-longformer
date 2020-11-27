@@ -156,7 +156,7 @@ class MedNLIClassifier(pl.LightningModule):
 
         
         # Build Data module
-        self.data = self.DataModule(self)
+        self.data = self.MedNLIDataModule(self)
         
         # build model
         self.__build_model()
