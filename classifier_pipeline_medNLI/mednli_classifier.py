@@ -488,10 +488,10 @@ class MedNLIClassifier(pl.LightningModule):
 
         self.log('val_loss',loss_val)
 
-        f1 = metrics.f1(labels_hat, y,class_reduction='weighted')
-        prec =metrics.precision(labels_hat, y,class_reduction='weighted')
-        recall = metrics.recall(labels_hat, y,class_reduction='weighted')
-        acc = metrics.accuracy(labels_hat, y,class_reduction='weighted')
+        f1 = metrics.f1(labels_hat, y,average='weighted')
+        prec =metrics.precision(labels_hat, y,average='weighted')
+        recall = metrics.recall(labels_hat, y,average='weighted')
+        acc = metrics.accuracy(labels_hat, y,average='weighted')
 
         self.log('val_prec',prec)
         self.log('val_f1',f1)
