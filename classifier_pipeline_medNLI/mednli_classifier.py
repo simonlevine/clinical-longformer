@@ -27,6 +27,7 @@ from loguru import logger
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
+from mednli_data_utils import *
 
 
 def plot_confusion_matrix(cm, class_names, model):
