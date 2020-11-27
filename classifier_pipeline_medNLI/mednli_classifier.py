@@ -99,12 +99,14 @@ class MedNLIClassifier(pl.LightningModule):
     """
     
     class MedNLIDataModule(pl.LightningDataModule):
-        def __init__(self, hparams):
+        def __init__(self, classifier_instance):
             super().__init__()
-            self.hparams = hparams
+            self.hparams = classifier_instance.hparams
             if self.hparams.transformer_type == 'longformer':
                 self.hparams.batch_size = 1
-
+                
+            self.classifier=classifier_instance
+            
         def setup(self, stage=None):
             mednli_train, mednli_dev, mednli_test = load_mednli()
             self.train_dataset, self.val_dataset, self.test_dataset = MedNLIDataset(hparams,mednli_train,self.tokenizer),MedNLIDataset(hparams,mednli_dev,self.tokenizer),MedNLIDataset(hparams,mednli_test,self.tokenizer)
