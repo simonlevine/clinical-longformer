@@ -580,24 +580,6 @@ class MedNLIClassifier(pl.LightningModule):
             help="Number of epochs we want to keep the encoder model frozen.",
         )
         parser.add_argument(
-            "--train_csv",
-            default="data/intermediary-data/notes2diagnosis-icd-train.csv",
-            type=str,
-            help="Path to the file containing the train data.",
-        )
-        parser.add_argument(
-            "--dev_csv",
-            default="data/intermediary-data/notes2diagnosis-icd-validate.csv",
-            type=str,
-            help="Path to the file containing the dev data.",
-        )
-        parser.add_argument(
-            "--test_csv",
-            default="data/intermediary-data/notes2diagnosis-icd-test.csv",
-            type=str,
-            help="Path to the file containing the dev data.",
-        )
-        parser.add_argument(
             "--loader_workers",
             default=8,
             type=int,
