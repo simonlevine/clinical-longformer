@@ -42,21 +42,21 @@ def read_mednli(filename) -> list:
     return data
 
 
-class MedNLIDataset(torch.utils.data.Dataset):
-    LABEL_TO_ID = {'contradiction': 0, 'entailment': 1, 'neutral': 2}
+# class MedNLIDataset(torch.utils.data.Dataset):
+#     LABEL_TO_ID = {'contradiction': 0, 'entailment': 1, 'neutral': 2}
 
-    def __init__(self, hparams,mednli_data,tokenizer):
-        self.hparams=hparams
-        self.premises, self.hypotheses, labels = zip(*mednli_data)
-        self.tokenizer = tokenizer #AutoTokenizer.from_pretrained(hparams.encoder_model)
-        self.labels = [MedNLIDataset.LABEL_TO_ID[l] if l is not None else -1 for l in labels]
+#     def __init__(self, hparams,mednli_data,tokenizer):
+#         self.hparams=hparams
+#         self.premises, self.hypotheses, labels = zip(*mednli_data)
+#         self.tokenizer = tokenizer #AutoTokenizer.from_pretrained(hparams.encoder_model)
+#         self.labels = [MedNLIDataset.LABEL_TO_ID[l] if l is not None else -1 for l in labels]
 
-    def __getitem__(self, index):
-        premise = self.premises[index]
-        hypothesis = self.hypotheses[index]
-        label = self.labels[index]
-        encoded_inputs = self.tokenizer(premise, hypothesis, truncation=True)
-        return encoded_inputs, label
+#     def __getitem__(self, index):
+#         premise = self.premises[index]
+#         hypothesis = self.hypotheses[index]
+#         label = self.labels[index]
+#         encoded_inputs = self.tokenizer(premise, hypothesis, truncation=True)
+#         return encoded_inputs, label
 
-    def __len__(self):
-        return len(self.labels)
+#     def __len__(self):
+#         return len(self.labels)
