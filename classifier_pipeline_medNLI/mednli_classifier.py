@@ -21,7 +21,7 @@ from torchnlp.encoders import LabelEncoder
 from torchnlp.utils import collate_tensors, lengths_to_mask
 from utils import mask_fill
 
-import pytorch_lightning.metrics.functional.classification as metrics
+import pytorch_lightning.metrics.functional as metrics
 from loguru import logger
 
 import matplotlib.pyplot as plt
