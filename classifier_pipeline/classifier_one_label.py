@@ -113,8 +113,6 @@ class Classifier(pl.LightningModule):
 
             self.transformer_type = self.hparams.transformer_type
 
-           
-
             self.n_labels = 50
             self.top_codes = pd.read_csv(self.hparams.train_csv)['ICD9_CODE'].value_counts()[:self.n_labels].index.tolist()
             logger.warning(f'Classifying against the top {self.n_labels} most frequent ICD codes: {self.top_codes}')

@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         '--fast_dev_run',
-        default=False,
+        default=True,
         type=bool,
         help='Run for a trivial single batch and single epoch.'
     )

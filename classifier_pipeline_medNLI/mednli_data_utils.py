@@ -33,7 +33,6 @@ def read_mednli(filename) -> list:
     with open(filename, 'r') as f:
         for line in f:
             example = json.loads(line)
-
             premise = (example['sentence1'])
             hypothesis = (example['sentence2'])
             label = example.get('gold_label', None)

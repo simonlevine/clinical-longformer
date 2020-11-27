@@ -103,9 +103,6 @@ class MedNLIClassifier(pl.LightningModule):
 
         self.hparams = hparams
         self.batch_size = hparams.batch_size
-
-        # Build Data module
-        self.data = self.DataModule(self)
         
         # build model
         self.__build_model()
@@ -280,7 +277,7 @@ class MedNLIClassifier(pl.LightningModule):
         Returns:
             - dictionary containing the loss and the metrics to be added to the lightning logger.
         """
-        (premise, hypothesis), label = batch
+        inputs, targets = batch
         model_out = self.forward(**inputs)
         loss_val = self.loss(model_out, targets)
         self.log('loss',loss_val)
@@ -294,7 +291,7 @@ class MedNLIClassifier(pl.LightningModule):
         Returns:
             - dictionary passed to the validation_end function.
         """
-        (premise, hypothesis), label = batch
+        inputs, targets = batch
         model_out = self.forward(**inputs)
         loss_val = self.loss(model_out, targets)
 
@@ -333,7 +330,7 @@ class MedNLIClassifier(pl.LightningModule):
         Returns:
             - dictionary containing the loss and the metrics to be added to the lightning logger.
         """
-        (premise, hypothesis), _ = batch
+        inputs, targets = batch
         model_out = self.forward(**inputs)
         loss_val = self.loss_fn(model_out, targets)  
             
@@ -436,24 +433,24 @@ class MedNLIClassifier(pl.LightningModule):
             type=int,
             help="Number of epochs we want to keep the encoder model frozen.",
         )
-        parser.add_argument(
-            "--train_csv",
-            default="data/intermediary-data/notes2diagnosis-icd-train.csv",
-            type=str,
-            help="Path to the file containing the train data.",
-        )
-        parser.add_argument(
-            "--dev_csv",
-            default="data/intermediary-data/notes2diagnosis-icd-validate.csv",
-            type=str,
-            help="Path to the file containing the dev data.",
-        )
-        parser.add_argument(
-            "--test_csv",
-            default="data/intermediary-data/notes2diagnosis-icd-test.csv",
-            type=str,
-            help="Path to the file containing the dev data.",
-        )
+        # parser.add_argument(
+        #     "--train_csv",
+        #     default="data/intermediary-data/notes2diagnosis-icd-train.csv",
+        #     type=str,
+        #     help="Path to the file containing the train data.",
+        # )
+        # parser.add_argument(
+        #     "--dev_csv",
+        #     default="data/intermediary-data/notes2diagnosis-icd-validate.csv",
+        #     type=str,
+        #     help="Path to the file containing the dev data.",
+        # )
+        # parser.add_argument(
+        #     "--test_csv",
+        #     default="data/intermediary-data/notes2diagnosis-icd-test.csv",
+        #     type=str,
+        #     help="Path to the file containing the dev data.",
+        # )
         parser.add_argument(
             "--loader_workers",
             default=8,
