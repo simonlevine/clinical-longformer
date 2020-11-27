@@ -1,0 +1,3 @@
+This is the MedNLI dataset to train ML models for language inference in medicine.
+
+The dataset follows the format for previous open domain NLI data such as SNLI and MultiNLI. Each test record consists of a premise and hypothesis sentence and the task is to classify the pair into one of the three labels: entailment, contradiction, or neutral. There are 11232 premise-hypothesis pairs in the training split, 1395 pairs in the development split and 1422 pairs in the test split. 
