@@ -72,7 +72,6 @@ def plot_confusion_matrix(cm, class_names, model):
 
 
 
-
 class RobertaLongSelfAttention(LongformerSelfAttention):
     def forward(
         self,
@@ -127,7 +126,7 @@ class Classifier(pl.LightningModule):
 
             self.label_encoder.unknown_index = None
 
-        def get_mimic_data(self, path: str) -> list:
+        def get_mimic_data(self, path: str) -> list: #REWRITE
             """ Reads a comma separated value file.
 
             :param path: path to a csv file.

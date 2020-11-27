@@ -27,7 +27,6 @@ from loguru import logger
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
-from mednli_data_utils import *
 
 
 def plot_confusion_matrix(cm, class_names, model):
@@ -72,6 +71,7 @@ def plot_confusion_matrix(cm, class_names, model):
     figure.savefig(f'experiments/{model}/test_mtx.png')
 
 
+
 class RobertaLongSelfAttention(LongformerSelfAttention):
     def forward(
         self,
@@ -92,74 +92,102 @@ class RobertaLongForMaskedLM(RobertaForMaskedLM):
             layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
 
 
-class MedNLIClassifier(pl.LightningModule):
+class Classifier(pl.LightningModule):
     """
+    Sample model to show how to use a Transformer model to classify sentences.
     
     :param hparams: ArgumentParser containing the hyperparameters.
     """
-    
-    class MedNLIDataModule(pl.LightningDataModule):
+
+    # *************************
+    class DataModule(pl.LightningDataModule):
         def __init__(self, classifier_instance):
             super().__init__()
             self.hparams = classifier_instance.hparams
+
+
             if self.hparams.transformer_type == 'longformer':
                 self.hparams.batch_size = 1
-                
-            self.classifier=classifier_instance
-            self.tokenizer = classifier_instance.tokenizer
+            self.classifier = classifier_instance
+
+            self.transformer_type = self.hparams.transformer_type
+
+            
+             # Label Encoder
+            self.label_encoder = LabelEncoder(
+                ['contradiction', 'entailment', 'neutral'], 
+                reserved_labels=[]
+            )
+
+            self.label_encoder.unknown_index = None
+
+        def get_mednli_data(self, raw_data:list) -> list: #REWRITE
+            """ Reads a comma separated value file.
+
+            :param path: path to a csv file.
+            
+            :return: List of records as dictionaries
+            """
+        
+            df = pd.DataFrame(raw_data)
+            df = df.rename(columns={0:'premise', 1:'hypothesis',2:'label'})
+
+            df["text"] = df["premise"].astype(str) + df["hypothesis"].astype(str)
+            df["label"] = df["label"].astype(str)
+            df = df.drop(['premise','hypothesis'],axis=1)
+            return df.to_dict("records")
+
 
         def setup(self, stage=None):
-            mednli_train, mednli_dev, mednli_test = load_mednli()
-            self.train_dataset, self.val_dataset, self.test_dataset = MedNLIDataset(self.hparams,mednli_train,self.tokenizer),MedNLIDataset(self.hparams,mednli_dev,self.tokenizer),MedNLIDataset(self.hparams,mednli_test,self.tokenizer)
-            logger.info('MedNLI JSONs loaded...')
-
+            self.mednli_train, self.mednli_dev, self.mednli_test = load_mednli()  
+            
         def train_dataloader(self) -> DataLoader:
+            """ Function that loads the train set. """
             logger.warning('Loading training data...')
+            self._train_dataset = self.get_mednli_data(self.mednli_train)
             return DataLoader(
-                dataset=self.train_dataset,
-                shuffle=True,
+                dataset=self._train_dataset,
+                sampler=RandomSampler(self._train_dataset),
                 batch_size=self.hparams.batch_size,
+                collate_fn=self.classifier.prepare_sample,
                 num_workers=self.hparams.loader_workers,
             )
+
         def val_dataloader(self) -> DataLoader:
             logger.warning('Loading validation data...')
+
+            """ Function that loads the validation set. """
+            self._dev_dataset = self.get_mednli_data(self.mednli_dev)
             return DataLoader(
-                dataset=self.val_dataset,
-                shuffle= False,
+                dataset=self._dev_dataset,
                 batch_size=self.hparams.batch_size,
+                collate_fn=self.classifier.prepare_sample,
                 num_workers=self.hparams.loader_workers,
             )
+
         def test_dataloader(self) -> DataLoader:
             logger.warning('Loading testing data...')
+
+            """ Function that loads the validation set. """
+            self._test_dataset = self.get_mednli_data(self.mednli_test)
+
             return DataLoader(
-                dataset=self.test_dataset,
-                shuffle= False,
+                dataset=self._test_dataset,
                 batch_size=self.hparams.batch_size,
+                collate_fn=self.classifier.prepare_sample,
                 num_workers=self.hparams.loader_workers,
             )
 
-
+#    ****************
 
     def __init__(self, hparams: Namespace) -> None:
-        super(MedNLIClassifier,self).__init__()
+        super(Classifier,self).__init__()
 
         self.hparams = hparams
-        self.label_vocab_size = 3
         self.batch_size = hparams.batch_size
 
-        if self.hparams.transformer_type  == 'longformer' or self.hparams.transformer_type == 'roberta-long':
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                pretrained_model_name_or_path=self.hparams.encoder_model,
-                max_tokens = self.hparams.max_tokens_longformer)
-            self.tokenizer.max_len = 4096
- 
-        else: self.tokenizer = AutoTokenizer.from_pretrained(
-            pretrained_model_name_or_path=self.hparams.encoder_model,
-            max_tokens = 512)
-
-        
         # Build Data module
-        self.data = self.MedNLIDataModule(self)
+        self.data = self.DataModule(self)
         
         # build model
         self.__build_model()
@@ -174,7 +202,6 @@ class MedNLIClassifier(pl.LightningModule):
         self.nr_frozen_epochs = hparams.nr_frozen_epochs
 
         self.test_conf_matrices=[]
-
 
     def __build_model(self) -> None:
         """ Init transformer model + tokenizer + classification head."""
@@ -214,18 +241,37 @@ class MedNLIClassifier(pl.LightningModule):
             self.hparams.encoder_model,
             output_hidden_states=True,
                 )
+            
+
         
         # set the number of features our encoder model will return...
         self.encoder_features = 768
 
+        # Tokenizer
+        if self.hparams.transformer_type  == 'longformer' or self.hparams.transformer_type == 'roberta-long':
+            self.tokenizer = Tokenizer(
+                pretrained_model=self.hparams.encoder_model,
+                max_tokens = self.hparams.max_tokens_longformer)
+            self.tokenizer.max_len = 4096
+ 
+
+        else: self.tokenizer = Tokenizer(
+            pretrained_model=self.hparams.encoder_model,
+            max_tokens = 512)
+
+           #others:
+             #'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
+
         # Classification head
         if self.hparams.single_label_encoding == 'default':
             self.classification_head = nn.Sequential(
+
                 nn.Linear(self.encoder_features, self.encoder_features * 2),
                 nn.Tanh(),
                 nn.Linear(self.encoder_features * 2, self.encoder_features),
                 nn.Tanh(),
-                nn.Linear(self.encoder_features, self.label_vocab_size),
+                nn.Linear(self.encoder_features, self.data.label_encoder.vocab_size),
+
             )
 
         elif self.hparams.single_label_encoding == 'graphical':
@@ -258,7 +304,7 @@ class MedNLIClassifier(pl.LightningModule):
             param.requires_grad = False
         self._frozen = True
 
-    def predict(self, sample: dict) -> dict: #BUG
+    def predict(self, sample: dict) -> dict:
         """ Predict function.
         :param sample: dictionary with the text we want to classify.
 
@@ -307,7 +353,6 @@ class MedNLIClassifier(pl.LightningModule):
 
         return {"logits": self.classification_head(sentemb)}
 
-
     def loss(self, predictions: dict, targets: dict) -> torch.tensor:
         """
         Computes Loss value according to a loss function.
@@ -320,6 +365,30 @@ class MedNLIClassifier(pl.LightningModule):
         """
         return self._loss(predictions["logits"], targets["labels"])
 
+    def prepare_sample(self, sample: list, prepare_target: bool = True) -> (dict, dict):
+        """
+        Function that prepares a sample to input the model.
+        :param sample: list of dictionaries.
+        
+        Returns:
+            - dictionary with the expected model inputs.
+            - dictionary with the expected target labels.
+        """
+        sample = collate_tensors(sample)
+        
+        tokens, lengths = self.tokenizer.batch_encode(sample["text"])
+
+        inputs = {"tokens": tokens, "lengths": lengths}
+
+        if not prepare_target:
+            return inputs, {}
+
+        # Prepare target:
+        try:
+            targets = {"labels": self.data.label_encoder.batch_encode(sample["label"])}
+            return inputs, targets
+        except RuntimeError:
+            raise Exception("Label encoder found an unknown label.")
 
     def training_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
         """ 
@@ -335,45 +404,19 @@ class MedNLIClassifier(pl.LightningModule):
         inputs, targets = batch
         model_out = self.forward(**inputs)
         loss_val = self.loss(model_out, targets)
+
+        # in DP mode (default) make sure if result is scalar, there's another dim in the beginning
+        if self.trainer.use_dp or self.trainer.use_ddp2:
+            loss_val = loss_val.unsqueeze(0)
+
+
         self.log('loss',loss_val)
+
+        # can also return just a scalar instead of a dict (return loss_val)
         return loss_val
 
 
-
-    def validation_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
-        """ Similar to the training step but with the model in eval mode.
-
-        Returns:
-            - dictionary passed to the validation_end function.
-        """
-        inputs, targets = batch
-        model_out = self.forward(**inputs)
-        loss_val = self.loss(model_out, targets)
-
-        y = targets["labels"]
-        y_hat = model_out["logits"]
-
-        # acc
-        labels_hat = torch.argmax(y_hat, dim=1)
-        val_acc = torch.sum(y == labels_hat).item() / (len(y) * 1.0)
-        val_acc = torch.tensor(val_acc)
-
-
-        self.log('val_loss',loss_val)
-
-        f1 = metrics.f1_score(labels_hat, y,class_reduction='weighted')
-        prec =metrics.precision(labels_hat, y,class_reduction='weighted')
-        recall = metrics.recall(labels_hat, y,class_reduction='weighted')
-        acc = metrics.accuracy(labels_hat, y,class_reduction='weighted')
-
-        self.log('val_prec',prec)
-        self.log('val_f1',f1)
-        self.log('val_recall',recall)
-        self.log('val_acc_weighted', acc)
-        # self.log('val_cm',cm)
-        
-
-
+    
     def test_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
         """ 
         Runs one training step. This usually consists in the forward function followed
@@ -387,7 +430,11 @@ class MedNLIClassifier(pl.LightningModule):
         """
         inputs, targets = batch
         model_out = self.forward(**inputs)
-        loss_val = self.loss_fn(model_out, targets)  
+        loss_val = self.loss(model_out, targets)
+
+        # in DP mode (default) make sure if result is scalar, there's another dim in the beginning
+        if self.trainer.use_dp or self.trainer.use_ddp2:
+            loss_val = loss_val.unsqueeze(0)
             
         self.log('test_loss',loss_val)
 
@@ -408,7 +455,49 @@ class MedNLIClassifier(pl.LightningModule):
         self.log('test_batch_weighted_acc', acc)
 
         cm = metrics.confusion_matrix(pred = labels_hat,target=y,normalize=False)
-        self.test_conf_matrices.append(cm)    
+        self.test_conf_matrices.append(cm)
+
+
+    def validation_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
+        """ Similar to the training step but with the model in eval mode.
+
+        Returns:
+            - dictionary passed to the validation_end function.
+        """
+        inputs, targets = batch
+        model_out = self.forward(**inputs)
+        loss_val = self.loss(model_out, targets)
+
+        y = targets["labels"]
+        y_hat = model_out["logits"]
+
+        # acc
+        labels_hat = torch.argmax(y_hat, dim=1)
+        val_acc = torch.sum(y == labels_hat).item() / (len(y) * 1.0)
+        val_acc = torch.tensor(val_acc)
+
+        if self.on_gpu:
+            val_acc = val_acc.cuda(loss_val.device.index)
+
+        # in DP mode (default) make sure if result is scalar, there's another dim in the beginning
+        if self.trainer.use_dp or self.trainer.use_ddp2:
+            loss_val = loss_val.unsqueeze(0)
+            val_acc = val_acc.unsqueeze(0)
+
+
+        self.log('val_loss',loss_val)
+
+        f1 = metrics.f1_score(labels_hat, y,class_reduction='weighted')
+        prec =metrics.precision(labels_hat, y,class_reduction='weighted')
+        recall = metrics.recall(labels_hat, y,class_reduction='weighted')
+        acc = metrics.accuracy(labels_hat, y,class_reduction='weighted')
+
+        self.log('val_prec',prec)
+        self.log('val_f1',f1)
+        self.log('val_recall',recall)
+        self.log('val_acc_weighted', acc)
+        # self.log('val_cm',cm)
+        
 
     def configure_optimizers(self):
         """ Sets different Learning rates for different parameter groups. """
@@ -439,7 +528,7 @@ class MedNLIClassifier(pl.LightningModule):
         """
         parser.add_argument(
             "--encoder_model",
-            default= 'bert-base-uncased',# 'emilyalsentzer/Bio_ClinicalBERT',# 'allenai/biomed_roberta_base',#'simonlevine/biomed_roberta_base-4096-speedfix', # 'bert-base-uncased',
+            default= 'emilyalsentzer/Bio_ClinicalBERT',# 'allenai/biomed_roberta_base',#'simonlevine/biomed_roberta_base-4096-speedfix', # 'bert-base-uncased',
             type=str,
             help="Encoder model to be used.",
         )
@@ -458,6 +547,7 @@ class MedNLIClassifier(pl.LightningModule):
             help="How should labels be encoded? Default for torch-nlp label-encoder...",
         )
         
+
         parser.add_argument(
             "--max_tokens_longformer",
             default=4096,
@@ -488,24 +578,24 @@ class MedNLIClassifier(pl.LightningModule):
             type=int,
             help="Number of epochs we want to keep the encoder model frozen.",
         )
-        # parser.add_argument(
-        #     "--train_csv",
-        #     default="data/intermediary-data/notes2diagnosis-icd-train.csv",
-        #     type=str,
-        #     help="Path to the file containing the train data.",
-        # )
-        # parser.add_argument(
-        #     "--dev_csv",
-        #     default="data/intermediary-data/notes2diagnosis-icd-validate.csv",
-        #     type=str,
-        #     help="Path to the file containing the dev data.",
-        # )
-        # parser.add_argument(
-        #     "--test_csv",
-        #     default="data/intermediary-data/notes2diagnosis-icd-test.csv",
-        #     type=str,
-        #     help="Path to the file containing the dev data.",
-        # )
+        parser.add_argument(
+            "--train_csv",
+            default="data/intermediary-data/notes2diagnosis-icd-train.csv",
+            type=str,
+            help="Path to the file containing the train data.",
+        )
+        parser.add_argument(
+            "--dev_csv",
+            default="data/intermediary-data/notes2diagnosis-icd-validate.csv",
+            type=str,
+            help="Path to the file containing the dev data.",
+        )
+        parser.add_argument(
+            "--test_csv",
+            default="data/intermediary-data/notes2diagnosis-icd-test.csv",
+            type=str,
+            help="Path to the file containing the dev data.",
+        )
         parser.add_argument(
             "--loader_workers",
             default=8,
