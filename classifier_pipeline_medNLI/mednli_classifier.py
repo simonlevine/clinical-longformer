@@ -106,6 +106,7 @@ class MedNLIClassifier(pl.LightningModule):
                 self.hparams.batch_size = 1
                 
             self.classifier=classifier_instance
+            self.tokenizer = classifier_instance.tokenizer
 
         def setup(self, stage=None):
             mednli_train, mednli_dev, mednli_test = load_mednli()
@@ -147,7 +148,7 @@ class MedNLIClassifier(pl.LightningModule):
         self.batch_size = hparams.batch_size
 
         if self.hparams.transformer_type  == 'longformer' or self.hparams.transformer_type == 'roberta-long':
-            self.tokenizer = AutoTokenizer.from_pretrainedenizer(
+            self.tokenizer = AutoTokenizer.from_pretrained(
                 pretrained_model_name_or_path=self.hparams.encoder_model,
                 max_tokens = self.hparams.max_tokens_longformer)
             self.tokenizer.max_len = 4096
