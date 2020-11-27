@@ -548,7 +548,6 @@ class MedNLIClassifier(pl.LightningModule):
             help="How should labels be encoded? Default for torch-nlp label-encoder...",
         )
         
-
         parser.add_argument(
             "--max_tokens_longformer",
             default=4096,
@@ -579,6 +578,7 @@ class MedNLIClassifier(pl.LightningModule):
             type=int,
             help="Number of epochs we want to keep the encoder model frozen.",
         )
+
         parser.add_argument(
             "--loader_workers",
             default=8,
