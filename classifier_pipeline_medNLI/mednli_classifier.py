@@ -98,8 +98,6 @@ class MedNLIClassifier(pl.LightningModule):
     :param hparams: ArgumentParser containing the hyperparameters.
     """
 
-
-
     def __init__(self, hparams: Namespace) -> None:
         super(MedNLIClassifier,self).__init__()
 
@@ -122,8 +120,6 @@ class MedNLIClassifier(pl.LightningModule):
         self.nr_frozen_epochs = hparams.nr_frozen_epochs
 
         self.test_conf_matrices=[]
-
-
 
 
     def __build_model(self) -> None:
@@ -167,20 +163,6 @@ class MedNLIClassifier(pl.LightningModule):
         
         # set the number of features our encoder model will return...
         self.encoder_features = 768
-
-        # Tokenizer
-        if self.hparams.transformer_type  == 'longformer' or self.hparams.transformer_type == 'roberta-long':
-            self.tokenizer = Tokenizer(
-                pretrained_model=self.hparams.encoder_model,
-                max_tokens = self.hparams.max_tokens_longformer)
-            self.tokenizer.max_len = 4096
- 
-
-        else: self.tokenizer = Tokenizer(
-            pretrained_model=self.hparams.encoder_model,
-            max_tokens = 512)
-
-
 
         # Classification head
         if self.hparams.single_label_encoding == 'default':
@@ -272,27 +254,6 @@ class MedNLIClassifier(pl.LightningModule):
         sentemb = sentemb / sum_mask
 
         return {"logits": self.classification_head(sentemb)}
-
-
-
-    def forward(self, premise, hypothesis):
-        premise_len = get_sequences_lengths(premise)
-        hypothesis_len = get_sequences_lengths(hypothesis)
-
-        premise_emb = self.embedding(premise)
-        hypothesis_emb = self.embedding(hypothesis)
-
-        premise_proj = self.projection(premise_emb)
-        hypothesis_proj = self.projection(hypothesis_emb)
-
-        premise_h = torch.sum(premise_proj, dim=1) / premise_len.unsqueeze(-1).float()
-        hypothesis_h = torch.sum(hypothesis_proj, dim=1) / hypothesis_len.unsqueeze(-1).float()
-
-        h_combined = torch.cat([premise_h, hypothesis_h], dim=-1)
-
-        logits = self.classifier(h_combined)
-
-        return logits
 
 
     def loss(self, predictions: dict, targets: dict) -> torch.tensor:

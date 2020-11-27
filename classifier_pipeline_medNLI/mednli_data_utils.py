@@ -46,18 +46,30 @@ def read_mednli(filename) -> list:
 class MedNLIDataset(torch.utils.data.Dataset):
     LABEL_TO_ID = {'contradiction': 0, 'entailment': 1, 'neutral': 2}
 
-    def __init__(self, mednli_data):
-        premises, hypotheses, labels = zip(*mednli_data)
-
-        self.premises = premises
-        self.hypotheses = hypotheses
+    def __init__(self, hparams,mednli_data):
+        self.hparams=hparams
+        self.premises, self.hypotheses, labels = zip(*mednli_data)
+        self.tokenizer = AutoTokenizer.from_pretrained(hparams.encoder_model)
         self.labels = [MedNLIDataset.LABEL_TO_ID[l] if l is not None else -1 for l in labels]
+
+
+        if self.hparams.transformer_type  == 'longformer' or self.hparams.transformer_type == 'roberta-long':
+            self.tokenizer = AutoTokenizer.from_pretrainedenizer(
+                pretrained_model=self.hparams.encoder_model,
+                max_tokens = self.hparams.max_tokens_longformer)
+            self.tokenizer.max_len = 4096
+ 
+        else: self.tokenizer = AutoTokenizer.from_pretrained(
+            pretrained_model=self.hparams.encoder_model,
+            max_tokens = 512)
+
 
     def __getitem__(self, index):
         premise = self.premises[index]
         hypothesis = self.hypotheses[index]
         label = self.labels[index]
-        return (premise, hypothesis), label
+        encoded_inputs = self.tokenizer(premise, hypothesis, truncation=True)
+        return encoded_inputs, label
 
     def __len__(self):
         return len(self.labels)
@@ -70,21 +82,9 @@ class MedNLIDataModule(pl.LightningDataModule):
             if self.hparams.transformer_type == 'longformer':
                 self.hparams.batch_size = 1
 
-            self.tokenizer = AutoTokenizer.from_pretrained(hparams.encoder_model)
-
-        def preprocess_examples(self,examples):
-            pp,hh,_ = zip(*examples)
-            return self.tokenizer(pp, hh, truncation=True)
-
-        def encode_dataset(self,dataset):
-            encoded_dataset = dataset.map(self.preprocess_examples, batched=True)
-            return encoded_dataset
-
         def setup(self, stage=None):
             mednli_train, mednli_dev, mednli_test = load_mednli()
-
-            mednli_train, mednli_dev, mednli_test = self.encode_dataset(mednli_train),self.encode_dataset(mednli_val),self.encode_dataset(mednli_test)
-            self.train_dataset, self.val_dataset, self.test_dataset = MedNLIDataset(mednli_train),MedNLIDataset(mednli_dev),MedNLIDataset(mednli_test)
+            self.train_dataset, self.val_dataset, self.test_dataset = MedNLIDataset(hparams,mednli_train),MedNLIDataset(hparams,mednli_dev),MedNLIDataset(hparams,mednli_test)
             logger.info('MedNLI JSONs loaded...')
 
         def train_dataloader(self) -> DataLoader:
