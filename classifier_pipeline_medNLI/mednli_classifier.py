@@ -92,7 +92,7 @@ class RobertaLongForMaskedLM(RobertaForMaskedLM):
             layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
 
 
-class Classifier(pl.LightningModule):
+class MedNLIClassifier(pl.LightningModule):
     """
     Sample model to show how to use a Transformer model to classify sentences.
     
@@ -181,7 +181,7 @@ class Classifier(pl.LightningModule):
 #    ****************
 
     def __init__(self, hparams: Namespace) -> None:
-        super(Classifier,self).__init__()
+        super(MedNLIClassifier,self).__init__()
 
         self.hparams = hparams
         self.batch_size = hparams.batch_size
