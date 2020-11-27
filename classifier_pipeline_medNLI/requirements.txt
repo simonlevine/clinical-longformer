@@ -1,0 +1,7 @@
+pandas
+tensorboard
+torch
+transformers
+pytorch-lightning
+pytorch-nlp
+loguru

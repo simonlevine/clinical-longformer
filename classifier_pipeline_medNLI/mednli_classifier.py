@@ -27,6 +27,7 @@ from loguru import logger
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
+from mednli_data_utils import *
 
 
 def plot_confusion_matrix(cm, class_names, model):
@@ -71,8 +72,6 @@ def plot_confusion_matrix(cm, class_names, model):
     figure.savefig(f'experiments/{model}/test_mtx.png')
 
 
-
-
 class RobertaLongSelfAttention(LongformerSelfAttention):
     def forward(
         self,
@@ -93,104 +92,16 @@ class RobertaLongForMaskedLM(RobertaForMaskedLM):
             layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
 
 
-class Classifier(pl.LightningModule):
+class MedNLIClassifier(pl.LightningModule):
     """
-    Sample model to show how to use a Transformer model to classify sentences.
     
     :param hparams: ArgumentParser containing the hyperparameters.
     """
 
-    # *************************
-    class DataModule(pl.LightningDataModule):
-        def __init__(self, classifier_instance):
-            super().__init__()
-            self.hparams = classifier_instance.hparams
 
-
-            if self.hparams.transformer_type == 'longformer':
-                self.hparams.batch_size = 1
-            self.classifier = classifier_instance
-
-            self.transformer_type = self.hparams.transformer_type
-
-           
-
-            self.n_labels = 50
-            self.top_codes = pd.read_csv(self.hparams.train_csv)['ICD9_CODE'].value_counts()[:self.n_labels].index.tolist()
-            logger.warning(f'Classifying against the top {self.n_labels} most frequent ICD codes: {self.top_codes}')
-            
-
-             # Label Encoder
-            if self.hparams.single_label_encoding == 'default':
-                self.label_encoder = LabelEncoder(
-                    np.unique(self.top_codes).tolist(), 
-                    reserved_labels=[]
-                )
-
-            self.label_encoder.unknown_index = None
-
-        def get_mimic_data(self, path: str) -> list:
-            """ Reads a comma separated value file.
-
-            :param path: path to a csv file.
-            
-            :return: List of records as dictionaries
-            """
-        
-            df = pd.read_csv(path)
-            df = df[["TEXT", "ICD9_CODE"]]
-            df = df.rename(columns={'TEXT':'text', 'ICD9_CODE':'label'})
-
-            df = df[df['label'].isin(self.top_codes)]
-            df["text"] = df["text"].astype(str)
-            df["label"] = df["label"].astype(str)
-
-            df.to_csv(f'{path}_top_codes_filtered.csv')
-
-            logger.warning(f'{path} dataframe has {len(df)} examples.' )
-            return df.to_dict("records")
-
-        def train_dataloader(self) -> DataLoader:
-            """ Function that loads the train set. """
-            logger.warning('Loading training data...')
-            self._train_dataset = self.get_mimic_data(self.hparams.train_csv)
-            return DataLoader(
-                dataset=self._train_dataset,
-                sampler=RandomSampler(self._train_dataset),
-                batch_size=self.hparams.batch_size,
-                collate_fn=self.classifier.prepare_sample,
-                num_workers=self.hparams.loader_workers,
-            )
-
-        def val_dataloader(self) -> DataLoader:
-            logger.warning('Loading validation data...')
-
-            """ Function that loads the validation set. """
-            self._dev_dataset = self.get_mimic_data(self.hparams.dev_csv)
-            return DataLoader(
-                dataset=self._dev_dataset,
-                batch_size=self.hparams.batch_size,
-                collate_fn=self.classifier.prepare_sample,
-                num_workers=self.hparams.loader_workers,
-            )
-
-        def test_dataloader(self) -> DataLoader:
-            logger.warning('Loading testing data...')
-
-            """ Function that loads the validation set. """
-            self._test_dataset = self.get_mimic_data(self.hparams.test_csv)
-
-            return DataLoader(
-                dataset=self._test_dataset,
-                batch_size=self.hparams.batch_size,
-                collate_fn=self.classifier.prepare_sample,
-                num_workers=self.hparams.loader_workers,
-            )
-
-#    ****************
 
     def __init__(self, hparams: Namespace) -> None:
-        super(Classifier,self).__init__()
+        super(MedNLIClassifier,self).__init__()
 
         self.hparams = hparams
         self.batch_size = hparams.batch_size
@@ -211,6 +122,9 @@ class Classifier(pl.LightningModule):
         self.nr_frozen_epochs = hparams.nr_frozen_epochs
 
         self.test_conf_matrices=[]
+
+
+
 
     def __build_model(self) -> None:
         """ Init transformer model + tokenizer + classification head."""
@@ -250,8 +164,6 @@ class Classifier(pl.LightningModule):
             self.hparams.encoder_model,
             output_hidden_states=True,
                 )
-            
-
         
         # set the number of features our encoder model will return...
         self.encoder_features = 768
@@ -268,8 +180,7 @@ class Classifier(pl.LightningModule):
             pretrained_model=self.hparams.encoder_model,
             max_tokens = 512)
 
-           #others:
-             #'emilyalsentzer/Bio_ClinicalBERT' 'simonlevine/biomed_roberta_base-4096-speedfix'
+
 
         # Classification head
         if self.hparams.single_label_encoding == 'default':
@@ -362,7 +273,29 @@ class Classifier(pl.LightningModule):
 
         return {"logits": self.classification_head(sentemb)}
 
-    def loss_fn(self, predictions: dict, targets: dict) -> torch.tensor:
+
+
+    def forward(self, premise, hypothesis):
+        premise_len = get_sequences_lengths(premise)
+        hypothesis_len = get_sequences_lengths(hypothesis)
+
+        premise_emb = self.embedding(premise)
+        hypothesis_emb = self.embedding(hypothesis)
+
+        premise_proj = self.projection(premise_emb)
+        hypothesis_proj = self.projection(hypothesis_emb)
+
+        premise_h = torch.sum(premise_proj, dim=1) / premise_len.unsqueeze(-1).float()
+        hypothesis_h = torch.sum(hypothesis_proj, dim=1) / hypothesis_len.unsqueeze(-1).float()
+
+        h_combined = torch.cat([premise_h, hypothesis_h], dim=-1)
+
+        logits = self.classifier(h_combined)
+
+        return logits
+
+
+    def loss(self, predictions: dict, targets: dict) -> torch.tensor:
         """
         Computes Loss value according to a loss function.
         :param predictions: model specific output. Must contain a key 'logits' with
@@ -372,7 +305,7 @@ class Classifier(pl.LightningModule):
         Returns:
             torch.tensor with loss value.
         """
-        return self.criterion(predictions["logits"], targets["labels"])
+        return self._loss(predictions["logits"], targets["labels"])
 
 
     def training_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
@@ -388,7 +321,7 @@ class Classifier(pl.LightningModule):
         """
         (premise, hypothesis), label = batch
         model_out = self.forward(**inputs)
-        loss_val = self.loss_fn(model_out, targets)
+        loss_val = self.loss(model_out, targets)
         self.log('loss',loss_val)
         return loss_val
 
@@ -400,9 +333,9 @@ class Classifier(pl.LightningModule):
         Returns:
             - dictionary passed to the validation_end function.
         """
-        (premise, hypothesis), label== = batch
+        (premise, hypothesis), label = batch
         model_out = self.forward(**inputs)
-        loss_val = self.loss_fn(model_out, targets)
+        loss_val = self.loss(model_out, targets)
 
         y = targets["labels"]
         y_hat = model_out["logits"]
@@ -428,9 +361,6 @@ class Classifier(pl.LightningModule):
         
 
 
-    
-
-    
     def test_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
         """ 
         Runs one training step. This usually consists in the forward function followed
@@ -515,7 +445,6 @@ class Classifier(pl.LightningModule):
             help="How should labels be encoded? Default for torch-nlp label-encoder...",
         )
         
-
         parser.add_argument(
             "--max_tokens_longformer",
             default=4096,

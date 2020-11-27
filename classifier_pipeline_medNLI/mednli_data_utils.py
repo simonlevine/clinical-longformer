@@ -5,10 +5,15 @@ import torch
 from torch.utils.data import Dataset,DataLoader
 
 from loguru import logger
-import pytorch-lightning as pl
+import pytorch_lightning as pl
+
+from torchnlp.utils import collate_tensors, lengths_to_mask
+
+from transformers import AutoTokenizer
 
 
-def load_mednli(datadir='data/mednli/'):
+
+def load_mednli(datadir='../data/mednli/'):
     filenames = [
         'mli_train_v1.jsonl',
         'mli_dev_v1.jsonl',
@@ -62,16 +67,23 @@ class MedNLIDataModule(pl.LightningDataModule):
         def __init__(self, hparams):
             super().__init__()
             self.hparams = hparams
-
             if self.hparams.transformer_type == 'longformer':
                 self.hparams.batch_size = 1
 
-            self.transformer_type = self.hparams.transformer_type
+            self.tokenizer = AutoTokenizer.from_pretrained(hparams.encoder_model)
 
-       
+        def preprocess_examples(self,examples):
+            pp,hh,_ = zip(*examples)
+            return self.tokenizer(pp, hh, truncation=True)
+
+        def encode_dataset(self,dataset):
+            encoded_dataset = dataset.map(self.preprocess_examples, batched=True)
+            return encoded_dataset
+
         def setup(self, stage=None):
-            logger.info('MedNLI JSONs loaded...')
             mednli_train, mednli_dev, mednli_test = load_mednli()
+
+            mednli_train, mednli_dev, mednli_test = self.encode_dataset(mednli_train),self.encode_dataset(mednli_val),self.encode_dataset(mednli_test)
             self.train_dataset, self.val_dataset, self.test_dataset = MedNLIDataset(mednli_train),MedNLIDataset(mednli_dev),MedNLIDataset(mednli_test)
             logger.info('MedNLI JSONs loaded...')
 
@@ -81,7 +93,6 @@ class MedNLIDataModule(pl.LightningDataModule):
                 dataset=self.train_dataset,
                 shuffle=True,
                 batch_size=self.hparams.batch_size,
-                collate_fn=self.classifier.prepare_sample,
                 num_workers=self.hparams.loader_workers,
             )
         def val_dataloader(self) -> DataLoader:
