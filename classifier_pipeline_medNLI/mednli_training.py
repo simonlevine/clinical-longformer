@@ -11,7 +11,7 @@ import numpy as np
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import LightningLoggerBase, TensorBoardLogger
 from torchnlp.random import set_seed
-from mednli_data_utils import MedNLIDataModule
+# from mednli_data_utils import MedNLIDataModule
 
 '''
 The trivial solution to Pr = Re = F1 is TP = 0. So we know precision, recall and F1 can have the same value in general
@@ -53,9 +53,8 @@ def main(hparams) -> None:
     # 6 START TRAINING
     # ------------------------
 
-    dm = MedNLIDataModule(hparams)
-    trainer.fit(model, dm)
-    trainer.test(model, dm.test_dataloader())
+    trainer.fit(model, model.data)
+    trainer.test(model, model.data.test_dataloader())
 
     cms = np.array(model.test_conf_matrices)
     np.save(f'experiments/{model.hparams.encoder_model}/test_confusion_matrices.npy',cms)
