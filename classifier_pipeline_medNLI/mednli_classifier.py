@@ -384,7 +384,7 @@ class MedNLIClassifier(pl.LightningModule):
         """
         parser.add_argument(
             "--encoder_model",
-            default= 'emilyalsentzer/Bio_ClinicalBERT',# 'allenai/biomed_roberta_base',#'simonlevine/biomed_roberta_base-4096-speedfix', # 'bert-base-uncased',
+            default= 'bert-base-uncased',# 'emilyalsentzer/Bio_ClinicalBERT',# 'allenai/biomed_roberta_base',#'simonlevine/biomed_roberta_base-4096-speedfix', # 'bert-base-uncased',
             type=str,
             help="Encoder model to be used.",
         )
