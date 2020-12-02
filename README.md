@@ -1,4 +1,4 @@
-# 11785-project: Clinical-Longformer: Whole Document Embeddingand Classification for the Clinical Domain
+# 11785-project: Clinical-Longformer: Whole Document Embedding and Classification for the Clinical Domain
 - Serena Abraham, Simon Levine-Gottreich
 
 # Abstract
