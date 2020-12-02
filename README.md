@@ -1,15 +1,19 @@
-# 11785-project: Clinical-Longformer: Whole Document Embedding and Classification for the Clinical Domain
+# Clinical-Longformer: Whole Document Embedding and Classification for the Clinical Domain
 - Serena Abraham, Simon Levine-Gottreich
 - Final course project for Fall 2020's 11-785: Deep Learning, Carnegie Mellon University.
 
-# Abstract
+## Abstract
 
 Using novel pre-training of Transformer encoders, this project tackles whole-document embedding for the clinical domain.  Additionally, we propose a fine-tuning process on electronic healthcare records for transformer models and a novel medical coding benchmark task. We release our best-performing encoder model and suggest future investigation with regard to the natural language tasks in this domain.
 
-# Data
-- Concatenated MIMIC-III, MIMIC-CXR.
+## Data
+- Concatenated MIMIC-III, MIMIC-CXR, for 2.3 million clinical notes
 - MIMIC-IV suggested once released.
-# Critical: To Pull the "Longformer":
+
+## Results
+- We achieve SOTA results on our ICD prediction task.
+
+## Critical: To Pull the "Longformer":
 
 - You'll need to instantiate a special RoBERTa class. Though technically a "Longformer", the elongated RoBERTa model will still need to be pulled in as such.
 - To do so, use the following classes:
