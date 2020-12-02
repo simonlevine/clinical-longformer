@@ -1,9 +1,13 @@
-# 11785-project (***WIP***)
+# 11785-project: Clinical-Longformer: Whole Document Embeddingand Classification for the Clinical Domain
+- Serena Abraham, Simon Levine-Gottreich
 
-Sandbox: https://colab.research.google.com/drive/1n0vaflnGpRpEnRAgwkCOLqVFRr1p1S3L?usp=sharing
+# Abstract
 
-- clone this repo. ~~Includes sampled CSV (80/20/20 rows of train,valid,test).~~
+Using novel pre-training of Transformer encoders, this project tackles whole-document embedding for the clinical domain.  Additionally, we propose a fine-tuning process on electronic healthcare records for transformer models and a novel medical coding benchmark task. We release our best-performing encoder model and suggest future investigation with regard to the natural language tasks in this domain.
 
+# Data
+- Concatenated MIMIC-III, MIMIC-CXR.
+- MIMIC-IV suggested once released.
 # Critical: To Pull the "Longformer":
 
 - You'll need to instantiate a special RoBERTa class. Though technically a "Longformer", the elongated RoBERTa model will still need to be pulled in as such.
