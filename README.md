@@ -31,6 +31,7 @@ class RobertaLongForMaskedLM(RobertaForMaskedLM):
 ```
 - Then, pull the model as ```RobertaLongForMaskedLM.from_pretrained('simonlevine/bioclinical-roberta-long')```
 - Now, it can be used as usual. Note you may get untrained weights warnings.
+- Note that you can replace ```RobertaForMaskedLM``` with a different task-specific RoBERTa from Huggingface, such as RobertaForSequenceClassification.
 
 
 # To Run:
