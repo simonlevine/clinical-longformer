@@ -72,22 +72,11 @@ class RobertaLongForMaskedLM(RobertaForMaskedLM):
 -Run MedNLI:
   -in Progress
 
--Run Phenotype Annotation:
-  -in progress
 
 - Extension: run X-transformer for MIMIC-III (https://github.com/simonlevine/auto-icd-transformers) using your new encoder:
   - We provide a forked repository using X-Transformer allowing for training your encoder on every ICD code in MIMIC-III, proc or diag, an extreme multilabel classification problem.
   - Some code overlap, such as note preprocessing.
 
-
-
-- implement medNLI classifier
- - ~~copy data processing. Otherwise, will just be a RobertaForSequence classification task (like for ICDs)~~
- - ~~need to combine MIMIC-III (and MIMIC-CXR ?) into a single corpus.~~
- - ~~get working on longformer-4096 or biomed-roberta, or similar.~~
- - ~~need to work on clinicalBERT (already does from old script).~~
- 
-- ~~get ROBERTA working,single~~label case
 
 # Time Permitting:
 - build a hierarchical classifier head
@@ -177,11 +166,6 @@ We ignore label descriptions (see above: this direction was attempted previously
 
 ### One Label
 For ICD-10-CM and ICD-10-PCS, the single-label case is first analyzed. That is, ICD "SEQ_NUM==1" is looked at, as this is generally the most clinically relevant code assigned per patient visit.
-
-As such, single labels are then modeled hierarchcally, as ICDs are by nature a hierarchical scheme with a classifier head learning class-hierarchy rather than a flat representation.
-This should produce better results due to the severe sparsity of some labels in MIMIC and in life.
-
-Lastly, we attempt a continuous embedding of single labels using Jeremy Fisher's excellent ICD-codex project, predicting a vector and learning the nearest-neighbor ICD.
 
 ### Multi-Label
 
