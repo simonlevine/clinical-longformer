@@ -11,7 +11,9 @@ Using novel pre-training of Transformer encoders, this project tackles whole-doc
 - MIMIC-IV suggested once released.
 
 ## Results
-- We achieve SOTA results on our ICD prediction task.
+- We achieve SOTA results on our ICD prediction task
+
+![Test Results](plots/testres.png)
 
 ## Critical: To Pull the "Longformer":
 
