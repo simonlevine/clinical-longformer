@@ -13,8 +13,8 @@ import torch.nn as nn
 from torch import optim
 from torch.utils.data import DataLoader, RandomSampler
 from transformers import AutoModel,RobertaForMaskedLM
-#from transformers.models import LongformerSelfAttention
-from longformer.longformer import LongformerSelfAttention
+from transformers.models import LongformerSelfAttention
+#from longformer.longformer import LongformerSelfAttention
 
 import pytorch_lightning as pl
 from tokenizer import Tokenizer
