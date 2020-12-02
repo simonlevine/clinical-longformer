@@ -14,6 +14,11 @@ Using novel pre-training of Transformer encoders, this project tackles whole-doc
 - We achieve SOTA results on our ICD prediction task
 
 ![Test Results](plots/testres.png)
+![Validation Results](plots/valres.png)
+
+
+![Training](plots/train_loss_labeled.png)
+
 
 ## Critical: To Pull the "Longformer":
 
