@@ -78,7 +78,7 @@ class RobertaLongForMaskedLM(RobertaForMaskedLM):
   - Some code overlap, such as note preprocessing.
 
 
-# Time Permitting:
+## Time Permitting:
 - build a hierarchical classifier head
 - get x-transformer trained on our best model.
 - The x-transformer pipeline uses the state-of-the-art extreme multilabel classification with label clustering and PIFA-TFIDF features to amke good use of label descriptions. ICD code labels not only have 'ICD9_CODE' labels, but also 'LONG_TITLE' labels with rich semantic information.
@@ -90,11 +90,11 @@ In some cases, sigmoid + focal loss with {0, 1} values in labels like (1, 0, 0, 
 You can check this paper https://arxiv.org/abs/1708.02002.
 
 
-## Running the code
+# Running the code
 
-### Data
+## Data
 
-MIMIC-III data requires credentialed access. This pipeline requires:
+MIMIC-III/CXR data requires credentialed access. This pipeline requires:
 
 - D_ICD_DIAGNOSES.csv.gz (if descriptions of ICDs are wanted)
 - D_ICD_PROCEDURES.csv.gz
@@ -128,7 +128,7 @@ In preprocessing_pipeline, run:
 
 ### Run training
 
-Run the pytorch-lightning trainer from either training_multilabel.py or training_onelabel.py.
+Run the pytorch-lightning trainer from ~~either training_multilabel.py or~~ training_onelabel.py.
 
 # Background
 
@@ -136,7 +136,6 @@ This project is the course project for Fall 2020, 11-785: Deep Learning, at Carn
 
 Here, we benchmark various Transformer-based encoders (BERT, RoBERTa, Longformer) on electronic health records data from the MIMIC-III data lake.
 We also benchmark our new pipeline against another novel pipeline developed in 2020 by Simon Levine and Jeremy Fisher, auto-icd-Transformers.
-
 
 
 We use base-BERT-uncased as a baseline transformer. We then try bio-clinical-BERT, biomed-RoBERTa, and finally our bespoke "Longformer" bioclinical-roberta-long.
