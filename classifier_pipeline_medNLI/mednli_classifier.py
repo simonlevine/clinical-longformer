@@ -495,7 +495,7 @@ class MedNLIClassifier(pl.LightningModule):
 
         parser.add_argument(
             "--transformer_type",
-            default='roberta-long', #'bert',, roberta-long
+            default='roberta-long', #'bert', roberta, or roberta-long
             type=str,
             help="Encoder model /tokenizer to be used (has consequences for tokenization and encoding; default = longformer).",
         )
