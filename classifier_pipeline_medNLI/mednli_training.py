@@ -77,10 +77,10 @@ def plot_confusion_matrix(cm, class_names, model):
     """
 
     # cm = cm.cpu().detach().numpy() 
-    font = FontProperties()
-    font.set_family('serif')
-    font.set_name('Times New Roman')
-    font.set_style('normal')
+    # font = FontProperties()
+    # font.set_family('serif')
+    # font.set_name('Times New Roman')
+    # font.set_style('normal')
 
     figure = plt.figure(figsize=(8, 8))
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
