@@ -446,15 +446,15 @@ class MedNLIClassifier(pl.LightningModule):
         y=targets['labels']
 
 
-        # f1 = metrics.f1(labels_hat,y, average='weighted')
-        # prec =metrics.precision(labels_hat,y,  average='weighted')
-        # recall = metrics.recall(labels_hat,y,  average='weighted')
-        # acc = metrics.accuracy(labels_hat,y,   average='weighted')
+        f1 = metrics.f1(labels_hat,y, average='weighted')
+        prec =metrics.precision(labels_hat,y,  average='weighted')
+        recall = metrics.recall(labels_hat,y,  average='weighted')
+        acc = metrics.accuracy(labels_hat,y,   average='weighted')
 
-        # self.log('test_batch_prec',prec)
-        # self.log('test_batch_f1',f1)
-        # self.log('test_batch_recall',recall)
-        # self.log('test_batch_weighted_acc', acc)
+        self.log('test_batch_prec',prec)
+        self.log('test_batch_f1',f1)
+        self.log('test_batch_recall',recall)
+        self.log('test_batch_weighted_acc', acc)
 
         # cm = metrics.confusion_matrix(pred = labels_hat,target=y,normalize=False)
         # self.test_conf_matrices.append(cm)
@@ -489,16 +489,16 @@ class MedNLIClassifier(pl.LightningModule):
 
         self.log('val_loss',loss_val)
 
-        # f1 = metrics.f1(labels_hat, y,average='weighted')
-        # prec =metrics.precision(labels_hat, y,average='weighted')
-        # recall = metrics.recall(labels_hat, y,average='weighted')
-        # acc = metrics.accuracy(labels_hat, y,average='weighted')
+        f1 = metrics.f1(labels_hat, y,average='weighted')
+        prec =metrics.precision(labels_hat, y,average='weighted')
+        recall = metrics.recall(labels_hat, y,average='weighted')
+        acc = metrics.accuracy(labels_hat, y,average='weighted')
 
-        # self.log('val_prec',prec)
-        # self.log('val_f1',f1)
-        # self.log('val_recall',recall)
-        # self.log('val_acc_weighted', acc)
-        # self.log('val_cm',cm)
+        self.log('val_prec',prec)
+        self.log('val_f1',f1)
+        self.log('val_recall',recall)
+        self.log('val_acc_weighted', acc)
+        self.log('val_cm',cm)
         
 
     def configure_optimizers(self):
