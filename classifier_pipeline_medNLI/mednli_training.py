@@ -56,7 +56,7 @@ def main(hparams) -> None:
     trainer.fit(model, model.data)
     trainer.test(model, model.data.test_dataloader())
 
-    cm=model.confusion_matrix.detach().cpu().numpy()
+    cm=model.confusion_matrix.compute().detach().cpu().numpy()
 
     np.save(f'experiments/{model.hparams.encoder_model}/test_confusion_matrix.npy',cm)
     plot_confusion_matrix(cm,class_names=['entailment','neutral','contradiction'],model=model.hparams.encoder_model)
