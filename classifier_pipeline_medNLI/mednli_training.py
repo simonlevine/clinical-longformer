@@ -12,7 +12,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import LightningLoggerBase, TensorBoardLogger
 from torchnlp.random import set_seed
 # from mednli_data_utils import MedNLIDataModule
-
+import matplotlib.pyplot as plt
 '''
 The trivial solution to Pr = Re = F1 is TP = 0. So we know precision, recall and F1 can have the same value in general
 '''
