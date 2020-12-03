@@ -106,7 +106,7 @@ def plot_confusion_matrix(cm, class_names, model):
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-    figure.savefig(f'experiments/{model}/test_mtx.png')
+    figure.savefig(f'mednli_experiments/{model}/test_mtx.png')
 
 
 if __name__ == "__main__":
