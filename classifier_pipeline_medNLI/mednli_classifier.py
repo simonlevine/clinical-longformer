@@ -24,8 +24,7 @@ from utils import mask_fill
 
 import pytorch_lightning.metrics.functional as metrics
 from loguru import logger
-from pytorch_lightning.metrics.classification import confusion_matrix
-
+from pytorch_lightning.metrics import ConfusionMatrix
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
