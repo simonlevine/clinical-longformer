@@ -43,7 +43,7 @@ def plot_confusion_matrix(cm, class_names, model):
     credit: https://towardsdatascience.com/exploring-confusion-matrix-evolution-on-tensorboard-e66b39f4ac12
     """
 
-    cm = cm.cpu().detach().numpy() 
+    # cm = cm.cpu().detach().numpy() 
     font = FontProperties()
     font.set_family('serif')
     font.set_name('Times New Roman')
@@ -204,7 +204,7 @@ class MedNLIClassifier(pl.LightningModule):
             self._frozen = False
         self.nr_frozen_epochs = hparams.nr_frozen_epochs
 
-        self.confusion_matrix=pl.metrics.classification.ConfusionMatrix(num_classes=3)
+        self.confusion_matrix= pl.metrics.classification.ConfusionMatrix(num_classes=3)
 
     def __build_model(self) -> None:
         """ Init transformer model + tokenizer + classification head."""
