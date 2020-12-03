@@ -406,9 +406,9 @@ class MedNLIClassifier(pl.LightningModule):
 
 
         f1 = metrics.f1(labels_hat,y, average='weighted',         num_classes=3)
-        prec =metrics.precision(labels_hat,y,  average='weighted',num_classes=3)
-        recall = metrics.recall(labels_hat,y,  average='weighted',num_classes=3)
-        acc = metrics.accuracy(labels_hat,y,   average='weighted',num_classes=3)
+        prec =metrics.precision(labels_hat,y,  class_reduction='weighted',num_classes=3)
+        recall = metrics.recall(labels_hat,y,  class_reduction='weighted',num_classes=3)
+        acc = metrics.accuracy(labels_hat,y,   class_reduction='weighted',num_classes=3)
 
         self.confusion_matrix.update(labels_hat,y)
         self.log('test_batch_prec',prec)
@@ -448,9 +448,9 @@ class MedNLIClassifier(pl.LightningModule):
         self.log('val_loss',loss_val)
 
         f1 = metrics.f1(labels_hat, y,average='weighted',num_classes=3)
-        prec = metrics.precision(labels_hat, y,average='weighted',num_classes=3)
-        recall = metrics.recall(labels_hat, y,average='weighted',num_classes=3)
-        acc = metrics.accuracy(labels_hat, y,average='weighted',num_classes=3)
+        prec = metrics.precision(labels_hat, y,class_reduction='weighted',num_classes=3)
+        recall = metrics.recall(labels_hat, y,class_reduction='weighted',num_classes=3)
+        acc = metrics.accuracy(labels_hat, y,class_reduction='weighted',num_classes=3)
 
         self.log('val_prec',prec)
         self.log('val_f1',f1)
