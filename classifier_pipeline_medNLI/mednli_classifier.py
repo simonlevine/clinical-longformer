@@ -24,7 +24,7 @@ from utils import mask_fill
 
 import pytorch_lightning.metrics.functional as metrics
 from loguru import logger
-import pytorch_lightning as pl
+from pytorch_lightning.metrics.classification.confusion_matrix import ConfusionMatrix
 
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
@@ -32,46 +32,6 @@ from matplotlib.font_manager import FontProperties
 from mednli_data_utils import *
 
 
-def plot_confusion_matrix(cm, class_names, model):
-    """
-    Returns a matplotlib figure containing the plotted confusion matrix.
-    
-    Args:
-       cm (array, shape = [n, n]): a confusion matrix of integer classes
-       class_names (array, shape = [n]): String names of the integer classes
-
-    credit: https://towardsdatascience.com/exploring-confusion-matrix-evolution-on-tensorboard-e66b39f4ac12
-    """
-
-    # cm = cm.cpu().detach().numpy() 
-    font = FontProperties()
-    font.set_family('serif')
-    font.set_name('Times New Roman')
-    font.set_style('normal')
-
-    figure = plt.figure(figsize=(8, 8))
-    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-    plt.title("Confusion matrix")
-    plt.colorbar()
-    tick_marks = np.arange(len(class_names))
-    plt.xticks(tick_marks, class_names, rotation=45)
-    plt.yticks(tick_marks, class_names)
-
-    
-    # Normalize the confusion matrix.
-    cm = np.around(cm.astype('float') / cm.sum(axis=1)[:, np.newaxis], decimals=2)
-    
-    # Use white text if squares are dark; otherwise black.
-    threshold = cm.max() / 2.
-    
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        color = "white" if cm[i, j] > threshold else "black"
-        plt.text(j, i, cm[i, j], horizontalalignment="center", color=color)
-        
-    plt.tight_layout()
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
-    figure.savefig(f'experiments/{model}/test_mtx.png')
 
 
 
@@ -204,7 +164,7 @@ class MedNLIClassifier(pl.LightningModule):
             self._frozen = False
         self.nr_frozen_epochs = hparams.nr_frozen_epochs
 
-        self.confusion_matrix= pl.metrics.classification.ConfusionMatrix(num_classes=3)
+        self.confusion_matrix= ConfusionMatrix(num_classes=3)
 
     def __build_model(self) -> None:
         """ Init transformer model + tokenizer + classification head."""
