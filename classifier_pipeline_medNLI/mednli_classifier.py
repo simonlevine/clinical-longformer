@@ -530,14 +530,14 @@ class MedNLIClassifier(pl.LightningModule):
         """
         parser.add_argument(
             "--encoder_model",
-            default= 'emilyalsentzer/Bio_ClinicalBERT',# 'allenai/biomed_roberta_base',#'simonlevine/biomed_roberta_base-4096-speedfix', # 'bert-base-uncased',
+            default= 'simonlevine/bioclinical-roberta-long' #'emilyalsentzer/Bio_ClinicalBERT',# 'allenai/biomed_roberta_base',', # 'bert-base-uncased',
             type=str,
             help="Encoder model to be used.",
         )
 
         parser.add_argument(
             "--transformer_type",
-            default='bert', #'longformer', roberta-long
+            default='roberta-long' #'bert', #'longformer', roberta-long
             type=str,
             help="Encoder model /tokenizer to be used (has consequences for tokenization and encoding; default = longformer).",
         )
