@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from torch import optim
+from torch import optimlabels_hat
 from torch.utils.data import DataLoader, RandomSampler
 from transformers import AutoModel,RobertaForMaskedLM
 from transformers.modeling_longformer import LongformerSelfAttention
@@ -24,6 +24,7 @@ from utils import mask_fill
 
 import pytorch_lightning.metrics.functional as metrics
 from loguru import logger
+import pytorch_lightning as pl
 
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
@@ -203,7 +204,7 @@ class MedNLIClassifier(pl.LightningModule):
             self._frozen = False
         self.nr_frozen_epochs = hparams.nr_frozen_epochs
 
-        self.test_conf_matrices=[]
+        self.confusion_matrix=pl.metrics.classification.ConfusionMatrix(num_classes=3)
 
     def __build_model(self) -> None:
         """ Init transformer model + tokenizer + classification head."""
@@ -446,18 +447,17 @@ class MedNLIClassifier(pl.LightningModule):
         y=targets['labels']
 
 
-        f1 = metrics.f1(labels_hat,y, average='weighted')
-        prec =metrics.precision(labels_hat,y,  average='weighted')
-        recall = metrics.recall(labels_hat,y,  average='weighted')
-        acc = metrics.accuracy(labels_hat,y,   average='weighted')
+        f1 = metrics.f1(labels_hat,y, average='weighted',         num_classes=3)
+        prec =metrics.precision(labels_hat,y,  average='weighted',num_classes=3)
+        recall = metrics.recall(labels_hat,y,  average='weighted',num_classes=3)
+        acc = metrics.accuracy(labels_hat,y,   average='weighted',num_classes=3)
 
+        self.confusion_matrix.update(labels_hat,y)
         self.log('test_batch_prec',prec)
         self.log('test_batch_f1',f1)
         self.log('test_batch_recall',recall)
         self.log('test_batch_weighted_acc', acc)
 
-        # cm = metrics.confusion_matrix(pred = labels_hat,target=y,normalize=False)
-        # self.test_conf_matrices.append(cm)
 
 
     def validation_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
@@ -489,16 +489,15 @@ class MedNLIClassifier(pl.LightningModule):
 
         self.log('val_loss',loss_val)
 
-        f1 = metrics.f1(labels_hat, y,average='weighted')
-        prec =metrics.precision(labels_hat, y,average='weighted')
-        recall = metrics.recall(labels_hat, y,average='weighted')
-        acc = metrics.accuracy(labels_hat, y,average='weighted')
+        f1 = metrics.f1(labels_hat, y,average='weighted',num_classes=3)
+        prec = metrics.precision(labels_hat, y,average='weighted',num_classes=3)
+        recall = metrics.recall(labels_hat, y,average='weighted',num_classes=3)
+        acc = metrics.accuracy(labels_hat, y,average='weighted',num_classes=3)
 
         self.log('val_prec',prec)
         self.log('val_f1',f1)
         self.log('val_recall',recall)
         self.log('val_acc_weighted', acc)
-        self.log('val_cm',cm)
         
 
     def configure_optimizers(self):
@@ -528,6 +527,7 @@ class MedNLIClassifier(pl.LightningModule):
         Returns:
             - updated parser
         """
+
         parser.add_argument(
             "--encoder_model",
             default= 'simonlevine/bioclinical-roberta-long', #'emilyalsentzer/Bio_ClinicalBERT',# 'allenai/biomed_roberta_base',', # 'bert-base-uncased',
@@ -537,7 +537,7 @@ class MedNLIClassifier(pl.LightningModule):
 
         parser.add_argument(
             "--transformer_type",
-            default='roberta-long', #'bert', #'longformer', roberta-long
+            default='roberta-long', #'bert',, roberta-long
             type=str,
             help="Encoder model /tokenizer to be used (has consequences for tokenization and encoding; default = longformer).",
         )

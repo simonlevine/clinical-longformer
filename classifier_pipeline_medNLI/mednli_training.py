@@ -56,8 +56,9 @@ def main(hparams) -> None:
     trainer.fit(model, model.data)
     trainer.test(model, model.data.test_dataloader())
 
-    cms = np.array(model.test_conf_matrices)
-    np.save(f'experiments/{model.hparams.encoder_model}/test_confusion_matrices.npy',cms)
+    cm=model.confusion_matrix.detach().cpu().numpy()
+
+    np.save(f'experiments/{model.hparams.encoder_model}/test_confusion_matrix.npy',cm)
 
 
 if __name__ == "__main__":
