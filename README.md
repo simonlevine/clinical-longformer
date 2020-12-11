@@ -51,6 +51,17 @@ class RobertaLongForMaskedLM(RobertaForMaskedLM):
 - Note that you can replace ```RobertaForMaskedLM``` with a different task-specific RoBERTa from Huggingface, such as RobertaForSequenceClassification.
 
 
+# Requirements
+```
+pandas
+tensorboard
+torch
+transformers
+pytorch-lightning
+pytorch-nlp
+loguru
+```
+
 # To Run:
 
 - download the data.
