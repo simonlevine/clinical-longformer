@@ -3,6 +3,8 @@
 - Final course project for Fall 2020's 11-785: Deep Learning, Carnegie Mellon University.
 - Skeleton code from https://github.com/ricardorei/lightning-text-classification
 
+- In this project we attempt to circumvent the heavy pre-processing, truncation, etc. of health records instances seen in recent work.
+
 ## MIMIC-IV
 - MIMIC-IV Discharge Summaries are imminent. Plan (WIP) is to re-pre-train with concatenated MIMIC-III, MIMIC-CXR, and MIMIC-IV. Then, we will attempt to predict ICD-10-CMs from discharge summaries.
 
