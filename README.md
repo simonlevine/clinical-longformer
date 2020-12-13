@@ -3,6 +3,9 @@
 - Final course project for Fall 2020's 11-785: Deep Learning, Carnegie Mellon University.
 - Skeleton code from https://github.com/ricardorei/lightning-text-classification
 
+## MIMIC-IV
+- MIMIC-IV Discharge Summaries are imminent. Plan (WIP) is to re-pre-train with concatenated MIMIC-III, MIMIC-CXR, and MIMIC-IV. Then, we will attempt to predict ICD-10-CMs from discharge summaries.
+
 ## Abstract
 
 Using novel pre-training of Transformer encoders, this project tackles whole-document embedding for the clinical domain.  Additionally, we propose a fine-tuning process on electronic healthcare records for transformer models and a novel medical coding benchmark task. We release our best-performing encoder model and suggest future investigation with regard to the natural language tasks in this domain.
