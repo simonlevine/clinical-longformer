@@ -22,12 +22,12 @@ def main():
 
     logger.warning('subsetting for phenotype annotation task...')
 
-    logger.info('Dropping rows where labels are not "sure"...')
-    mimic_iii_annot = pd.read_csv('data/physionet.org/files/phenotype-annotations-mimic/1.20.03/ACTdb102003.csv').drop(['SUBJECT_ID','HADM_ID','BATCH.ID','OPERATOR'],axis=1)
-    mimic_iii_annot = mimic_iii_annot[mimic_iii_annot['UNSURE']==0].drop(['UNSURE'],axis=1) 
+    # logger.info('Dropping rows where labels are not "sure"...')
+    # mimic_iii_annot = pd.read_csv('data/physionet.org/files/phenotype-annotations-mimic/1.20.03/ACTdb102003.csv').drop(['SUBJECT_ID','HADM_ID','BATCH.ID','OPERATOR'],axis=1)
+    # mimic_iii_annot = mimic_iii_annot[mimic_iii_annot['UNSURE']==0].drop(['UNSURE'],axis=1) 
     
-    notes_mimic_iii_for_annot = notes_mimic_iii[notes_mimic_iii['ROW_ID'].isin(mimic_iii_annot['ROW_ID'])]
-    notes_mimic_iii_for_annot = notes_mimic_iii_for_annot.merge(mimic_iii_annot, left_on='ROW_ID', right_on='ROW_ID',how='left')
+    # notes_mimic_iii_for_annot = notes_mimic_iii[notes_mimic_iii['ROW_ID'].isin(mimic_iii_annot['ROW_ID'])]
+    # notes_mimic_iii_for_annot = notes_mimic_iii_for_annot.merge(mimic_iii_annot, left_on='ROW_ID', right_on='ROW_ID',how='left')
 
     logger.info('dropping rows from MIMIC-III data where annotation task was performed.')
     notes_mimic_iii_for_pretraining = notes_mimic_iii[~notes_mimic_iii['ROW_ID'].isin(mimic_iii_annot['ROW_ID'])]
@@ -168,5 +168,4 @@ class AdminLanguage:
     ]
 
 if __name__=='__main__':
-    
     main()
