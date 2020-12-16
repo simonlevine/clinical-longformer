@@ -5,6 +5,9 @@
 
 - In this project we attempt to circumvent the heavy pre-processing, truncation, etc. of health records instances seen in recent work.
 
+## Writeup
+- For a full, writeup of the project, please see https://github.com/simonlevine/clinical-longformer/blob/master/Written%20Submission.pdf
+
 ## MIMIC-IV
 - MIMIC-IV Discharge Summaries are imminent. Plan (WIP) is to re-pre-train with concatenated MIMIC-III, MIMIC-CXR, and MIMIC-IV. Then, we will attempt to predict ICD-10-CMs from discharge summaries.
 
