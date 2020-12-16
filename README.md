@@ -174,10 +174,11 @@ We use base-BERT-uncased as a baseline transformer. We then try bio-clinical-BER
 
 This latter model is simply allenAI's biomed-roberta with global attention, such that documents of up to 4096 token length are able to be used without truncation, a critical aspect of free-text EHR data).
 
-We pre-train the Longformer on MIMIC-III + MIMIC-CXR data for ~1000 epochs.
-This is not often done as:
-1) This is costly
-2) A corpus even of this size is likely not sufficient to have dramatic increases in performance, per AllenAI
+Note that we pre-train allenAI/biomed-RoBERTa-base on MIMIC-III + MIMIC-CXR data for ~1000 epochs (no global attention).
+Global attention was not used in MLM because this is costly. We had out of memory issues on a 200gb machine with FP16, gradient checkpointing, and batch size of 1.
+Note that A corpus even of this size is likely not sufficient to have dramatic increases in performance, per AllenAI, but it couldn't hurt to try.
+
+So, global attention is used in the end-to-end stage. We recommend you repeat MLM with more data and global attention if you have the resources.
 
 ## Transformers
 
