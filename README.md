@@ -2,7 +2,7 @@
 - Serena Abraham, Simon Levine-Gottreich
 - Final course project for Fall 2020's 11-785: Deep Learning, Carnegie Mellon University.
 
-![](https://zenodo.org/badge/304149070.svg)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4396595.svg)](https://doi.org/10.5281/zenodo.4396595)
 
 - Skeleton code from https://github.com/ricardorei/lightning-text-classification
 
