@@ -1,7 +1,9 @@
 # Clinical-Longformer: Whole Document Embedding and Classification for the Clinical Domain
 - Serena Abraham, Simon Levine-Gottreich
 - Final course project for Fall 2020's 11-785: Deep Learning, Carnegie Mellon University.
-https://zenodo.org/badge/304149070.svg
+
+![](https://zenodo.org/badge/304149070.svg)
+
 - Skeleton code from https://github.com/ricardorei/lightning-text-classification
 
 - In this project we attempt to circumvent the heavy pre-processing, truncation, etc. of health records instances seen in recent work.
