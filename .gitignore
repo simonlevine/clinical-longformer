@@ -24,3 +24,4 @@ data/physionet.org/robots.txt
 data/filtered_all_notes_SAMPLE.txt
 testing.ipynb
 .DS_Store
+*.pdf
