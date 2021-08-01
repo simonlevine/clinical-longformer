@@ -51,7 +51,15 @@ class RobertaLongSelfAttention(LongformerSelfAttention):
         encoder_attention_mask=None,
         output_attentions=False,
     ):
-        return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
+      attention_mask = attention_mask.squeeze(dim=2).squeeze(dim=1)
+      # These lines may be required for newer versions of HF!
+      ###
+      # is index masked or global attention
+      is_index_masked = attention_mask < 0
+      is_index_global_attn = attention_mask > 0
+      is_global_attn = any(is_index_global_attn.flatten())
+      ###
+      return super().forward(hidden_states, attention_mask=attention_mask, output_attentions=output_attentions)
 
 class RobertaLongForMaskedLM(RobertaForMaskedLM):
     def __init__(self, config):
