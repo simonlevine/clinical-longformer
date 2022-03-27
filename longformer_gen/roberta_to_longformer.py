@@ -27,7 +27,7 @@ from transformers import TrainingArguments, HfArgumentParser
 from torch.utils.data import Dataset
 
 # from transformers import LongformerForMaskedLM, LongformerTokenizerFast
-from transformers.modeling_longformer import LongformerSelfAttention
+from transformers.models.longformer.modeling_longformer import LongformerSelfAttention
 
 import logging
 import warnings
