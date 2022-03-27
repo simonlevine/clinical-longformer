@@ -68,7 +68,7 @@ class RobertaLongForMaskedLM(RobertaForMaskedLM):
             # replace the `modeling_bert.BertSelfAttention` object with `LongformerSelfAttention`
             layer.attention.self = RobertaLongSelfAttention(config, layer_id=i)
 ```
-- Then, pull the model as ```RobertaLongForMaskedLM.from_pretrained('simonlevine/bioclinical-roberta-long')```
+- Then, pull the model as ```RobertaLongForMaskedLM.from_pretrained('simonlevine/clinical-longformer')```
 - Now, it can be used as usual. Note you may get untrained weights warnings.
 - Note that you can replace ```RobertaForMaskedLM``` with a different task-specific RoBERTa from Huggingface, such as RobertaForSequenceClassification.
 
